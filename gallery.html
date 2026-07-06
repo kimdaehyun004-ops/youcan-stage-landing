@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>행사갤러리 | 유캔스테이지</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo-link">
+        <img src="/assets/logo.png" alt="유캔스테이지">
+      </a>
+
+      <button class="menu-btn" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="desktop-nav">
+        <a href="/about.html" class="nav-link">회사소개</a>
+        <a href="/rental-products.html" class="nav-link">렌탈상품</a>
+        <a href="/system-items.html" class="nav-link">시스템품목</a>
+        <a href="/gallery.html" class="nav-link">행사갤러리</a>
+        <a href="/#contact" class="cta-btn">무료 견적 문의</a>
+      </nav>
+    </div>
+
+    <nav class="mobile-nav">
+      <a href="/about.html" class="nav-link">회사소개</a>
+      <a href="/rental-products.html" class="nav-link">렌탈상품</a>
+      <a href="/system-items.html" class="nav-link">시스템품목</a>
+      <a href="/gallery.html" class="nav-link">행사갤러리</a>
+      <a href="/#contact" class="cta-btn">무료 견적 문의</a>
+    </nav>
+  </header>
+
+  <div class="simple-page">
+    <p class="eyebrow" style="display:block;margin:0 0 16px;">EVENT GALLERY</p>
+    <h1>행사갤러리</h1>
+    <p class="lead" style="margin-bottom:48px;">유캔스테이지가 함께한 행사 현장입니다.</p>
+
+    <div class="gallery-grid" id="gallery-grid"></div>
+  </div>
+
+</div>
+
+<script src="/nav.js"></script>
+<script>
+(function () {
+  const grid = document.getElementById('gallery-grid');
+  fetch('/api/photos?slot=gallery')
+    .then((r) => r.json())
+    .then((data) => {
+      const photos = data.photos || [];
+      if (photos.length === 0) {
+        grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
+        return;
+      }
+      grid.innerHTML = photos
+        .map((p) => `<div class="gallery-photo"><img src="${p.url}" alt=""></div>`)
+        .join('');
+    })
+    .catch(() => {
+      grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
+    });
+})();
+</script>
+</body>
+</html>

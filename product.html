@@ -9,15 +9,32 @@
 <body>
 <div class="page">
 
-  <header class="site-header scrolled">
+  <header class="site-header">
     <div class="header-inner">
       <a href="/" class="logo-link">
         <img src="/assets/logo.png" alt="유캔스테이지">
       </a>
+
+      <button class="menu-btn" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+
       <nav class="desktop-nav">
+        <a href="/about.html" class="nav-link">회사소개</a>
+        <a href="/rental-products.html" class="nav-link">렌탈상품</a>
+        <a href="/system-items.html" class="nav-link">시스템품목</a>
+        <a href="/gallery.html" class="nav-link">행사갤러리</a>
         <a href="/#contact" class="cta-btn">무료 견적 문의</a>
       </nav>
     </div>
+
+    <nav class="mobile-nav">
+      <a href="/about.html" class="nav-link">회사소개</a>
+      <a href="/rental-products.html" class="nav-link">렌탈상품</a>
+      <a href="/system-items.html" class="nav-link">시스템품목</a>
+      <a href="/gallery.html" class="nav-link">행사갤러리</a>
+      <a href="/#contact" class="cta-btn">무료 견적 문의</a>
+    </nav>
   </header>
 
   <div class="product-detail">
@@ -28,6 +45,7 @@
 
 </div>
 
+<script src="/nav.js"></script>
 <script src="/products.js"></script>
 <script>
 (function () {

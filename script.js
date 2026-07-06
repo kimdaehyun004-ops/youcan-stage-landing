@@ -1,17 +1,4 @@
 (function () {
-  const header = document.querySelector('.site-header');
-  const onScroll = () => {
-    header.classList.toggle('scrolled', window.scrollY > 8);
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
-  const menuBtn = document.querySelector('.menu-btn');
-  const mobileNav = document.querySelector('.mobile-nav');
-  menuBtn.addEventListener('click', () => {
-    mobileNav.classList.toggle('open');
-  });
-
   const hero = document.querySelector('.hero');
   const spotlight = document.querySelector('.hero-spotlight');
   hero.addEventListener('mousemove', (e) => {
@@ -69,7 +56,6 @@
         </div>
         <div class="product-card-body">
           <p class="product-card-name">${product.name}</p>
-          <span class="product-card-badge">견적문의</span>
         </div>
       </a>`;
   }

@@ -1,5 +1,6 @@
 const { generateClientTokenFromReadWriteToken } = require('@vercel/blob/client');
 const { isAuthed } = require('../lib/auth');
+const { SLOTS } = require('../lib/slots');
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
@@ -13,14 +14,18 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { filename = 'photo', contentType = 'image/jpeg' } = req.body || {};
+  const { filename = 'photo', contentType = 'image/jpeg', slot = 'hero' } = req.body || {};
+  if (!SLOTS[slot]) {
+    res.status(400).json({ error: '알 수 없는 slot입니다.' });
+    return;
+  }
   if (!ALLOWED_TYPES.includes(contentType)) {
     res.status(400).json({ error: '지원하지 않는 이미지 형식입니다.' });
     return;
   }
 
   const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const pathname = `event-photos/${Date.now()}-${safeName}`;
+  const pathname = `${SLOTS[slot].prefix}${Date.now()}-${safeName}`;
 
   try {
     const clientToken = await generateClientTokenFromReadWriteToken({

@@ -19,6 +19,10 @@
     width: 100%; padding: 14px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,.15);
     background: #0A0910; color: #F5F4F2; font-size: 15px; margin-bottom: 12px; box-sizing: border-box;
   }
+  select {
+    padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,.15);
+    background: #0A0910; color: #F5F4F2; font-size: 14px;
+  }
   button {
     cursor: pointer; border: none; border-radius: 999px; font-weight: 700; font-size: 14px;
     padding: 12px 22px; background: #FFD400; color: #0A0910;
@@ -27,6 +31,8 @@
   button:disabled { opacity: .5; cursor: not-allowed; }
   .error { color: #ff8a80; font-size: 13px; margin: 8px 0 0; min-height: 16px; }
   .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .slot-row { margin-bottom: 20px; }
+  .slot-row label { display: block; font-size: 13px; color: #9A97A4; margin-bottom: 8px; }
   .upload-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
   .photo { position: relative; border-radius: 10px; overflow: hidden; background: #0A0910; aspect-ratio: 4/3; }
@@ -54,9 +60,20 @@
 
   <div id="admin-view" class="card" style="display:none;">
     <div class="top-row">
-      <span style="color:#9A97A4;font-size:14px;">현장 사진 관리</span>
+      <span style="color:#9A97A4;font-size:14px;">배경 사진 관리</span>
       <button class="secondary" id="logout-btn">로그아웃</button>
     </div>
+
+    <div class="slot-row">
+      <label for="slot-select">관리할 구역</label>
+      <select id="slot-select">
+        <option value="hero">히어로 배경 (메인 상단, 여러 장 자동 순환)</option>
+        <option value="category-gov">관공서 배경</option>
+        <option value="category-festival">행사·축제 배경</option>
+        <option value="category-newyear">신년회 배경</option>
+      </select>
+    </div>
+
     <div class="upload-row">
       <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
       <button id="upload-btn">업로드</button>
@@ -75,6 +92,7 @@ const passwordInput = document.getElementById('password');
 const loginBtn = document.getElementById('login-btn');
 const loginError = document.getElementById('login-error');
 const logoutBtn = document.getElementById('logout-btn');
+const slotSelect = document.getElementById('slot-select');
 const fileInput = document.getElementById('file-input');
 const uploadBtn = document.getElementById('upload-btn');
 const uploadStatus = document.getElementById('upload-status');
@@ -94,7 +112,8 @@ async function checkSession() {
 }
 
 async function loadPhotos() {
-  const res = await fetch('/api/photos');
+  uploadStatus.textContent = '';
+  const res = await fetch(`/api/photos?slot=${encodeURIComponent(slotSelect.value)}`);
   const data = await res.json();
   const photos = data.photos || [];
   gallery.innerHTML = '';
@@ -109,6 +128,8 @@ async function loadPhotos() {
     gallery.appendChild(div);
   }
 }
+
+slotSelect.addEventListener('change', loadPhotos);
 
 loginBtn.addEventListener('click', async () => {
   loginError.textContent = '';
@@ -141,6 +162,7 @@ uploadBtn.addEventListener('click', async () => {
     uploadStatus.textContent = '업로드할 파일을 선택하세요.';
     return;
   }
+  const slot = slotSelect.value;
   uploadBtn.disabled = true;
   for (const file of files) {
     uploadStatus.textContent = `업로드 중: ${file.name}`;
@@ -148,7 +170,7 @@ uploadBtn.addEventListener('click', async () => {
       const tokenRes = await fetch('/api/upload-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+        body: JSON.stringify({ filename: file.name, contentType: file.type, slot }),
       });
       if (!tokenRes.ok) {
         const err = await tokenRes.json().catch(() => ({}));

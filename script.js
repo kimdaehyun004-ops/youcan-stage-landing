@@ -21,40 +21,61 @@
     spotlight.style.background = `radial-gradient(480px circle at ${x}% ${y}%, rgba(255,212,0,.16), transparent 65%)`;
   });
 
+  // Hero: multiple photos, auto-rotating crossfade
   const heroPhotoLayer = document.querySelector('.hero-photo-layer');
   const heroEmptyLabel = document.querySelector('.hero-empty-label');
+  let heroPhotos = [];
+  let heroCurrent = 0;
+  let heroTimer = null;
 
-  let photos = [];
-  let current = 0;
-  let rotateTimer = null;
-
-  function showPhoto(index) {
+  function showHeroPhoto(index) {
     heroPhotoLayer.innerHTML = '';
     const div = document.createElement('div');
     div.className = 'hero-photo';
-    div.style.backgroundImage = `url("${photos[index].url}")`;
+    div.style.backgroundImage = `url("${heroPhotos[index].url}")`;
     heroPhotoLayer.appendChild(div);
     requestAnimationFrame(() => div.classList.add('visible'));
   }
 
-  function startRotation() {
-    if (rotateTimer) clearInterval(rotateTimer);
-    if (photos.length <= 1) return;
-    rotateTimer = setInterval(() => {
-      current = (current + 1) % photos.length;
-      showPhoto(current);
+  function startHeroRotation() {
+    if (heroTimer) clearInterval(heroTimer);
+    if (heroPhotos.length <= 1) return;
+    heroTimer = setInterval(() => {
+      heroCurrent = (heroCurrent + 1) % heroPhotos.length;
+      showHeroPhoto(heroCurrent);
     }, 5000);
   }
 
-  fetch('/api/photos')
+  fetch('/api/photos?slot=hero')
     .then((r) => r.json())
     .then((data) => {
-      photos = data.photos || [];
-      if (photos.length > 0) {
+      heroPhotos = data.photos || [];
+      if (heroPhotos.length > 0) {
         heroEmptyLabel.style.display = 'none';
-        showPhoto(0);
-        startRotation();
+        showHeroPhoto(0);
+        startHeroRotation();
       }
     })
     .catch(() => {});
+
+  // Category banners: single latest photo per slot
+  document.querySelectorAll('.category-banner').forEach((banner) => {
+    const slot = banner.dataset.slot;
+    const photoLayer = banner.querySelector('.category-photo-layer');
+    const emptyLabel = banner.querySelector('.category-empty-label');
+
+    fetch(`/api/photos?slot=${encodeURIComponent(slot)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const photos = data.photos || [];
+        if (photos.length === 0) return;
+        emptyLabel.style.display = 'none';
+        const div = document.createElement('div');
+        div.className = 'category-photo';
+        div.style.backgroundImage = `url("${photos[0].url}")`;
+        photoLayer.appendChild(div);
+        requestAnimationFrame(() => div.classList.add('visible'));
+      })
+      .catch(() => {});
+  });
 })();

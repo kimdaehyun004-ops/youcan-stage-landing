@@ -1,10 +1,16 @@
 const { list, del } = require('@vercel/blob');
 const { isAuthed } = require('../lib/auth');
+const { SLOTS } = require('../lib/slots');
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
+    const slot = req.query?.slot || 'hero';
+    if (!SLOTS[slot]) {
+      res.status(400).json({ error: '알 수 없는 slot입니다.' });
+      return;
+    }
     try {
-      const { blobs } = await list({ prefix: 'event-photos/' });
+      const { blobs } = await list({ prefix: SLOTS[slot].prefix });
       const photos = blobs
         .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))
         .map((b) => ({ url: b.url, pathname: b.pathname, uploadedAt: b.uploadedAt }));

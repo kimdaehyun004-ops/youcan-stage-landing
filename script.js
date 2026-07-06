@@ -58,11 +58,28 @@
     })
     .catch(() => {});
 
-  // Category banners: single latest photo per slot
+  // Category banners: single latest photo per slot, plus their product grid
+  const PRODUCTS = window.PRODUCTS || [];
+
+  function productCardHTML(product) {
+    return `
+      <a class="product-card" href="/product.html?id=${encodeURIComponent(product.id)}">
+        <div class="product-card-photo" data-product-photo="${product.id}">
+          <span class="ph-label">PRODUCT</span>
+        </div>
+        <div class="product-card-body">
+          <p class="product-card-name">${product.name}</p>
+          <span class="product-card-badge">견적문의</span>
+        </div>
+      </a>`;
+  }
+
   document.querySelectorAll('.category-banner').forEach((banner) => {
     const slot = banner.dataset.slot;
+    const category = banner.dataset.category;
     const photoLayer = banner.querySelector('.category-photo-layer');
     const emptyLabel = banner.querySelector('.category-empty-label');
+    const productsEl = banner.querySelector('.category-products');
 
     fetch(`/api/photos?slot=${encodeURIComponent(slot)}`)
       .then((r) => r.json())
@@ -77,5 +94,20 @@
         requestAnimationFrame(() => div.classList.add('visible'));
       })
       .catch(() => {});
+
+    const products = PRODUCTS.filter((p) => p.category === category);
+    productsEl.innerHTML = products.map(productCardHTML).join('');
+
+    products.forEach((product) => {
+      const photoEl = productsEl.querySelector(`[data-product-photo="${product.id}"]`);
+      fetch(`/api/photos?slot=product-${encodeURIComponent(product.id)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          const photos = data.photos || [];
+          if (photos.length === 0 || !photoEl) return;
+          photoEl.innerHTML = `<img src="${photos[0].url}" alt="${product.name}">`;
+        })
+        .catch(() => {});
+    });
   });
 })();

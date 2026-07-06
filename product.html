@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상품 상세 | 유캔스테이지</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="site-header scrolled">
+    <div class="header-inner">
+      <a href="/" class="logo-link">
+        <img src="/assets/logo.png" alt="유캔스테이지">
+      </a>
+      <nav class="desktop-nav">
+        <a href="/#contact" class="cta-btn">무료 견적 문의</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="product-detail">
+    <p class="breadcrumb" id="breadcrumb"><a href="/">홈</a></p>
+
+    <div id="product-root"></div>
+  </div>
+
+</div>
+
+<script src="/products.js"></script>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const product = (window.PRODUCTS || []).find((p) => p.id === id);
+  const root = document.getElementById('product-root');
+  const breadcrumb = document.getElementById('breadcrumb');
+
+  if (!product) {
+    root.innerHTML = '<p style="color:#9A97A4;font-size:15px;">상품을 찾을 수 없습니다.</p>';
+    document.title = '상품을 찾을 수 없습니다 | 유캔스테이지';
+  } else {
+    const categoryLabel = (window.CATEGORY_LABELS || {})[product.category] || '';
+    document.title = `${product.name} | 유캔스테이지`;
+    breadcrumb.innerHTML = `<a href="/">홈</a> / <span>${categoryLabel}</span> / <span>${product.name}</span>`;
+
+    root.innerHTML = `
+      <div class="product-layout">
+        <div>
+          <div class="product-gallery-main" id="gallery-main">
+            <span class="ph-label">PHOTO PLACEHOLDER</span>
+          </div>
+          <div class="product-gallery-thumbs" id="gallery-thumbs"></div>
+        </div>
+        <div class="product-info">
+          <span class="eyebrow">${categoryLabel}</span>
+          <h1>${product.name}</h1>
+          <span class="price-badge">견적문의</span>
+          <p class="desc">${product.desc}</p>
+
+          <table class="spec-table">
+            <tbody>
+              <tr><th>구성</th><td>행사 규모와 현장 조건에 맞춰 구성해드립니다.</td></tr>
+              <tr><th>설치·철수</th><td>현장 기사가 배치되어 설치부터 철수까지 진행합니다.</td></tr>
+              <tr><th>대여 기간</th><td>행사 일정에 맞춰 협의 후 결정됩니다.</td></tr>
+              <tr><th>정확한 가격</th><td>현장 조건에 따라 달라져 상담 후 안내드립니다.</td></tr>
+            </tbody>
+          </table>
+
+          <a href="/#contact" class="product-cta">무료 견적 문의 <span>→</span></a>
+        </div>
+      </div>
+    `;
+
+    const galleryMain = document.getElementById('gallery-main');
+    const galleryThumbs = document.getElementById('gallery-thumbs');
+
+    fetch(`/api/photos?slot=product-${encodeURIComponent(product.id)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const photos = data.photos || [];
+        if (photos.length === 0) return;
+
+        function showPhoto(index) {
+          galleryMain.innerHTML = `<img src="${photos[index].url}" alt="${product.name}">`;
+          galleryThumbs.querySelectorAll('button').forEach((b, i) => {
+            b.classList.toggle('active', i === index);
+          });
+        }
+
+        if (photos.length > 1) {
+          galleryThumbs.innerHTML = photos
+            .map((p, i) => `<button type="button" data-index="${i}"><img src="${p.url}" alt=""></button>`)
+            .join('');
+          galleryThumbs.querySelectorAll('button').forEach((b) => {
+            b.addEventListener('click', () => showPhoto(Number(b.dataset.index)));
+          });
+        }
+
+        showPhoto(0);
+      })
+      .catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>

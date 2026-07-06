@@ -1,6 +1,6 @@
 const { generateClientTokenFromReadWriteToken } = require('@vercel/blob/client');
 const { isAuthed } = require('../lib/auth');
-const { SLOTS } = require('../lib/slots');
+const { isValidSlot, prefixForSlot } = require('../lib/slots');
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
   }
 
   const { filename = 'photo', contentType = 'image/jpeg', slot = 'hero' } = req.body || {};
-  if (!SLOTS[slot]) {
+  if (!isValidSlot(slot)) {
     res.status(400).json({ error: '알 수 없는 slot입니다.' });
     return;
   }
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
   }
 
   const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const pathname = `${SLOTS[slot].prefix}${Date.now()}-${safeName}`;
+  const pathname = `${prefixForSlot(slot)}${Date.now()}-${safeName}`;
 
   try {
     const clientToken = await generateClientTokenFromReadWriteToken({

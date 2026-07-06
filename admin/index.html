@@ -67,10 +67,15 @@
     <div class="slot-row">
       <label for="slot-select">관리할 구역</label>
       <select id="slot-select">
-        <option value="hero">히어로 배경 (메인 상단, 여러 장 자동 순환)</option>
-        <option value="category-gov">관공서 배경</option>
-        <option value="category-festival">행사·축제 배경</option>
-        <option value="category-newyear">신년회 배경</option>
+        <optgroup label="배경 사진">
+          <option value="hero">히어로 배경 (메인 상단, 여러 장 자동 순환)</option>
+          <option value="category-gov">관공서 배경</option>
+          <option value="category-festival">행사·축제 배경</option>
+          <option value="category-newyear">신년회 배경</option>
+        </optgroup>
+        <optgroup label="관공서 상품 사진" id="products-category-gov"></optgroup>
+        <optgroup label="행사·축제 상품 사진" id="products-category-festival"></optgroup>
+        <optgroup label="신년회 상품 사진" id="products-category-newyear"></optgroup>
       </select>
     </div>
 
@@ -83,8 +88,18 @@
   </div>
 </div>
 
+<script src="/products.js"></script>
 <script type="module">
 import { put } from 'https://esm.sh/@vercel/blob@2.5.0/client';
+
+(window.PRODUCTS || []).forEach((product) => {
+  const group = document.getElementById(`products-${product.category}`);
+  if (!group) return;
+  const option = document.createElement('option');
+  option.value = `product-${product.id}`;
+  option.textContent = product.name;
+  group.appendChild(option);
+});
 
 const loginView = document.getElementById('login-view');
 const adminView = document.getElementById('admin-view');

@@ -1,3 +1,10 @@
 .vercel
 node_modules
 .DS_Store
+
+.env*
+
+# Source design files and reference photo library — not part of the deployed site
+/더케이품목/
+/유캔스테이지로고 1000p@2x.png
+/유캔스테이지로고 1000p_250702.ai

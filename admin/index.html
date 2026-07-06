@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>관리자 | 유캔스테이지</title>
+<style>
+  body {
+    margin: 0; min-height: 100vh; background: #0A0910; color: #F5F4F2;
+    font-family: 'Pretendard', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 32px; }
+  .card {
+    background: #14121C; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 28px;
+  }
+  .login-form { max-width: 340px; margin: 80px auto 0; }
+  .login-form input {
+    width: 100%; padding: 14px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,.15);
+    background: #0A0910; color: #F5F4F2; font-size: 15px; margin-bottom: 12px; box-sizing: border-box;
+  }
+  button {
+    cursor: pointer; border: none; border-radius: 999px; font-weight: 700; font-size: 14px;
+    padding: 12px 22px; background: #FFD400; color: #0A0910;
+  }
+  button.secondary { background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F5F4F2; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .error { color: #ff8a80; font-size: 13px; margin: 8px 0 0; min-height: 16px; }
+  .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .upload-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+  .photo { position: relative; border-radius: 10px; overflow: hidden; background: #0A0910; aspect-ratio: 4/3; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo .del {
+    position: absolute; top: 8px; right: 8px; background: rgba(10,9,16,.75); color: #ff8a80;
+    border: 1px solid rgba(255,138,128,.4); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600;
+  }
+  .empty { color: #9A97A4; font-size: 14px; }
+  .status { font-size: 13px; color: #9A97A4; margin-top: 8px; }
+  a.back { color: #9A97A4; text-decoration: none; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← 홈으로</a>
+  <h1 style="margin-top:16px;">유캔스테이지 관리자</h1>
+
+  <div id="login-view" class="card login-form" style="display:none;">
+    <p style="margin:0 0 16px;color:#9A97A4;font-size:14px;">관리자 비밀번호를 입력하세요.</p>
+    <input id="password" type="password" placeholder="비밀번호" autocomplete="current-password">
+    <button id="login-btn" style="width:100%;">로그인</button>
+    <p id="login-error" class="error"></p>
+  </div>
+
+  <div id="admin-view" class="card" style="display:none;">
+    <div class="top-row">
+      <span style="color:#9A97A4;font-size:14px;">현장 사진 관리</span>
+      <button class="secondary" id="logout-btn">로그아웃</button>
+    </div>
+    <div class="upload-row">
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+      <button id="upload-btn">업로드</button>
+    </div>
+    <p id="upload-status" class="status"></p>
+    <div id="gallery" class="grid"></div>
+  </div>
+</div>
+
+<script type="module">
+import { put } from 'https://esm.sh/@vercel/blob@2.5.0/client';
+
+const loginView = document.getElementById('login-view');
+const adminView = document.getElementById('admin-view');
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('login-btn');
+const loginError = document.getElementById('login-error');
+const logoutBtn = document.getElementById('logout-btn');
+const fileInput = document.getElementById('file-input');
+const uploadBtn = document.getElementById('upload-btn');
+const uploadStatus = document.getElementById('upload-status');
+const gallery = document.getElementById('gallery');
+
+async function checkSession() {
+  const res = await fetch('/api/session');
+  const data = await res.json();
+  if (data.authed) {
+    loginView.style.display = 'none';
+    adminView.style.display = 'block';
+    loadPhotos();
+  } else {
+    loginView.style.display = 'block';
+    adminView.style.display = 'none';
+  }
+}
+
+async function loadPhotos() {
+  const res = await fetch('/api/photos');
+  const data = await res.json();
+  const photos = data.photos || [];
+  gallery.innerHTML = '';
+  if (photos.length === 0) {
+    gallery.innerHTML = '<p class="empty">업로드된 사진이 없습니다.</p>';
+    return;
+  }
+  for (const photo of photos) {
+    const div = document.createElement('div');
+    div.className = 'photo';
+    div.innerHTML = `<img src="${photo.url}" alt=""><button class="del" data-url="${photo.url}">삭제</button>`;
+    gallery.appendChild(div);
+  }
+}
+
+loginBtn.addEventListener('click', async () => {
+  loginError.textContent = '';
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: passwordInput.value }),
+  });
+  if (res.ok) {
+    passwordInput.value = '';
+    checkSession();
+  } else {
+    const data = await res.json().catch(() => ({}));
+    loginError.textContent = data.error || '로그인에 실패했습니다.';
+  }
+});
+
+passwordInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') loginBtn.click();
+});
+
+logoutBtn.addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' });
+  checkSession();
+});
+
+uploadBtn.addEventListener('click', async () => {
+  const files = Array.from(fileInput.files || []);
+  if (files.length === 0) {
+    uploadStatus.textContent = '업로드할 파일을 선택하세요.';
+    return;
+  }
+  uploadBtn.disabled = true;
+  for (const file of files) {
+    uploadStatus.textContent = `업로드 중: ${file.name}`;
+    try {
+      const tokenRes = await fetch('/api/upload-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      });
+      if (!tokenRes.ok) {
+        const err = await tokenRes.json().catch(() => ({}));
+        throw new Error(err.error || '업로드 토큰 발급 실패');
+      }
+      const { clientToken, pathname } = await tokenRes.json();
+      await put(pathname, file, {
+        access: 'public',
+        token: clientToken,
+        contentType: file.type,
+      });
+    } catch (err) {
+      uploadStatus.textContent = `실패: ${file.name} — ${err.message}`;
+    }
+  }
+  uploadStatus.textContent = '업로드 완료';
+  fileInput.value = '';
+  uploadBtn.disabled = false;
+  loadPhotos();
+});
+
+gallery.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.del');
+  if (!btn) return;
+  btn.disabled = true;
+  await fetch('/api/photos', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: btn.dataset.url }),
+  });
+  loadPhotos();
+});
+
+checkSession();
+</script>
+</body>
+</html>

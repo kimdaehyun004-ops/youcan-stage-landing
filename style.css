@@ -350,3 +350,90 @@ nav.mobile-nav .cta-btn { padding: 14px; text-align: center; margin-top: 12px; }
 @media (max-width: 880px) {
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Contact / quote request */
+.contact { padding: 100px 24px 120px; }
+.contact-inner {
+  max-width: 1100px; margin: 0 auto; display: grid;
+  grid-template-columns: 1fr 440px; gap: 64px; align-items: start;
+}
+.contact-intro .eyebrow { display: block; margin: 0 0 16px; }
+.contact-intro h2 {
+  font-size: 34px; font-weight: 800; color: #F5F4F2; margin: 0 0 18px;
+  line-height: 1.35; letter-spacing: -.5px;
+}
+.contact-intro h2 .accent { color: #FFD400; }
+.contact-intro .lead { font-size: 15px; line-height: 1.85; color: #9A97A4; max-width: 420px; margin: 0 0 32px; }
+
+.contact-trust { display: flex; flex-direction: column; gap: 14px; }
+.contact-trust-item { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #C9C7D1; }
+.contact-trust-item .mark { color: #FFD400; font-weight: 700; }
+
+.contact-card {
+  position: relative; background: #14121C; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px; margin-bottom: 32px;
+}
+.contact-card-titlebar {
+  display: flex; align-items: center; gap: 6px; padding: 18px 24px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.contact-card-titlebar .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.15); }
+.contact-card-title { margin-left: 8px; font-size: 13px; font-weight: 700; color: #FFD400; letter-spacing: .3px; }
+
+.contact-form { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+.contact-form label { display: block; font-size: 13px; color: #9A97A4; font-weight: 500; }
+.contact-form label .req { color: #FF8A65; margin-left: 2px; }
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  margin-top: 8px; width: 100%; background: #0A0910; border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px; padding: 13px 14px; color: #F5F4F2; font-size: 14px; font-family: inherit;
+}
+.contact-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%239A97A4' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat; background-position: right 14px center;
+}
+.contact-form textarea { resize: vertical; min-height: 84px; }
+.contact-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.contact-submit {
+  margin-top: 4px; background: #FFD400; color: #0A0910; border: none; border-radius: 10px;
+  padding: 15px; font-weight: 700; font-size: 15px; cursor: pointer;
+}
+.contact-submit:disabled { opacity: .6; cursor: not-allowed; }
+.contact-note { margin: 12px 0 0; text-align: center; font-size: 12px; color: #6b6876; }
+.contact-status { margin: 8px 0 0; text-align: center; font-size: 13px; min-height: 16px; }
+.contact-status.ok { color: #8be28b; }
+.contact-status.error { color: #ff8a80; }
+
+.contact-badge {
+  position: absolute; left: 20px; bottom: -22px; display: flex; align-items: center; gap: 10px;
+  background: #1b1826; border: 1px solid rgba(255,212,0,.3); border-radius: 12px; padding: 12px 16px;
+  box-shadow: 0 12px 24px rgba(0,0,0,.4);
+}
+.contact-badge-icon { font-size: 18px; }
+.contact-badge-title { margin: 0; font-size: 12px; font-weight: 700; color: #F5F4F2; }
+.contact-badge-sub { margin: 0; font-size: 11px; color: #9A97A4; }
+
+@media (max-width: 960px) {
+  .contact-inner { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .contact-form-row { grid-template-columns: 1fr; }
+}
+
+/* About page extras */
+.stats-row {
+  display: flex; gap: 40px; flex-wrap: wrap; margin: 48px 0;
+  padding: 32px 0; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.stat { flex: 1 1 140px; }
+.stat .value { font-size: 32px; font-weight: 800; color: #FFD400; margin: 0 0 4px; }
+.stat .label { font-size: 13px; color: #9A97A4; margin: 0; }
+
+.section-heading-row {
+  display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 20px; gap: 16px; flex-wrap: wrap;
+}
+.section-heading-row h2 { font-size: 22px; font-weight: 800; color: #F5F4F2; margin: 0; }
+.section-heading-row a { font-size: 13px; color: #9A97A4; text-decoration: none; white-space: nowrap; }
+.section-heading-row a:hover { color: #FFD400; }

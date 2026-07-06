@@ -24,7 +24,7 @@
         <a href="/rental-products.html" class="nav-link">렌탈상품</a>
         <a href="/system-items.html" class="nav-link">시스템품목</a>
         <a href="/gallery.html" class="nav-link">행사갤러리</a>
-        <a href="/#contact" class="cta-btn">무료 견적 문의</a>
+        <a href="#contact" class="cta-btn">무료 견적 문의</a>
       </nav>
     </div>
 
@@ -33,18 +33,34 @@
       <a href="/rental-products.html" class="nav-link">렌탈상품</a>
       <a href="/system-items.html" class="nav-link">시스템품목</a>
       <a href="/gallery.html" class="nav-link">행사갤러리</a>
-      <a href="/#contact" class="cta-btn">무료 견적 문의</a>
+      <a href="#contact" class="cta-btn">무료 견적 문의</a>
     </nav>
   </header>
 
   <div class="simple-page">
     <p class="eyebrow" style="display:block;margin:0 0 16px;">ABOUT YOUCAN STAGE</p>
-    <h1>텅 빈 공간을, 준비된 행사로.</h1>
+    <h1>행사 하나에 필요한 걸, 한 팀이 맡습니다</h1>
     <p class="lead">
-      유캔스테이지는 무대·음향·조명·특수효과부터 현장 집기까지, 행사에 필요한 모든 요소를
-      하나의 흐름으로 엮어 준비합니다. 기획 단계의 상담부터 설치, 진행, 철수까지
-      담당자가 현장에서 신경 쓸 일 없이 행사를 완성하는 것이 저희의 역할입니다.
+      무대를 세우고 조명을 걸고 음향을 맞추는 일, 포토존을 꾸미고 행사 당일 진행을 돕고
+      끝나면 흔적 없이 철수하는 일. 유캔스테이지는 이 과정을 여러 업체에 나눠 맡기지 않고
+      한 팀이 처음부터 끝까지 책임지는 방식으로 일합니다. 담당자가 여러 업체와 일정을
+      맞추느라 시간을 쓰지 않도록 하는 것, 그게 저희가 존재하는 이유입니다.
     </p>
+
+    <div class="stats-row">
+      <div class="stat">
+        <p class="value">30종+</p>
+        <p class="label">보유 렌탈 품목</p>
+      </div>
+      <div class="stat">
+        <p class="value">4개 분야</p>
+        <p class="label">음향·조명·특효·중계 시스템</p>
+      </div>
+      <div class="stat">
+        <p class="value">3가지</p>
+        <p class="label">관공서·행사·축제·신년회 대응</p>
+      </div>
+    </div>
 
     <div class="about-points">
       <div class="about-point">
@@ -63,10 +79,120 @@
         <p>행사 종료 후 철수까지 마무리해, 담당자는 행사 자체에만 집중할 수 있습니다.</p>
       </div>
     </div>
+
+    <p class="lead" style="margin-top:56px;">
+      행사마다 필요한 게 다르다는 걸 압니다. 관공서 행사는 절차와 격식이 중요하고,
+      축제는 현장에서 눈에 띄는 임팩트가 필요하고, 신년회는 편안하고 따뜻한 분위기가
+      우선입니다. 그래서 품목을 고정해두지 않고 관공서·행사·축제·신년회 각각에 맞춰
+      구성을 다르게 제안합니다. 정확한 가격은 현장 조건에 따라 달라지는 만큼 상담을 통해
+      안내해드리고, 온라인으로 미리 예상 범위를 확인하고 싶으시면 아래 문의에 예산대를
+      함께 적어주셔도 됩니다.
+    </p>
+
+    <div class="section-heading-row" style="margin-top:80px;">
+      <h2>행사갤러리</h2>
+      <a href="/gallery.html">전체 보기 →</a>
+    </div>
+    <div class="gallery-grid" id="about-gallery-grid"></div>
   </div>
+
+  <section id="contact" class="contact">
+    <div class="contact-inner">
+      <div class="contact-intro">
+        <p class="eyebrow">FREE ESTIMATE</p>
+        <h2>지금 문의하면<br><span class="accent">평균 1시간 안에</span> 연락드립니다</h2>
+        <p class="lead">행사 종류와 희망 일정만 알려주시면 담당자가 현장 조건에 맞는 견적을 준비해드립니다. 상담은 무료입니다.</p>
+        <div class="contact-trust">
+          <div class="contact-trust-item"><span class="mark">·</span> 관공서·행사·축제·신년회 등 다양한 행사 경험</div>
+          <div class="contact-trust-item"><span class="mark">·</span> 음향·조명·특효·중계 시스템 자체 보유</div>
+          <div class="contact-trust-item"><span class="mark">·</span> 설치부터 진행, 철수까지 현장 기사 상주</div>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-titlebar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="contact-card-title">행사 문의 · 견적 요청</span>
+        </div>
+
+        <form id="contact-form" class="contact-form">
+          <label>행사 종류 <span class="req">*</span>
+            <select name="eventType" required>
+              <option value="">선택해 주세요</option>
+              <option value="관공서">관공서</option>
+              <option value="행사·축제">행사·축제</option>
+              <option value="신년회">신년회</option>
+              <option value="기타">기타</option>
+            </select>
+          </label>
+
+          <div class="contact-form-row">
+            <label>희망 일정
+              <input type="date" name="date">
+            </label>
+            <label>장소 / 지역
+              <input type="text" name="location" placeholder="예: 서울 강남구">
+            </label>
+          </div>
+
+          <label>예상 예산
+            <select name="budget">
+              <option value="">선택해 주세요</option>
+              <option value="100만원 이하">100만원 이하</option>
+              <option value="100만원 ~ 300만원">100만원 ~ 300만원</option>
+              <option value="300만원 ~ 500만원">300만원 ~ 500만원</option>
+              <option value="500만원 이상">500만원 이상</option>
+              <option value="협의 후 결정">협의 후 결정</option>
+            </select>
+          </label>
+
+          <label>연락처 <span class="req">*</span>
+            <input type="tel" name="contact" placeholder="010-0000-0000" required>
+          </label>
+
+          <label>요청 내용
+            <textarea name="message" rows="3" placeholder="행사 규모, 예산, 원하는 연출 등을 편하게 적어주세요."></textarea>
+          </label>
+
+          <button type="submit" class="contact-submit">견적 받기</button>
+          <p class="contact-note">평일 기준 영업일 내 회신 · 상담은 무료입니다</p>
+          <p id="contact-status" class="contact-status"></p>
+        </form>
+
+        <div class="contact-badge">
+          <span class="contact-badge-icon">⚡</span>
+          <div>
+            <p class="contact-badge-title">평균 회신 1시간 이내</p>
+            <p class="contact-badge-sub">상담 전화 환영</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
 </div>
 
 <script src="/nav.js"></script>
+<script src="/contact.js"></script>
+<script>
+(function () {
+  const grid = document.getElementById('about-gallery-grid');
+  fetch('/api/photos?slot=gallery')
+    .then((r) => r.json())
+    .then((data) => {
+      const photos = (data.photos || []).slice(0, 8);
+      if (photos.length === 0) {
+        grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
+        return;
+      }
+      grid.innerHTML = photos
+        .map((p) => `<div class="gallery-photo"><img src="${p.url}" alt=""></div>`)
+        .join('');
+    })
+    .catch(() => {
+      grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
+    });
+})();
+</script>
 </body>
 </html>

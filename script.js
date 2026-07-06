@@ -96,4 +96,27 @@
         .catch(() => {});
     });
   });
+
+  // Rental products marquee: continuous left-to-right flow, duplicated for a seamless loop
+  const marqueeTrack = document.getElementById('marquee-track');
+  if (marqueeTrack) {
+    const rentalProducts = PRODUCTS.filter((p) => p.category === 'rental');
+    const marqueeHTML = rentalProducts.map(productCardHTML).join('');
+    marqueeTrack.innerHTML = marqueeHTML + marqueeHTML;
+
+    rentalProducts.forEach((product) => {
+      fetch(`/api/photos?slot=product-${encodeURIComponent(product.id)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          const photos = data.photos || [];
+          if (photos.length === 0) return;
+          marqueeTrack
+            .querySelectorAll(`[data-product-photo="${product.id}"]`)
+            .forEach((el) => {
+              el.innerHTML = `<img src="${photos[0].url}" alt="${product.name}">`;
+            });
+        })
+        .catch(() => {});
+    });
+  }
 })();

@@ -174,25 +174,9 @@ nav.mobile-nav .cta-btn { padding: 14px; text-align: center; margin-top: 12px; }
 .categories { display: flex; flex-direction: column; }
 .category-banner {
   position: relative;
-  display: flex;
-  border-top: 1px solid rgba(255, 255, 255, .06);
-  background: #0F0D16;
-}
-
-.category-products {
-  flex: 0 0 34%;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  padding: 32px;
-  align-content: center;
-}
-
-.category-photo-wrap {
-  position: relative;
-  flex: 1 1 66%;
-  min-height: 480px;
+  min-height: 640px;
   overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, .06);
   background: repeating-linear-gradient(115deg, #161420 0px, #161420 2px, #0A0910 2px, #0A0910 26px);
 }
 .category-photo-layer { position: absolute; inset: 0; }
@@ -210,20 +194,25 @@ nav.mobile-nav .cta-btn { padding: 14px; text-align: center; margin-top: 12px; }
 }
 .category-scrim {
   position: absolute; inset: 0;
-  background: linear-gradient(0deg, rgba(10,9,16,.92) 0%, rgba(10,9,16,.45) 55%, rgba(10,9,16,.15) 100%);
+  background: linear-gradient(0deg, rgba(10,9,16,.94) 0%, rgba(10,9,16,.55) 45%, rgba(10,9,16,.2) 100%);
 }
-.category-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 40px 40px; }
+.category-content {
+  position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end;
+  max-width: 1280px; margin: 0 auto; padding: 0 40px 48px;
+}
 .category-content .eyebrow { display: block; margin: 0 0 12px; }
 .category-content h3 {
   font-weight: 800; font-size: clamp(28px, 3.2vw, 44px);
   color: #F5F4F2; margin: 0 0 14px; letter-spacing: -.5px;
 }
-.category-content .desc { font-size: 15px; line-height: 1.7; color: #C9C7D1; margin: 0; max-width: 480px; }
+.category-content .desc { font-size: 15px; line-height: 1.7; color: #C9C7D1; margin: 0 0 32px; max-width: 480px; }
+
+.category-products { display: flex; gap: 16px; flex-wrap: wrap; }
+.category-products .product-card { flex: 0 1 160px; width: 160px; }
 
 @media (max-width: 880px) {
-  .category-banner { flex-direction: column; }
-  .category-products { flex: none; grid-template-columns: repeat(4, 1fr); padding: 20px; gap: 10px; order: 2; }
-  .category-photo-wrap { flex: none; min-height: 260px; order: 1; }
+  .category-banner { min-height: 560px; }
+  .category-products .product-card { flex: 0 1 120px; width: 120px; }
 }
 
 /* Product cards (shared by category grid + related products) */

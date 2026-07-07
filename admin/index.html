@@ -215,7 +215,6 @@ async function loadInquiries() {
       <div class="inquiry-grid">
         <div><span>희망 일정</span> ${escapeHTML(inq.date || '-')}</div>
         <div><span>장소/지역</span> ${escapeHTML(inq.location || '-')}</div>
-        <div><span>예상 예산</span> ${escapeHTML(inq.budget || '-')}</div>
         <div><span>연락처</span> ${escapeHTML(inq.contact || '-')}</div>
       </div>
       ${inq.message ? `<p class="inquiry-message">${escapeHTML(inq.message)}</p>` : ''}

@@ -63,6 +63,10 @@
     document.title = `${product.name} | 유캔스테이지`;
     breadcrumb.innerHTML = `<a href="/">홈</a> / <span>${categoryLabel}</span> / <span>${product.name}</span>`;
 
+    if (product.category === 'rental') {
+      document.querySelectorAll('a[href="/rental-products.html"]').forEach((a) => a.classList.add('active'));
+    }
+
     root.innerHTML = `
       <div class="product-layout">
         <div>

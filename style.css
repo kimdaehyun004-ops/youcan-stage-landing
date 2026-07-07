@@ -78,6 +78,10 @@ nav.desktop-nav { display: flex; align-items: center; gap: 40px; }
 nav.desktop-nav a.nav-link {
   color: #F5F4F2; text-decoration: none; font-size: 15px; font-weight: 500; opacity: .85;
 }
+nav.desktop-nav a.nav-link.active,
+nav.mobile-nav a.nav-link.active {
+  color: #C9A400; opacity: 1; font-weight: 700;
+}
 .cta-btn {
   background: #FFD400; color: #0A0910; padding: 11px 22px; border-radius: 999px;
   font-weight: 700; font-size: 14px; text-decoration: none; white-space: nowrap;
@@ -169,15 +173,15 @@ nav.mobile-nav .cta-btn { padding: 14px; text-align: center; margin-top: 12px; }
   animation: marquee-scroll 45s linear infinite;
 }
 .marquee:hover .marquee-track { animation-play-state: paused; }
-.marquee-track .product-card { flex: 0 0 auto; width: 150px; }
+.marquee-track .product-card { flex: 0 0 auto; width: 225px; }
 
 @keyframes marquee-scroll {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0%); }
+  from { transform: translateX(0%); }
+  to { transform: translateX(-50%); }
 }
 
 @media (max-width: 880px) {
-  .marquee-track .product-card { width: 120px; }
+  .marquee-track .product-card { width: 180px; }
 }
 
 /* Bridge */

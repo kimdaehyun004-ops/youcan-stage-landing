@@ -16,12 +16,19 @@
   let heroTimer = null;
 
   function showHeroPhoto(index) {
-    heroPhotoLayer.innerHTML = '';
+    const previous = Array.from(heroPhotoLayer.children);
     const div = document.createElement('div');
     div.className = 'hero-photo';
     div.style.backgroundImage = `url("${heroPhotos[index].url}")`;
     heroPhotoLayer.appendChild(div);
-    requestAnimationFrame(() => div.classList.add('visible'));
+    requestAnimationFrame(() => {
+      div.classList.add('visible');
+    });
+    // Keep the old photo underneath until the new one has fully faded in, then drop it —
+    // this is what makes the swap read as a dissolve instead of a blink.
+    setTimeout(() => {
+      previous.forEach((el) => el.remove());
+    }, 1300);
   }
 
   function startHeroRotation() {

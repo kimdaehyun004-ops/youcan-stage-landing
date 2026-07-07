@@ -45,18 +45,22 @@
     <div class="system-section" data-slot="system-sound">
       <h2>음향</h2>
       <div class="gallery-grid"></div>
+      <button type="button" class="gallery-more-btn" style="display:none;">더보기</button>
     </div>
     <div class="system-section" data-slot="system-light">
       <h2>조명</h2>
       <div class="gallery-grid"></div>
+      <button type="button" class="gallery-more-btn" style="display:none;">더보기</button>
     </div>
     <div class="system-section" data-slot="system-effect">
       <h2>특효</h2>
       <div class="gallery-grid"></div>
+      <button type="button" class="gallery-more-btn" style="display:none;">더보기</button>
     </div>
     <div class="system-section" data-slot="system-broadcast">
       <h2>중계</h2>
       <div class="gallery-grid"></div>
+      <button type="button" class="gallery-more-btn" style="display:none;">더보기</button>
     </div>
   </div>
 
@@ -65,9 +69,13 @@
 <script src="/nav.js"></script>
 <script>
 (function () {
+  const columns = window.innerWidth <= 880 ? 2 : 4;
+  const rowLimit = columns * 2;
+
   document.querySelectorAll('.system-section').forEach((section) => {
     const slot = section.dataset.slot;
     const grid = section.querySelector('.gallery-grid');
+    const moreBtn = section.querySelector('.gallery-more-btn');
 
     fetch(`/api/photos?slot=${encodeURIComponent(slot)}`)
       .then((r) => r.json())
@@ -80,6 +88,17 @@
         grid.innerHTML = photos
           .map((p) => `<div class="gallery-photo"><img src="${p.url}" alt=""></div>`)
           .join('');
+
+        if (photos.length > rowLimit) {
+          Array.from(grid.children).slice(rowLimit).forEach((el) => {
+            el.style.display = 'none';
+          });
+          moreBtn.style.display = 'inline-block';
+          moreBtn.addEventListener('click', () => {
+            Array.from(grid.children).forEach((el) => { el.style.display = ''; });
+            moreBtn.style.display = 'none';
+          });
+        }
       })
       .catch(() => {
         grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';

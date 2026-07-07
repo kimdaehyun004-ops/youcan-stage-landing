@@ -489,9 +489,9 @@ nav.mobile-nav .cta-btn { padding: 14px; text-align: center; margin-top: 12px; }
 /* Footer */
 .site-footer { background: #FFD400; padding: 32px 24px; }
 .site-footer-inner { max-width: 1280px; margin: 0 auto; text-align: center; }
-.footer-links { margin: 0 0 14px; font-size: 13px; font-weight: 700; color: #F5F4F2; }
+.footer-links { margin: 0 0 14px; font-size: 13px; font-weight: 700; color: #0A0910; }
 .footer-links span.sep { margin: 0 8px; opacity: .6; }
-.footer-info { font-size: 13px; color: #F5F4F2; line-height: 1.9; margin: 0; }
+.footer-info { font-size: 13px; color: #0A0910; line-height: 1.9; margin: 0; }
 
 @media (max-width: 600px) {
   .footer-links { font-size: 12px; }

@@ -45,27 +45,92 @@
     <div class="gallery-grid" id="gallery-grid"></div>
   </div>
 
+  <div class="lightbox" id="lightbox">
+    <button type="button" class="lightbox-close" id="lightbox-close" aria-label="닫기">✕</button>
+    <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="이전 사진">‹</button>
+    <div class="lightbox-content">
+      <img id="lightbox-img" src="" alt="">
+      <p class="lightbox-caption" id="lightbox-caption"></p>
+    </div>
+    <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="다음 사진">›</button>
+  </div>
+
 </div>
 
 <script src="/nav.js"></script>
 <script>
 (function () {
   const grid = document.getElementById('gallery-grid');
-  fetch('/api/photos?slot=gallery')
-    .then((r) => r.json())
-    .then((data) => {
-      const photos = data.photos || [];
-      if (photos.length === 0) {
-        grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
-        return;
-      }
-      grid.innerHTML = photos
-        .map((p) => `<div class="gallery-photo"><img src="${p.url}" alt=""></div>`)
-        .join('');
-    })
-    .catch(() => {
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxCaption = document.getElementById('lightbox-caption');
+
+  let photos = [];
+  let captions = {};
+  let current = 0;
+
+  function escapeHTML(str) {
+    return String(str).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
+  function showPhoto(index) {
+    current = (index + photos.length) % photos.length;
+    const photo = photos[current];
+    lightboxImg.src = photo.url;
+    lightboxCaption.textContent = captions[photo.pathname] || '';
+  }
+
+  function openLightbox(index) {
+    showPhoto(index);
+    lightbox.classList.add('open');
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+  }
+
+  document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+  document.getElementById('lightbox-prev').addEventListener('click', () => showPhoto(current - 1));
+  document.getElementById('lightbox-next').addEventListener('click', () => showPhoto(current + 1));
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') showPhoto(current - 1);
+    if (e.key === 'ArrowRight') showPhoto(current + 1);
+  });
+
+  Promise.all([
+    fetch('/api/photos?slot=gallery').then((r) => r.json()),
+    fetch('/api/captions?slot=gallery').then((r) => r.json()).catch(() => ({ captions: {} })),
+  ]).then(([photosData, captionsData]) => {
+    photos = photosData.photos || [];
+    captions = captionsData.captions || {};
+
+    if (photos.length === 0) {
       grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
+      return;
+    }
+
+    grid.innerHTML = photos
+      .map((p, i) => `
+        <div class="gallery-photo clickable" data-index="${i}">
+          <img src="${p.url}" alt="">
+          ${captions[p.pathname] ? `<p class="gallery-photo-caption">${escapeHTML(captions[p.pathname])}</p>` : ''}
+        </div>
+      `)
+      .join('');
+
+    grid.querySelectorAll('.gallery-photo').forEach((el) => {
+      el.addEventListener('click', () => openLightbox(Number(el.dataset.index)));
     });
+  }).catch(() => {
+    grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
+  });
 })();
 </script>
 </body>

@@ -41,6 +41,12 @@
     position: absolute; top: 8px; right: 8px; background: rgba(10,9,16,.75); color: #ff8a80;
     border: 1px solid rgba(255,138,128,.4); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600;
   }
+  .photo-caption-wrap { position: absolute; left: 0; right: 0; bottom: 0; padding: 6px; background: rgba(10,9,16,.75); }
+  .photo-caption-input {
+    width: 100%; box-sizing: border-box; padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,.15);
+    background: #0A0910; color: #F5F4F2; font-size: 12px;
+  }
+  .photo-caption-input.saved { border-color: rgba(139,226,139,.6); }
   .empty { color: #9A97A4; font-size: 14px; }
   .status { font-size: 13px; color: #9A97A4; margin-top: 8px; }
   a.back { color: #9A97A4; text-decoration: none; font-size: 13px; }
@@ -173,7 +179,8 @@ async function checkSession() {
 
 async function loadPhotos() {
   uploadStatus.textContent = '';
-  const res = await fetch(`/api/photos?slot=${encodeURIComponent(slotSelect.value)}`);
+  const slot = slotSelect.value;
+  const res = await fetch(`/api/photos?slot=${encodeURIComponent(slot)}`);
   const data = await res.json();
   const photos = data.photos || [];
   gallery.innerHTML = '';
@@ -181,10 +188,21 @@ async function loadPhotos() {
     gallery.innerHTML = '<p class="empty">업로드된 사진이 없습니다.</p>';
     return;
   }
+
+  const isGallery = slot === 'gallery';
+  let captions = {};
+  if (isGallery) {
+    const capRes = await fetch(`/api/captions?slot=${encodeURIComponent(slot)}`);
+    captions = (await capRes.json().catch(() => ({}))).captions || {};
+  }
+
   for (const photo of photos) {
     const div = document.createElement('div');
     div.className = 'photo';
-    div.innerHTML = `<img src="${photo.url}" alt=""><button class="del" data-url="${photo.url}">삭제</button>`;
+    div.innerHTML = `<img src="${photo.url}" alt=""><button class="del" data-url="${photo.url}">삭제</button>` +
+      (isGallery
+        ? `<div class="photo-caption-wrap"><input class="photo-caption-input" type="text" placeholder="행사명" data-pathname="${photo.pathname}" value="${(captions[photo.pathname] || '').replace(/"/g, '&quot;')}"></div>`
+        : '');
     gallery.appendChild(div);
   }
 }
@@ -323,6 +341,27 @@ gallery.addEventListener('click', async (e) => {
     body: JSON.stringify({ url: btn.dataset.url }),
   });
   loadPhotos();
+});
+
+async function saveCaption(input) {
+  const slot = slotSelect.value;
+  input.classList.remove('saved');
+  await fetch('/api/captions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot, pathname: input.dataset.pathname, caption: input.value.trim() }),
+  });
+  input.classList.add('saved');
+}
+
+gallery.addEventListener('change', (e) => {
+  const input = e.target.closest('.photo-caption-input');
+  if (input) saveCaption(input);
+});
+gallery.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target.classList.contains('photo-caption-input')) {
+    e.target.blur();
+  }
 });
 
 checkSession();

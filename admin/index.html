@@ -281,6 +281,7 @@ uploadBtn.addEventListener('click', async () => {
   }
   const slot = slotSelect.value;
   uploadBtn.disabled = true;
+  const failures = [];
   for (const file of files) {
     uploadStatus.textContent = `업로드 중: ${file.name}`;
     try {
@@ -300,13 +301,16 @@ uploadBtn.addEventListener('click', async () => {
         contentType: file.type,
       });
     } catch (err) {
-      uploadStatus.textContent = `실패: ${file.name} — ${err.message}`;
+      failures.push(`${file.name} — ${err.message}`);
     }
   }
-  uploadStatus.textContent = '업로드 완료';
   fileInput.value = '';
   uploadBtn.disabled = false;
-  loadPhotos();
+  await loadPhotos();
+  uploadStatus.textContent = failures.length === 0
+    ? '업로드 완료'
+    : `실패 ${failures.length}건: ${failures.join(', ')}`;
+  uploadStatus.style.color = failures.length === 0 ? '' : '#ff8a80';
 });
 
 gallery.addEventListener('click', async (e) => {

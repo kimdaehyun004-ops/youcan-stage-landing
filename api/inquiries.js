@@ -1,5 +1,6 @@
 const { put, list, get, del } = require('@vercel/blob');
 const { isAuthed } = require('../lib/auth');
+const { sendInquiryEmail } = require('../lib/notify');
 
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
@@ -26,6 +27,7 @@ module.exports = async (req, res) => {
         contentType: 'application/json',
         addRandomSuffix: false,
       });
+      await sendInquiryEmail(inquiry);
       res.status(200).json({ ok: true });
     } catch (err) {
       res.status(500).json({ error: err.message });

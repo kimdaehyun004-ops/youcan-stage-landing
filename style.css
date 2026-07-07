@@ -497,3 +497,107 @@ nav.mobile-nav .cta-btn { padding: 14px; text-align: center; margin-top: 12px; }
   .footer-links { font-size: 12px; }
   .footer-info { font-size: 12px; }
 }
+
+/* Event draw tools (roulette / slot / lotto) */
+.tools-tabs { display: flex; gap: 10px; margin-bottom: 32px; flex-wrap: wrap; }
+.tools-tab {
+  background: #14121C; border: 1px solid rgba(255,255,255,.1); color: #C9C7D1;
+  padding: 12px 22px; border-radius: 999px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: inherit;
+}
+.tools-tab.active { background: #FFD400; color: #0A0910; border-color: #FFD400; }
+
+.tool-panel { display: none; }
+.tool-panel.active { display: block; animation: fadeUp .5s ease both; }
+
+.tool-layout { display: grid; grid-template-columns: 1fr 340px; gap: 40px; align-items: start; }
+.tool-stage {
+  background: #14121C; border: 1px solid rgba(255,255,255,.08); border-radius: 16px;
+  padding: 40px 24px; display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+.tool-config {
+  background: #14121C; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.tool-config label { display: block; font-size: 13px; color: #9A97A4; font-weight: 500; }
+.tool-config input, .tool-config select, .tool-config textarea {
+  margin-top: 8px; width: 100%; background: #0A0910; border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px; padding: 12px 14px; color: #F5F4F2; font-size: 14px; font-family: inherit;
+}
+.tool-config select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%239A97A4' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat; background-position: right 14px center;
+}
+.tool-config textarea { resize: vertical; min-height: 140px; line-height: 1.6; font-family: inherit; }
+.tool-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #C9C7D1; }
+.tool-check input { width: auto; margin: 0; }
+
+.tool-main-btn {
+  background: #FFD400; color: #0A0910; border: none; border-radius: 999px;
+  padding: 15px 40px; font-weight: 700; font-size: 15px; cursor: pointer; font-family: inherit;
+}
+.tool-main-btn:disabled { opacity: .5; cursor: not-allowed; }
+.tool-secondary-btn {
+  background: transparent; color: #F5F4F2; border: 1px solid rgba(255,255,255,.2); border-radius: 999px;
+  padding: 12px 24px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit;
+}
+.tool-btn-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.tool-result { min-height: 24px; font-size: 16px; font-weight: 700; color: #FFD400; text-align: center; margin: 0; }
+
+@media (max-width: 880px) {
+  .tool-layout { grid-template-columns: 1fr; }
+}
+
+/* Roulette */
+.roulette-wrap { position: relative; width: min(480px, 80vw); aspect-ratio: 1; }
+.roulette-wrap canvas { width: 100%; height: 100%; display: block; filter: drop-shadow(0 12px 30px rgba(0,0,0,.5)); }
+.roulette-pointer {
+  position: absolute; top: -6px; left: 50%; transform: translateX(-50%); z-index: 2;
+  width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent;
+  border-top: 26px solid #FFD400; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5));
+}
+
+/* Slot machine */
+.slot-machine {
+  background: #0A0910; border: 3px solid #FFD400; border-radius: 20px; padding: 20px;
+  box-shadow: inset 0 0 30px rgba(0,0,0,.6);
+}
+.slot-reels { display: grid; grid-template-columns: repeat(var(--reel-count, 3), 96px); gap: 10px; }
+.slot-reel {
+  height: 96px; overflow: hidden; background: #14121C; border-radius: 10px; position: relative;
+  box-shadow: inset 0 10px 14px -6px rgba(0,0,0,.7), inset 0 -10px 14px -6px rgba(0,0,0,.7);
+}
+.slot-strip { display: flex; flex-direction: column; will-change: transform; }
+.slot-symbol { height: 96px; display: flex; align-items: center; justify-content: center; font-size: 46px; }
+.slot-reels.jackpot .slot-reel { box-shadow: 0 0 0 2px #FFD400, inset 0 10px 14px -6px rgba(0,0,0,.7), inset 0 -10px 14px -6px rgba(0,0,0,.7); }
+
+@media (max-width: 500px) {
+  .slot-reels { grid-template-columns: repeat(var(--reel-count, 3), 76px); }
+  .slot-reel, .slot-symbol { height: 76px; }
+  .slot-symbol { font-size: 36px; }
+}
+
+/* Lotto draw */
+.lotto-balls { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; min-height: 76px; }
+.lotto-ball {
+  width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 21px; font-weight: 800; color: #0A0910; background: #C9C7D1;
+  opacity: 0; transform: scale(.4);
+}
+.lotto-ball.show { animation: ball-pop .35s ease both; }
+@keyframes ball-pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+.lotto-ball.ball-1 { background: #FFD400; }
+.lotto-ball.ball-2 { background: #57B8FF; }
+.lotto-ball.ball-3 { background: #FF6B6B; }
+.lotto-ball.ball-4 { background: #B0AEB8; }
+.lotto-ball.ball-5 { background: #5AD8A6; }
+
+.lotto-custom-fields { display: flex; flex-direction: column; gap: 12px; }
+.lotto-history { margin-top: 8px; width: 100%; }
+.lotto-history-title { font-size: 12px; color: #6b6876; margin: 0 0 10px; text-align: center; }
+.lotto-history-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+.lotto-history-row span {
+  width: 30px; height: 30px; border-radius: 50%; background: #0A0910; border: 1px solid rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center; font-size: 12px; color: #C9C7D1; font-weight: 700;
+}

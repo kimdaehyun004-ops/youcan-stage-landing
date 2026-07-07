@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>룰렛·슬롯·로또추첨기 | 유캔스테이지</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo-link">
+        <img src="/assets/logo.png" alt="유캔스테이지">
+      </a>
+
+      <button class="menu-btn" aria-label="메뉴 열기">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="desktop-nav">
+        <a href="/about.html" class="nav-link">회사소개</a>
+        <a href="/rental-products.html" class="nav-link">렌탈상품</a>
+        <a href="/system-items.html" class="nav-link">시스템품목</a>
+        <a href="/gallery.html" class="nav-link">행사갤러리</a>
+        <a href="/event-tools.html" class="nav-link active">이벤트 추첨</a>
+        <a href="/#contact" class="cta-btn">무료 견적 문의</a>
+      </nav>
+    </div>
+
+    <nav class="mobile-nav">
+      <a href="/about.html" class="nav-link">회사소개</a>
+      <a href="/rental-products.html" class="nav-link">렌탈상품</a>
+      <a href="/system-items.html" class="nav-link">시스템품목</a>
+      <a href="/gallery.html" class="nav-link">행사갤러리</a>
+      <a href="/event-tools.html" class="nav-link active">이벤트 추첨</a>
+      <a href="/#contact" class="cta-btn">무료 견적 문의</a>
+    </nav>
+  </header>
+
+  <div class="simple-page">
+    <p class="eyebrow" style="display:block;margin:0 0 16px;">EVENT DRAW TOOLS</p>
+    <h1>룰렛 · 슬롯머신 · 로또추첨기</h1>
+    <p class="lead" style="margin-bottom:40px;">신년회·행사 경품 추첨에 바로 쓸 수 있는 추첨 도구입니다. 한 번 접속한 뒤에는 인터넷 연결 없이도 계속 사용할 수 있어요.</p>
+
+    <div class="tools-tabs" role="tablist">
+      <button type="button" class="tools-tab active" data-tool="roulette">🎡 룰렛</button>
+      <button type="button" class="tools-tab" data-tool="slot">🎰 슬롯머신</button>
+      <button type="button" class="tools-tab" data-tool="lotto">🎱 로또추첨기</button>
+    </div>
+
+    <!-- Roulette -->
+    <section class="tool-panel active" id="panel-roulette">
+      <div class="tool-layout">
+        <div class="tool-stage">
+          <div class="roulette-wrap">
+            <div class="roulette-pointer"></div>
+            <canvas id="roulette-canvas" width="480" height="480"></canvas>
+          </div>
+          <button type="button" class="tool-main-btn" id="roulette-spin">돌리기</button>
+          <p class="tool-result" id="roulette-result"></p>
+        </div>
+        <div class="tool-config">
+          <label>항목 (한 줄에 하나씩)
+            <textarea id="roulette-items" rows="8">1등 상품
+2등 상품
+3등 상품
+꽝
+다시 추첨
+참가상</textarea>
+          </label>
+          <button type="button" class="tool-secondary-btn" id="roulette-apply">룰렛에 적용</button>
+          <label class="tool-check"><input type="checkbox" id="roulette-sound" checked> 효과음</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slot machine -->
+    <section class="tool-panel" id="panel-slot">
+      <div class="tool-layout">
+        <div class="tool-stage">
+          <div class="slot-machine">
+            <div class="slot-reels" id="slot-reels"></div>
+          </div>
+          <button type="button" class="tool-main-btn" id="slot-spin">슬롯 돌리기</button>
+          <p class="tool-result" id="slot-result"></p>
+        </div>
+        <div class="tool-config">
+          <label>심볼 (쉼표로 구분)
+            <input type="text" id="slot-symbols" value="🍒,🍋,🍊,🍇,⭐,💎,7️⃣,🔔">
+          </label>
+          <label>릴 개수 (3~5)
+            <input type="number" id="slot-reel-count" min="3" max="5" value="3">
+          </label>
+          <button type="button" class="tool-secondary-btn" id="slot-apply">슬롯에 적용</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lotto draw -->
+    <section class="tool-panel" id="panel-lotto">
+      <div class="tool-layout">
+        <div class="tool-stage">
+          <div class="lotto-balls" id="lotto-balls"></div>
+          <div class="tool-btn-row">
+            <button type="button" class="tool-main-btn" id="lotto-draw">추첨 시작</button>
+            <button type="button" class="tool-secondary-btn" id="lotto-reset">초기화</button>
+          </div>
+          <p class="tool-result" id="lotto-result"></p>
+          <div class="lotto-history" id="lotto-history"></div>
+        </div>
+        <div class="tool-config">
+          <label>모드
+            <select id="lotto-mode">
+              <option value="lotto645">로또 6/45 (1~45 중 6개)</option>
+              <option value="custom">숫자 범위 직접 설정</option>
+            </select>
+          </label>
+          <div id="lotto-custom-fields" class="lotto-custom-fields" hidden>
+            <label>최소값 <input type="number" id="lotto-min" value="1"></label>
+            <label>최대값 <input type="number" id="lotto-max" value="45"></label>
+            <label>추첨 개수 <input type="number" id="lotto-count" value="6"></label>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-links">개인정보처리방침<span class="sep">|</span>이용약관<span class="sep">|</span>이메일무단수집거부</p>
+      <p class="footer-info">
+        대표 : 김대현 &nbsp;|&nbsp; 주소 : 서울특별시 금천구 가산디지털1로 19, 1609호 유캔시스템<br>
+        연락처 : 010-8986-8450 &nbsp;|&nbsp; 사업자등록번호 : 720-47-00808
+      </p>
+    </div>
+  </footer>
+
+</div>
+
+<script src="/nav.js"></script>
+<script src="/event-tools.js"></script>
+</body>
+</html>

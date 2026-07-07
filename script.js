@@ -88,7 +88,7 @@
       })
       .catch(() => {});
 
-    const products = PRODUCTS.filter((p) => p.category === category);
+    const products = PRODUCTS.filter((p) => (p.caseTypes || []).includes(category));
     productsEl.innerHTML = products.map(productCardHTML).join('');
 
     products.forEach((product) => {

@@ -40,19 +40,6 @@
     }, 5000);
   }
 
-  fetch('/api/photos?slot=hero')
-    .then((r) => r.json())
-    .then((data) => {
-      heroPhotos = data.photos || [];
-      if (heroPhotos.length > 0) {
-        heroEmptyLabel.style.display = 'none';
-        showHeroPhoto(0);
-        startHeroRotation();
-      }
-    })
-    .catch(() => {});
-
-  // Category banners: single latest photo per slot, plus their product grid
   const PRODUCTS = window.PRODUCTS || [];
 
   function productCardHTML(product) {
@@ -67,63 +54,79 @@
       </a>`;
   }
 
-  document.querySelectorAll('.category-banner').forEach((banner) => {
-    const slot = banner.dataset.slot;
+  const banners = Array.from(document.querySelectorAll('.category-banner'));
+  const rentalProducts = PRODUCTS.filter((p) => p.category === 'rental');
+  const marqueeTrack = document.getElementById('marquee-track');
+
+  // Render product cards up front (markup doesn't need photos to exist yet).
+  banners.forEach((banner) => {
     const category = banner.dataset.category;
-    const photoLayer = banner.querySelector('.category-photo-layer');
-    const emptyLabel = banner.querySelector('.category-empty-label');
     const productsEl = banner.querySelector('.category-products');
-
-    fetch(`/api/photos?slot=${encodeURIComponent(slot)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        const photos = data.photos || [];
-        if (photos.length === 0) return;
-        emptyLabel.style.display = 'none';
-        const div = document.createElement('div');
-        div.className = 'category-photo';
-        div.style.backgroundImage = `url("${photos[0].url}")`;
-        photoLayer.appendChild(div);
-        requestAnimationFrame(() => div.classList.add('visible'));
-      })
-      .catch(() => {});
-
     const products = PRODUCTS.filter((p) => (p.caseTypes || []).includes(category));
+    banner._products = products;
     productsEl.innerHTML = products.map(productCardHTML).join('');
-
-    products.forEach((product) => {
-      const photoEl = productsEl.querySelector(`[data-product-photo="${product.id}"]`);
-      fetch(`/api/photos?slot=product-${encodeURIComponent(product.id)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          const photos = data.photos || [];
-          if (photos.length === 0 || !photoEl) return;
-          photoEl.innerHTML = `<img src="${photos[0].url}" alt="${product.name}">`;
-        })
-        .catch(() => {});
-    });
   });
 
-  // Rental products marquee: continuous left-to-right flow, duplicated for a seamless loop
-  const marqueeTrack = document.getElementById('marquee-track');
   if (marqueeTrack) {
-    const rentalProducts = PRODUCTS.filter((p) => p.category === 'rental');
     const marqueeHTML = rentalProducts.map(productCardHTML).join('');
     marqueeTrack.innerHTML = marqueeHTML + marqueeHTML;
+  }
 
-    rentalProducts.forEach((product) => {
-      fetch(`/api/photos?slot=product-${encodeURIComponent(product.id)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          const photos = data.photos || [];
+  // Gather every slot this page needs and fetch them all in a single request,
+  // instead of one /api/photos call per slot (was ~46 round trips).
+  const neededSlots = new Set(['hero']);
+  banners.forEach((banner) => {
+    neededSlots.add(banner.dataset.slot);
+    banner._products.forEach((p) => neededSlots.add(`product-${p.id}`));
+  });
+  rentalProducts.forEach((p) => neededSlots.add(`product-${p.id}`));
+
+  fetch(`/api/photos?slots=${encodeURIComponent([...neededSlots].join(','))}`)
+    .then((r) => r.json())
+    .then((data) => {
+      const photosBySlot = data.photosBySlot || {};
+
+      heroPhotos = photosBySlot.hero || [];
+      if (heroPhotos.length > 0) {
+        heroEmptyLabel.style.display = 'none';
+        showHeroPhoto(0);
+        startHeroRotation();
+      }
+
+      banners.forEach((banner) => {
+        const slot = banner.dataset.slot;
+        const photoLayer = banner.querySelector('.category-photo-layer');
+        const emptyLabel = banner.querySelector('.category-empty-label');
+        const photos = photosBySlot[slot] || [];
+        if (photos.length > 0) {
+          emptyLabel.style.display = 'none';
+          const div = document.createElement('div');
+          div.className = 'category-photo';
+          div.style.backgroundImage = `url("${photos[0].url}")`;
+          photoLayer.appendChild(div);
+          requestAnimationFrame(() => div.classList.add('visible'));
+        }
+
+        const productsEl = banner.querySelector('.category-products');
+        banner._products.forEach((product) => {
+          const photos = photosBySlot[`product-${product.id}`] || [];
+          if (photos.length === 0) return;
+          const photoEl = productsEl.querySelector(`[data-product-photo="${product.id}"]`);
+          if (photoEl) photoEl.innerHTML = `<img src="${photos[0].url}" alt="${product.name}">`;
+        });
+      });
+
+      if (marqueeTrack) {
+        rentalProducts.forEach((product) => {
+          const photos = photosBySlot[`product-${product.id}`] || [];
           if (photos.length === 0) return;
           marqueeTrack
             .querySelectorAll(`[data-product-photo="${product.id}"]`)
             .forEach((el) => {
               el.innerHTML = `<img src="${photos[0].url}" alt="${product.name}">`;
             });
-        })
-        .catch(() => {});
-    });
-  }
+        });
+      }
+    })
+    .catch(() => {});
 })();

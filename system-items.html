@@ -81,16 +81,19 @@
 (function () {
   const columns = window.innerWidth <= 880 ? 2 : 4;
   const rowLimit = columns * 2;
+  const sections = Array.from(document.querySelectorAll('.system-section'));
+  const slots = sections.map((s) => s.dataset.slot);
 
-  document.querySelectorAll('.system-section').forEach((section) => {
-    const slot = section.dataset.slot;
-    const grid = section.querySelector('.gallery-grid');
-    const moreBtn = section.querySelector('.gallery-more-btn');
+  fetch(`/api/photos?slots=${encodeURIComponent(slots.join(','))}`)
+    .then((r) => r.json())
+    .then((data) => {
+      const photosBySlot = data.photosBySlot || {};
 
-    fetch(`/api/photos?slot=${encodeURIComponent(slot)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        const photos = data.photos || [];
+      sections.forEach((section) => {
+        const grid = section.querySelector('.gallery-grid');
+        const moreBtn = section.querySelector('.gallery-more-btn');
+        const photos = photosBySlot[section.dataset.slot] || [];
+
         if (photos.length === 0) {
           grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
           return;
@@ -109,11 +112,13 @@
             moreBtn.style.display = 'none';
           });
         }
-      })
-      .catch(() => {
-        grid.innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
       });
-  });
+    })
+    .catch(() => {
+      sections.forEach((section) => {
+        section.querySelector('.gallery-grid').innerHTML = '<p class="gallery-empty">등록된 사진이 없습니다.</p>';
+      });
+    });
 })();
 </script>
 </body>

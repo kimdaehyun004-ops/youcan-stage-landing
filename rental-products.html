@@ -75,17 +75,19 @@
     </a>
   `).join('');
 
-  products.forEach((product) => {
-    const photoEl = grid.querySelector(`[data-product-photo="${product.id}"]`);
-    fetch(`/api/photos?slot=product-${encodeURIComponent(product.id)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        const photos = data.photos || [];
-        if (photos.length === 0 || !photoEl) return;
-        photoEl.innerHTML = `<img src="${photos[0].url}" alt="${product.name}">`;
-      })
-      .catch(() => {});
-  });
+  const slots = products.map((p) => `product-${p.id}`);
+  fetch(`/api/photos?slots=${encodeURIComponent(slots.join(','))}`)
+    .then((r) => r.json())
+    .then((data) => {
+      const photosBySlot = data.photosBySlot || {};
+      products.forEach((product) => {
+        const photos = photosBySlot[`product-${product.id}`] || [];
+        if (photos.length === 0) return;
+        const photoEl = grid.querySelector(`[data-product-photo="${product.id}"]`);
+        if (photoEl) photoEl.innerHTML = `<img src="${photos[0].url}" alt="${product.name}">`;
+      });
+    })
+    .catch(() => {});
 })();
 </script>
 </body>

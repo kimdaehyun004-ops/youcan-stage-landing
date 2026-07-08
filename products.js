@@ -35,6 +35,7 @@ window.PRODUCTS = [
   { id: 'rp-mini-truss', category: 'rental', name: '미니트러스', desc: '소규모 공간에 어울리는 미니 트러스 구조물입니다.' },
   { id: 'rp-banner-sign', category: 'rental', caseTypes: ['category-gov'], name: '배너·안내판', desc: '행사 안내와 동선 정리를 위한 배너·안내판입니다.' },
   { id: 'rp-centerpiece', category: 'rental', name: '센터피스', desc: '테이블을 화사하게 꾸미는 센터피스 장식입니다.' },
+  { id: 'rp-console-cover', category: 'rental', name: '콘솔가림막', desc: '음향·조명 콘솔을 깔끔하게 가려주는 가림막입니다.' },
   { id: 'rp-acrylic-podium', category: 'rental', caseTypes: ['category-gov'], name: '아크릴단상', desc: '깔끔한 진행 무대를 만드는 아크릴 단상입니다.' },
   { id: 'rp-bulb-light', category: 'rental', caseTypes: ['category-newyear'], name: '알전구', desc: '은은한 분위기를 더하는 알전구 장식입니다.' },
   { id: 'rp-air-arch', category: 'rental', name: '에어아치', desc: '행사장 입구를 알리는 에어아치입니다.' },

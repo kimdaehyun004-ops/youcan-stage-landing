@@ -3,8 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "dependencies": {
-    "@upstash/redis": "^1.38.0",
-    "@vercel/blob": "^2.5.0",
-    "qrcode": "^1.5.4"
+    "@vercel/blob": "^2.5.0"
   }
 }

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>가사 프롬프터</title>
+<style>
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000000;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif; }
+
+.placeholder {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a4d58;
+  font-size: 32px;
+  letter-spacing: 0.04em;
+}
+
+.stage { min-height: 100%; padding: 6vh 6vw 40vh; text-align: center; }
+
+.song-title { color: #7d818f; font-size: 24px; margin-bottom: 3vh; letter-spacing: 0.03em; }
+
+.lyrics {
+  color: #ffffff;
+  font-size: 64px;
+  line-height: 1.6;
+  font-weight: 600;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  font-family: inherit;
+  margin: 0;
+}
+
+.hint { position: fixed; bottom: 10px; right: 14px; color: #33353d; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div id="placeholder" class="placeholder">가사 대기 중...</div>
+
+  <div id="stage" class="stage" style="display: none;">
+    <div id="song-title" class="song-title"></div>
+    <pre id="lyrics" class="lyrics"></pre>
+  </div>
+
+  <div class="hint">F11 전체화면 · ↑↓ 스크롤</div>
+
+<script>
+const placeholderEl = document.getElementById('placeholder');
+const stageEl = document.getElementById('stage');
+const titleEl = document.getElementById('song-title');
+const lyricsEl = document.getElementById('lyrics');
+
+function showSong(song) {
+  titleEl.textContent = song.title;
+  lyricsEl.textContent = song.lyrics;
+  placeholderEl.style.display = 'none';
+  stageEl.style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function clearLyrics() {
+  titleEl.textContent = '';
+  lyricsEl.textContent = '';
+  stageEl.style.display = 'none';
+  placeholderEl.style.display = 'flex';
+}
+
+function setFontSize(size) {
+  lyricsEl.style.fontSize = `${size}px`;
+}
+
+window.addEventListener('message', (e) => {
+  const msg = e.data;
+  if (!msg || typeof msg !== 'object') return;
+  if (msg.type === 'show') {
+    showSong(msg.song);
+    if (typeof msg.fontSize === 'number') setFontSize(msg.fontSize);
+  } else if (msg.type === 'clear') {
+    clearLyrics();
+  } else if (msg.type === 'fontSize') {
+    setFontSize(msg.size);
+  }
+});
+
+// 콘솔(opener)에게 "준비 완료"를 알려서 현재 표시 중인 곡을 다시 받아옴
+if (window.opener) {
+  window.opener.postMessage({ type: 'ready' }, '*');
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+    e.preventDefault();
+    window.scrollBy({ top: 200, behavior: 'smooth' });
+  } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+    e.preventDefault();
+    window.scrollBy({ top: -200, behavior: 'smooth' });
+  }
+});
+</script>
+</body>
+</html>

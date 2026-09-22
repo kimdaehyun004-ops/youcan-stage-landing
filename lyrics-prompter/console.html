@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>가사 프롬프터 - 콘솔</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;
+  background: #1c1e24;
+  color: #e8e9ee;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout { display: flex; height: 100vh; }
+
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #16171c;
+  border-right: 1px solid #2a2c34;
+  padding: 16px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sidebar-header h1 {
+  font-size: 16px;
+  margin: 0;
+  color: #a8abb8;
+  font-weight: 600;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.song-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+
+.song-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: background 0.12s;
+}
+
+.song-item:hover { background: #22242c; }
+.song-item.active { background: #2e3140; }
+.song-item.on-air { background: #2a3f2e; }
+
+.song-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+
+.song-item-live-badge {
+  font-size: 10px;
+  color: #6cd97e;
+  border: 1px solid #3a6b42;
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.editor { flex: 1; display: flex; flex-direction: column; padding: 20px 24px; min-width: 0; }
+
+.editor-header { display: flex; gap: 12px; margin-bottom: 12px; }
+
+.title-input {
+  flex: 1;
+  font-size: 20px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+}
+
+.editor-actions { display: flex; gap: 8px; }
+
+.lyrics-input {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  border-radius: 8px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  padding: 16px;
+  font-size: 16px;
+  line-height: 1.7;
+  font-family: inherit;
+}
+
+.prompter-bar {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #16171c;
+  border: 1px solid #2a2c34;
+  border-radius: 8px;
+  padding: 12px 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prompter-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #a8abb8; }
+
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #565a68; }
+.prompter-status.live .dot { background: #6cd97e; box-shadow: 0 0 6px #6cd97e; }
+
+.prompter-controls { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #a8abb8; flex-wrap: wrap; }
+
+#font-size-label { min-width: 44px; text-align: center; color: #e8e9ee; }
+
+.btn { border: none; border-radius: 6px; padding: 9px 14px; font-size: 13px; cursor: pointer; font-weight: 500; }
+.btn-primary { background: #4c6ef5; color: white; }
+.btn-primary:hover { background: #3d5ce0; }
+.btn-danger { background: transparent; color: #e5636b; border: 1px solid #5a2a2e; }
+.btn-danger:hover { background: #2a1c1e; }
+.btn-ghost { background: #22242c; color: #e8e9ee; border: 1px solid #2a2c34; padding: 6px 10px; }
+.btn-ghost:hover { background: #2a2c34; }
+.btn-accent { background: #2f9e44; color: white; padding: 9px 16px; }
+.btn-accent:hover { background: #268b3a; }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>곡 목록</h1>
+        <button id="new-song-btn" class="btn btn-primary">+ 새 곡</button>
+      </div>
+      <input id="search-input" class="search-input" type="text" placeholder="곡 제목 검색..." />
+      <ul id="song-list" class="song-list"></ul>
+    </aside>
+
+    <main class="editor">
+      <div class="editor-header">
+        <input id="title-input" class="title-input" type="text" placeholder="곡 제목" />
+        <div class="editor-actions">
+          <button id="save-btn" class="btn btn-primary">저장</button>
+          <button id="delete-btn" class="btn btn-danger" hidden>삭제</button>
+        </div>
+      </div>
+
+      <textarea id="lyrics-input" class="lyrics-input" placeholder="가사를 붙여넣거나 입력하세요..."></textarea>
+
+      <div class="prompter-bar">
+        <div class="prompter-status">
+          <span class="dot"></span>
+          <span id="now-showing">프롬프터: 대기 중</span>
+        </div>
+        <div class="prompter-controls">
+          <button id="open-prompter-btn" class="btn btn-ghost">프롬프터 창 열기</button>
+          <label>글자 크기</label>
+          <button id="font-minus-btn" class="btn btn-ghost">−</button>
+          <span id="font-size-label">64px</span>
+          <button id="font-plus-btn" class="btn btn-ghost">+</button>
+          <button id="clear-prompter-btn" class="btn btn-ghost">지우기</button>
+          <button id="send-btn" class="btn btn-accent">▶ 프롬프터로 보내기</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+const STORAGE_KEY = 'lp:songs';
+
+function readSongs() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeSongs(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+function uid() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+const SongStorage = {
+  getAll() {
+    return readSongs().sort((a, b) => a.title.localeCompare(b.title, 'ko'));
+  },
+  getById(id) {
+    return readSongs().find((s) => s.id === id) || null;
+  },
+  add({ title, lyrics }) {
+    const list = readSongs();
+    const now = new Date().toISOString();
+    const song = {
+      id: uid(),
+      title: (title || '').trim() || '제목 없음',
+      lyrics: lyrics || '',
+      createdAt: now,
+      updatedAt: now,
+    };
+    list.push(song);
+    writeSongs(list);
+    return song;
+  },
+  update(id, patch) {
+    const list = readSongs();
+    const song = list.find((s) => s.id === id);
+    if (!song) return null;
+    if (typeof patch.title === 'string') song.title = patch.title.trim() || '제목 없음';
+    if (typeof patch.lyrics === 'string') song.lyrics = patch.lyrics;
+    song.updatedAt = new Date().toISOString();
+    writeSongs(list);
+    return song;
+  },
+  remove(id) {
+    const list = readSongs();
+    const idx = list.findIndex((s) => s.id === id);
+    if (idx === -1) return false;
+    list.splice(idx, 1);
+    writeSongs(list);
+    return true;
+  },
+};
+
+const songListEl = document.getElementById('song-list');
+const searchInputEl = document.getElementById('search-input');
+const titleInputEl = document.getElementById('title-input');
+const lyricsInputEl = document.getElementById('lyrics-input');
+const newSongBtn = document.getElementById('new-song-btn');
+const saveBtn = document.getElementById('save-btn');
+const deleteBtn = document.getElementById('delete-btn');
+const sendBtn = document.getElementById('send-btn');
+const clearPrompterBtn = document.getElementById('clear-prompter-btn');
+const openPrompterBtn = document.getElementById('open-prompter-btn');
+const fontMinusBtn = document.getElementById('font-minus-btn');
+const fontPlusBtn = document.getElementById('font-plus-btn');
+const fontSizeLabel = document.getElementById('font-size-label');
+const nowShowingEl = document.getElementById('now-showing');
+const promptStatusWrap = nowShowingEl.parentElement;
+
+const MIN_FONT = 28;
+const MAX_FONT = 140;
+const FONT_STEP = 4;
+
+let songs = [];
+let selectedId = null;
+let onAirSong = null;
+let fontSize = 64;
+let prompterWin = null;
+
+function refreshSongs() {
+  songs = SongStorage.getAll();
+  renderList();
+}
+
+function renderList() {
+  const query = searchInputEl.value.trim().toLowerCase();
+  const filtered = query ? songs.filter((s) => s.title.toLowerCase().includes(query)) : songs;
+
+  songListEl.innerHTML = '';
+  for (const song of filtered) {
+    const li = document.createElement('li');
+    li.className = 'song-item';
+    if (song.id === selectedId) li.classList.add('active');
+    if (onAirSong && song.id === onAirSong.id) li.classList.add('on-air');
+
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'song-title';
+    titleSpan.textContent = song.title;
+    li.appendChild(titleSpan);
+
+    if (onAirSong && song.id === onAirSong.id) {
+      const badge = document.createElement('span');
+      badge.className = 'song-item-live-badge';
+      badge.textContent = 'LIVE';
+      li.appendChild(badge);
+    }
+
+    li.addEventListener('click', () => selectSong(song.id));
+    li.addEventListener('dblclick', () => sendToPrompter(song.id));
+    songListEl.appendChild(li);
+  }
+}
+
+function selectSong(id) {
+  const song = songs.find((s) => s.id === id);
+  if (!song) return;
+  selectedId = id;
+  titleInputEl.value = song.title;
+  lyricsInputEl.value = song.lyrics;
+  deleteBtn.hidden = false;
+  renderList();
+}
+
+function startNewSong() {
+  selectedId = null;
+  titleInputEl.value = '';
+  lyricsInputEl.value = '';
+  deleteBtn.hidden = true;
+  titleInputEl.focus();
+  renderList();
+}
+
+function saveSong() {
+  const title = titleInputEl.value.trim();
+  if (!title) {
+    titleInputEl.focus();
+    return null;
+  }
+  const lyrics = lyricsInputEl.value;
+  let song;
+  if (selectedId) {
+    song = SongStorage.update(selectedId, { title, lyrics });
+  } else {
+    song = SongStorage.add({ title, lyrics });
+    selectedId = song.id;
+    deleteBtn.hidden = false;
+  }
+  refreshSongs();
+  return song;
+}
+
+function deleteSong() {
+  if (!selectedId) return;
+  const song = songs.find((s) => s.id === selectedId);
+  const ok = confirm(`"${song ? song.title : '이 곡'}"을(를) 삭제할까요?`);
+  if (!ok) return;
+
+  if (onAirSong && onAirSong.id === selectedId) {
+    postToPrompter({ type: 'clear' });
+    onAirSong = null;
+    setOnAirStatus(null);
+  }
+  SongStorage.remove(selectedId);
+  startNewSong();
+  refreshSongs();
+}
+
+function setOnAirStatus(title) {
+  if (title) {
+    nowShowingEl.textContent = `프롬프터: "${title}" 표시 중`;
+    promptStatusWrap.classList.add('live');
+  } else {
+    nowShowingEl.textContent = '프롬프터: 대기 중';
+    promptStatusWrap.classList.remove('live');
+  }
+}
+
+function postToPrompter(message) {
+  if (prompterWin && !prompterWin.closed) {
+    prompterWin.postMessage(message, '*');
+  }
+}
+
+async function openPrompterWindow() {
+  if (prompterWin && !prompterWin.closed) {
+    prompterWin.focus();
+    return;
+  }
+
+  let features = 'width=1280,height=720';
+
+  if ('getScreenDetails' in window) {
+    try {
+      const details = await window.getScreenDetails();
+      const current = details.currentScreen;
+      const secondary = details.screens.find((s) => s !== current);
+      if (secondary) {
+        features = `left=${secondary.availLeft},top=${secondary.availTop},width=${secondary.availWidth},height=${secondary.availHeight}`;
+      }
+    } catch (err) {
+      // 권한 거부 또는 미지원 브라우저 - 기본 창으로 폴백
+    }
+  }
+
+  prompterWin = window.open('prompter.html', 'lyrics-prompter-window', features);
+}
+
+function sendToPrompter(idOverride) {
+  const id = idOverride || selectedId;
+  if (!id) return;
+  const song = id === selectedId ? saveSong() : SongStorage.getById(id);
+  if (!song) return;
+
+  onAirSong = song;
+  setOnAirStatus(song.title);
+  renderList();
+
+  openPrompterWindow().then(() => {
+    postToPrompter({ type: 'show', song, fontSize });
+  });
+}
+
+function clearPrompter() {
+  postToPrompter({ type: 'clear' });
+  onAirSong = null;
+  setOnAirStatus(null);
+  renderList();
+}
+
+function changeFontSize(delta) {
+  fontSize = Math.min(MAX_FONT, Math.max(MIN_FONT, fontSize + delta));
+  fontSizeLabel.textContent = `${fontSize}px`;
+  postToPrompter({ type: 'fontSize', size: fontSize });
+}
+
+// 프롬프터 창이 (재)로딩되어 "준비 완료" 신호를 보내오면 현재 상태를 다시 보내줌
+window.addEventListener('message', (e) => {
+  if (!e.data || e.data.type !== 'ready') return;
+  if (e.source !== prompterWin) return;
+  if (onAirSong) {
+    postToPrompter({ type: 'show', song: onAirSong, fontSize });
+  } else {
+    postToPrompter({ type: 'fontSize', size: fontSize });
+  }
+});
+
+newSongBtn.addEventListener('click', startNewSong);
+saveBtn.addEventListener('click', saveSong);
+deleteBtn.addEventListener('click', deleteSong);
+sendBtn.addEventListener('click', () => sendToPrompter());
+clearPrompterBtn.addEventListener('click', clearPrompter);
+openPrompterBtn.addEventListener('click', openPrompterWindow);
+fontMinusBtn.addEventListener('click', () => changeFontSize(-FONT_STEP));
+fontPlusBtn.addEventListener('click', () => changeFontSize(FONT_STEP));
+searchInputEl.addEventListener('input', renderList);
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveSong();
+  }
+});
+
+fontSizeLabel.textContent = `${fontSize}px`;
+refreshSongs();
+</script>
+</body>
+</html>

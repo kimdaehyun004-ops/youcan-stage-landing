@@ -3,6 +3,8 @@ const stageEl = document.getElementById('stage');
 const titleEl = document.getElementById('song-title');
 const lyricsEl = document.getElementById('lyrics');
 
+const DEFAULT_FONT = 64;
+
 function showSong(song) {
   titleEl.textContent = song.title;
   lyricsEl.textContent = song.lyrics;
@@ -18,17 +20,25 @@ function clearLyrics() {
   placeholderEl.style.display = 'flex';
 }
 
-window.prompterAPI.onShow(showSong);
-window.prompterAPI.onClear(clearLyrics);
-window.prompterAPI.onFontSize((size) => {
+function setFontSize(size) {
   lyricsEl.style.fontSize = `${size}px`;
+}
+
+PrompterBus.onMessage((msg) => {
+  if (msg.type === 'show') showSong(msg.song);
+  else if (msg.type === 'clear') clearLyrics();
+  else if (msg.type === 'fontSize') setFontSize(msg.size);
 });
 
+// 창이 늦게 열렸을 때 콘솔이 마지막으로 보내둔 상태를 복원
+setFontSize(PrompterBus.getFontSize(DEFAULT_FONT));
+const current = PrompterBus.getCurrent();
+if (current && current.type === 'show') {
+  showSong(current.song);
+}
+
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'F11') {
-    e.preventDefault();
-    window.prompterAPI.toggleFullscreen();
-  } else if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+  if (e.key === 'ArrowDown' || e.key === 'PageDown') {
     e.preventDefault();
     window.scrollBy({ top: 200, behavior: 'smooth' });
   } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {

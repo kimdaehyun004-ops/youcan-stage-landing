@@ -7,6 +7,7 @@ const saveBtn = document.getElementById('save-btn');
 const deleteBtn = document.getElementById('delete-btn');
 const sendBtn = document.getElementById('send-btn');
 const clearPrompterBtn = document.getElementById('clear-prompter-btn');
+const openPrompterBtn = document.getElementById('open-prompter-btn');
 const fontMinusBtn = document.getElementById('font-minus-btn');
 const fontPlusBtn = document.getElementById('font-plus-btn');
 const fontSizeLabel = document.getElementById('font-size-label');
@@ -16,14 +17,16 @@ const promptStatusWrap = nowShowingEl.parentElement;
 const MIN_FONT = 28;
 const MAX_FONT = 140;
 const FONT_STEP = 4;
+const DEFAULT_FONT = 64;
 
 let songs = [];
 let selectedId = null;
 let onAirId = null;
-let fontSize = 64;
+let fontSize = PrompterBus.getFontSize(DEFAULT_FONT);
+let prompterWindowRef = null;
 
-async function refreshSongs() {
-  songs = await window.consoleAPI.getAllSongs();
+function refreshSongs() {
+  songs = SongStorage.getAll();
   renderList();
 }
 
@@ -78,55 +81,55 @@ function startNewSong() {
   renderList();
 }
 
-async function saveSong() {
+function saveSong() {
   const title = titleInputEl.value.trim();
   if (!title) {
     titleInputEl.focus();
-    return;
+    return null;
   }
   const lyrics = lyricsInputEl.value;
 
+  let song;
   if (selectedId) {
-    await window.consoleAPI.updateSong(selectedId, { title, lyrics });
+    song = SongStorage.update(selectedId, { title, lyrics });
   } else {
-    const created = await window.consoleAPI.addSong({ title, lyrics });
-    selectedId = created.id;
+    song = SongStorage.add({ title, lyrics });
+    selectedId = song.id;
     deleteBtn.hidden = false;
   }
-  await refreshSongs();
+  refreshSongs();
+  return song;
 }
 
-async function deleteSong() {
+function deleteSong() {
   if (!selectedId) return;
   const song = songs.find((s) => s.id === selectedId);
   const ok = confirm(`"${song ? song.title : '이 곡'}"을(를) 삭제할까요?`);
   if (!ok) return;
 
   if (selectedId === onAirId) {
-    await window.consoleAPI.clearPrompter();
+    PrompterBus.clear();
     onAirId = null;
     setOnAirStatus(null);
   }
-  await window.consoleAPI.deleteSong(selectedId);
+  SongStorage.remove(selectedId);
   startNewSong();
-  await refreshSongs();
+  refreshSongs();
 }
 
-async function sendToPrompter(idOverride) {
+function sendToPrompter(idOverride) {
   const id = idOverride || selectedId;
   if (!id) return;
 
   // Persist any unsaved edits before sending live.
-  if (id === selectedId) {
-    await saveSong();
-  }
+  let song = id === selectedId ? saveSong() : SongStorage.getById(id);
+  if (!song) return;
 
-  const song = await window.consoleAPI.loadToPrompter(id);
-  if (song) {
-    onAirId = song.id;
-    setOnAirStatus(song.title);
-    renderList();
-  }
+  ensurePrompterWindow();
+  PrompterBus.showSong(song);
+  onAirId = song.id;
+  setOnAirStatus(song.title);
+  renderList();
 }
 
 function setOnAirStatus(title) {
@@ -139,17 +142,44 @@ function setOnAirStatus(title) {
   }
 }
 
-async function clearPrompter() {
-  await window.consoleAPI.clearPrompter();
+function clearPrompter() {
+  PrompterBus.clear();
   onAirId = null;
   setOnAirStatus(null);
   renderList();
 }
 
-async function changeFontSize(delta) {
+function changeFontSize(delta) {
   fontSize = Math.min(MAX_FONT, Math.max(MIN_FONT, fontSize + delta));
   fontSizeLabel.textContent = `${fontSize}px`;
-  await window.consoleAPI.setFontSize(fontSize);
+  PrompterBus.setFontSize(fontSize);
+}
+
+async function ensurePrompterWindow() {
+  if (prompterWindowRef && !prompterWindowRef.closed) {
+    prompterWindowRef.focus();
+    return;
+  }
+  await openPrompterWindow();
+}
+
+async function openPrompterWindow() {
+  let features = 'width=1280,height=720';
+
+  if ('getScreenDetails' in window) {
+    try {
+      const details = await window.getScreenDetails();
+      const current = details.currentScreen;
+      const secondary = details.screens.find((s) => s !== current);
+      if (secondary) {
+        features = `left=${secondary.availLeft},top=${secondary.availTop},width=${secondary.availWidth},height=${secondary.availHeight}`;
+      }
+    } catch (err) {
+      // 권한 거부 또는 미지원 브라우저 - 기본 창으로 폴백
+    }
+  }
+
+  prompterWindowRef = window.open('prompter.html', 'lyrics-prompter-window', features);
 }
 
 newSongBtn.addEventListener('click', startNewSong);
@@ -157,6 +187,7 @@ saveBtn.addEventListener('click', saveSong);
 deleteBtn.addEventListener('click', deleteSong);
 sendBtn.addEventListener('click', () => sendToPrompter());
 clearPrompterBtn.addEventListener('click', clearPrompter);
+openPrompterBtn.addEventListener('click', ensurePrompterWindow);
 fontMinusBtn.addEventListener('click', () => changeFontSize(-FONT_STEP));
 fontPlusBtn.addEventListener('click', () => changeFontSize(FONT_STEP));
 searchInputEl.addEventListener('input', renderList);

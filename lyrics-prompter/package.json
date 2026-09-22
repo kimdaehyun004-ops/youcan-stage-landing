@@ -1,13 +1,10 @@
 {
   "name": "lyrics-prompter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "듀얼 모니터 가사 프롬프터 - 콘솔에서 곡을 추가/선택하면 두 번째 모니터의 프롬프터 창에 가사가 표시됩니다.",
-  "main": "main.js",
+  "main": "server.js",
   "scripts": {
-    "start": "electron ."
-  },
-  "devDependencies": {
-    "electron": "^32.0.0"
+    "start": "node server.js"
   }
 }

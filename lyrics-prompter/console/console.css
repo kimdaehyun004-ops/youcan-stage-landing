@@ -1,0 +1,240 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;
+  background: #1c1e24;
+  color: #e8e9ee;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #16171c;
+  border-right: 1px solid #2a2c34;
+  padding: 16px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sidebar-header h1 {
+  font-size: 16px;
+  margin: 0;
+  color: #a8abb8;
+  font-weight: 600;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.song-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.song-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: background 0.12s;
+}
+
+.song-item:hover {
+  background: #22242c;
+}
+
+.song-item.active {
+  background: #2e3140;
+}
+
+.song-item.on-air {
+  background: #2a3f2e;
+}
+
+.song-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.song-item-live-badge {
+  font-size: 10px;
+  color: #6cd97e;
+  border: 1px solid #3a6b42;
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+/* Editor */
+.editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px;
+  min-width: 0;
+}
+
+.editor-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title-input {
+  flex: 1;
+  font-size: 20px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.lyrics-input {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  border-radius: 8px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  padding: 16px;
+  font-size: 16px;
+  line-height: 1.7;
+  font-family: inherit;
+}
+
+.prompter-bar {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #16171c;
+  border: 1px solid #2a2c34;
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.prompter-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #a8abb8;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #565a68;
+}
+
+.prompter-status.live .dot {
+  background: #6cd97e;
+  box-shadow: 0 0 6px #6cd97e;
+}
+
+.prompter-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #a8abb8;
+}
+
+#font-size-label {
+  min-width: 44px;
+  text-align: center;
+  color: #e8e9ee;
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 9px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: #4c6ef5;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #3d5ce0;
+}
+
+.btn-danger {
+  background: transparent;
+  color: #e5636b;
+  border: 1px solid #5a2a2e;
+}
+
+.btn-danger:hover {
+  background: #2a1c1e;
+}
+
+.btn-ghost {
+  background: #22242c;
+  color: #e8e9ee;
+  border: 1px solid #2a2c34;
+  padding: 6px 10px;
+}
+
+.btn-ghost:hover {
+  background: #2a2c34;
+}
+
+.btn-accent {
+  background: #2f9e44;
+  color: white;
+  padding: 9px 16px;
+}
+
+.btn-accent:hover {
+  background: #268b3a;
+}

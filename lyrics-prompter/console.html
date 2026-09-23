@@ -202,6 +202,43 @@ body {
 
 .audio-transport { flex-basis: 100%; margin-bottom: 4px; }
 .audio-transport audio { width: 100%; height: 34px; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-panel {
+  width: min(640px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #1c1e24;
+  border: 1px solid #2a2c34;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.modal-header h2 { margin: 0; font-size: 17px; color: #e8e9ee; }
+
+.tap-progress { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #a8abb8; }
+.tap-progress select { background: #22242c; color: #e8e9ee; border: 1px solid #2a2c34; border-radius: 6px; padding: 4px 8px; }
+
+#sync-audio { width: 100%; margin-bottom: 18px; }
+
+.tap-lines { text-align: center; margin-bottom: 18px; }
+.tap-line { padding: 6px 0; word-break: keep-all; }
+.tap-line-prev, .tap-line-next { color: #565a68; font-size: 15px; min-height: 1.4em; }
+.tap-line-current { color: #ffffff; font-size: 22px; font-weight: 700; margin: 6px 0; min-height: 1.4em; }
+
+.tap-actions { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.tap-hint { text-align: center; font-size: 12.5px; color: #7d818f; margin: 0; }
 </style>
 </head>
 <body>
@@ -232,7 +269,10 @@ body {
       <div class="sync-section">
         <div class="sync-header">
           <label>노래방처럼 자동 진행 (선택 — 싱크 가사 + 음원 필요)</label>
-          <button id="search-lrc-btn" class="btn btn-ghost">싱크 가사 자동 검색</button>
+          <div style="display: flex; gap: 8px;">
+            <button id="start-tap-sync-btn" class="btn btn-ghost">탭으로 싱크 찍기</button>
+            <button id="search-lrc-btn" class="btn btn-ghost">싱크 가사 자동 검색</button>
+          </div>
         </div>
         <div id="lrc-status" class="search-status" hidden></div>
         <textarea id="lrc-input" class="lrc-input" placeholder="싱크 가사(LRC) - 예: [00:12.34]가사 한 줄. 자동 검색하거나 .lrc 파일 내용을 그대로 붙여넣으세요."></textarea>
@@ -264,6 +304,41 @@ body {
         </div>
       </div>
     </main>
+  </div>
+
+  <div id="tap-sync-modal" class="modal-overlay" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>탭으로 싱크 찍기</h2>
+        <button id="tap-close-btn" class="btn btn-ghost">닫기</button>
+      </div>
+
+      <div class="tap-progress">
+        <span id="tap-progress-label">0 / 0줄</span>
+        <select id="tap-speed-select">
+          <option value="1">1.0배속</option>
+          <option value="0.75">0.75배속</option>
+          <option value="0.5">0.5배속</option>
+        </select>
+      </div>
+
+      <audio id="sync-audio" controls></audio>
+
+      <div class="tap-lines">
+        <div id="tap-line-prev" class="tap-line tap-line-prev"></div>
+        <div id="tap-line-current" class="tap-line tap-line-current"></div>
+        <div id="tap-line-next" class="tap-line tap-line-next"></div>
+      </div>
+
+      <div class="tap-actions">
+        <button id="tap-undo-btn" class="btn btn-ghost">↩ 되돌리기</button>
+        <button id="tap-reset-btn" class="btn btn-ghost">처음부터</button>
+        <button id="tap-btn" class="btn btn-accent">TAP (스페이스바)</button>
+        <button id="tap-finish-btn" class="btn btn-primary" disabled>LRC 만들기</button>
+      </div>
+
+      <p class="tap-hint">음원을 재생하다가 화면의 굵은 줄이 실제로 나오는 순간 스페이스바(또는 TAP 버튼)를 누르세요. 실수하면 되돌리기로 취소할 수 있어요.</p>
+    </div>
   </div>
 
 <script>
@@ -367,6 +442,19 @@ const audioFileInputEl = document.getElementById('audio-file-input');
 const audioFileNameEl = document.getElementById('audio-file-name');
 const audioTransportEl = document.getElementById('audio-transport');
 const audioPlayerEl = document.getElementById('audio-player');
+const startTapSyncBtn = document.getElementById('start-tap-sync-btn');
+const tapSyncModal = document.getElementById('tap-sync-modal');
+const tapCloseBtn = document.getElementById('tap-close-btn');
+const tapProgressLabel = document.getElementById('tap-progress-label');
+const tapSpeedSelect = document.getElementById('tap-speed-select');
+const syncAudioEl = document.getElementById('sync-audio');
+const tapLinePrevEl = document.getElementById('tap-line-prev');
+const tapLineCurrentEl = document.getElementById('tap-line-current');
+const tapLineNextEl = document.getElementById('tap-line-next');
+const tapUndoBtn = document.getElementById('tap-undo-btn');
+const tapResetBtn = document.getElementById('tap-reset-btn');
+const tapBtn = document.getElementById('tap-btn');
+const tapFinishBtn = document.getElementById('tap-finish-btn');
 const newSongBtn = document.getElementById('new-song-btn');
 const searchLyricsBtn = document.getElementById('search-lyrics-btn');
 const searchStatusEl = document.getElementById('search-status');
@@ -583,6 +671,131 @@ audioPlayerEl.addEventListener('timeupdate', () => {
 });
 
 searchLrcBtn.addEventListener('click', searchSyncedLyricsOnline);
+
+// --- 탭으로 싱크 찍기 ---
+let tapLines = [];
+let tapResults = [];
+let tapAudioObjectUrl = null;
+
+function startTapSync() {
+  const lines = lyricsInputEl.value
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  if (lines.length === 0) {
+    setLrcStatus('먼저 가사를 입력해야 탭으로 싱크를 찍을 수 있어요.', 'error');
+    return;
+  }
+
+  let id = selectedId;
+  if (!id) {
+    const song = saveSong();
+    if (!song) return;
+    id = song.id;
+  }
+
+  const file = audioFiles[id];
+  if (!file) {
+    setLrcStatus('먼저 "음원 파일 선택"으로 음원을 첨부해야 탭으로 싱크를 찍을 수 있어요.', 'error');
+    return;
+  }
+
+  if (document.activeElement) document.activeElement.blur();
+
+  tapLines = lines;
+  tapResults = [];
+
+  if (tapAudioObjectUrl) URL.revokeObjectURL(tapAudioObjectUrl);
+  tapAudioObjectUrl = URL.createObjectURL(file);
+  syncAudioEl.src = tapAudioObjectUrl;
+  syncAudioEl.currentTime = 0;
+  syncAudioEl.playbackRate = Number(tapSpeedSelect.value);
+
+  tapSyncModal.hidden = false;
+  updateTapDisplay();
+}
+
+function updateTapDisplay() {
+  const idx = tapResults.length;
+  tapProgressLabel.textContent = `${idx} / ${tapLines.length}줄`;
+  tapLinePrevEl.textContent = idx > 0 ? tapLines[idx - 1] : '';
+  tapLineCurrentEl.textContent = idx < tapLines.length ? tapLines[idx] : '(완료! "LRC 만들기"를 누르세요)';
+  tapLineNextEl.textContent = idx + 1 < tapLines.length ? tapLines[idx + 1] : '';
+  tapBtn.disabled = idx >= tapLines.length;
+  tapFinishBtn.disabled = tapResults.length === 0;
+}
+
+function formatLrcTime(totalSeconds) {
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds - mins * 60;
+  return `${String(mins).padStart(2, '0')}:${secs.toFixed(2).padStart(5, '0')}`;
+}
+
+function doTap() {
+  if (tapSyncModal.hidden || tapResults.length >= tapLines.length) return;
+  const text = tapLines[tapResults.length];
+  tapResults.push({ time: syncAudioEl.currentTime, text });
+  updateTapDisplay();
+}
+
+function undoTap() {
+  if (tapSyncModal.hidden || tapResults.length === 0) return;
+  tapResults.pop();
+  updateTapDisplay();
+}
+
+function resetTap() {
+  tapResults = [];
+  syncAudioEl.currentTime = 0;
+  syncAudioEl.pause();
+  updateTapDisplay();
+}
+
+function finishTapSync() {
+  const lrcText = tapResults.map((r) => `[${formatLrcTime(r.time)}]${r.text}`).join('\n');
+  lrcInputEl.value = lrcText;
+  setLrcStatus(`탭으로 ${tapResults.length}줄 싱크를 만들었어요. 확인 후 저장하세요.`, 'success');
+  closeTapSync();
+}
+
+function closeTapSync() {
+  tapSyncModal.hidden = true;
+  syncAudioEl.pause();
+  syncAudioEl.removeAttribute('src');
+  syncAudioEl.load();
+  if (tapAudioObjectUrl) {
+    URL.revokeObjectURL(tapAudioObjectUrl);
+    tapAudioObjectUrl = null;
+  }
+}
+
+startTapSyncBtn.addEventListener('click', startTapSync);
+tapCloseBtn.addEventListener('click', closeTapSync);
+tapBtn.addEventListener('click', doTap);
+tapUndoBtn.addEventListener('click', undoTap);
+tapResetBtn.addEventListener('click', resetTap);
+tapFinishBtn.addEventListener('click', finishTapSync);
+tapSpeedSelect.addEventListener('change', () => {
+  syncAudioEl.playbackRate = Number(tapSpeedSelect.value);
+});
+
+document.addEventListener('keydown', (e) => {
+  if (tapSyncModal.hidden) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  if (e.code === 'Space') {
+    e.preventDefault();
+    doTap();
+  } else if (e.key === 'Backspace') {
+    e.preventDefault();
+    undoTap();
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    closeTapSync();
+  }
+});
 
 function setSearchStatus(text, kind) {
   if (!text) {

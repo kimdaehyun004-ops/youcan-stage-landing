@@ -33,13 +33,29 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-ser
 
 .lyrics {
   color: #ffffff;
-  font-size: 64px;
+  font-size: var(--lyrics-font-size, 64px);
   line-height: 1.6;
   font-weight: 600;
   white-space: pre-wrap;
   word-break: keep-all;
   font-family: inherit;
   margin: 0;
+}
+
+.lrc-lines { padding: 32vh 6vw 60vh; }
+
+.lrc-line {
+  color: #55585f;
+  font-size: calc(var(--lyrics-font-size, 64px) * 0.55);
+  line-height: 1.9;
+  font-weight: 600;
+  word-break: keep-all;
+  transition: color 0.2s, font-size 0.2s;
+}
+
+.lrc-line.current {
+  color: #ffffff;
+  font-size: var(--lyrics-font-size, 64px);
 }
 
 .hint { position: fixed; bottom: 10px; right: 14px; color: #33353d; font-size: 12px; }
@@ -51,6 +67,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-ser
   <div id="stage" class="stage" style="display: none;">
     <div id="song-title" class="song-title"></div>
     <pre id="lyrics" class="lyrics"></pre>
+    <div id="lrc-lines" class="lrc-lines" style="display: none;"></div>
   </div>
 
   <div class="hint">F11 전체화면 · ↑↓ 스크롤</div>
@@ -60,24 +77,71 @@ const placeholderEl = document.getElementById('placeholder');
 const stageEl = document.getElementById('stage');
 const titleEl = document.getElementById('song-title');
 const lyricsEl = document.getElementById('lyrics');
+const lrcLinesEl = document.getElementById('lrc-lines');
+
+let currentSynced = null; // { time, text }[] | null
+let currentLineIndex = -1;
 
 function showSong(song) {
   titleEl.textContent = song.title;
-  lyricsEl.textContent = song.lyrics;
   placeholderEl.style.display = 'none';
   stageEl.style.display = 'block';
+
+  currentSynced = song.syncedLyrics && song.syncedLyrics.length ? song.syncedLyrics : null;
+  currentLineIndex = -1;
+
+  if (currentSynced) {
+    lyricsEl.style.display = 'none';
+    lrcLinesEl.style.display = 'block';
+    lrcLinesEl.innerHTML = '';
+    for (let i = 0; i < currentSynced.length; i++) {
+      const div = document.createElement('div');
+      div.className = 'lrc-line';
+      div.textContent = currentSynced[i].text || ' ';
+      lrcLinesEl.appendChild(div);
+    }
+  } else {
+    lrcLinesEl.style.display = 'none';
+    lrcLinesEl.innerHTML = '';
+    lyricsEl.style.display = 'block';
+    lyricsEl.textContent = song.lyrics;
+  }
   window.scrollTo(0, 0);
 }
 
 function clearLyrics() {
   titleEl.textContent = '';
   lyricsEl.textContent = '';
+  lrcLinesEl.innerHTML = '';
+  currentSynced = null;
+  currentLineIndex = -1;
   stageEl.style.display = 'none';
   placeholderEl.style.display = 'flex';
 }
 
 function setFontSize(size) {
-  lyricsEl.style.fontSize = `${size}px`;
+  document.documentElement.style.setProperty('--lyrics-font-size', `${size}px`);
+}
+
+function handleAudioTime(time) {
+  if (!currentSynced) return;
+
+  let idx = -1;
+  for (let i = 0; i < currentSynced.length; i++) {
+    if (currentSynced[i].time <= time) idx = i;
+    else break;
+  }
+  if (idx === currentLineIndex) return;
+
+  const prevEl = lrcLinesEl.children[currentLineIndex];
+  if (prevEl) prevEl.classList.remove('current');
+
+  currentLineIndex = idx;
+  const currentEl = lrcLinesEl.children[idx];
+  if (currentEl) {
+    currentEl.classList.add('current');
+    currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 }
 
 window.addEventListener('message', (e) => {
@@ -90,6 +154,8 @@ window.addEventListener('message', (e) => {
     clearLyrics();
   } else if (msg.type === 'fontSize') {
     setFontSize(msg.size);
+  } else if (msg.type === 'audioTime') {
+    handleAudioTime(msg.time);
   }
 });
 

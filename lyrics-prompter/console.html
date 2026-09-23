@@ -163,6 +163,45 @@ body {
 
 .search-status.error { color: #e5636b; }
 .search-status.success { color: #6cd97e; }
+
+.sync-section {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #2a2c34;
+  border-radius: 8px;
+  background: #1a1c22;
+}
+
+.sync-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #a8abb8;
+}
+
+.lrc-input {
+  width: 100%;
+  height: 90px;
+  resize: vertical;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: Consolas, 'SFMono-Regular', monospace;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.attach-audio-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.file-label { cursor: pointer; }
+.audio-file-name { font-size: 12.5px; color: #a8abb8; }
+
+.audio-transport { flex-basis: 100%; margin-bottom: 4px; }
+.audio-transport audio { width: 100%; height: 34px; }
 </style>
 </head>
 <body>
@@ -190,7 +229,26 @@ body {
 
       <textarea id="lyrics-input" class="lyrics-input" placeholder="가사를 붙여넣거나 입력하세요... (또는 위에서 자동 검색)"></textarea>
 
+      <div class="sync-section">
+        <div class="sync-header">
+          <label>노래방처럼 자동 진행 (선택 — 싱크 가사 + 음원 필요)</label>
+          <button id="search-lrc-btn" class="btn btn-ghost">싱크 가사 자동 검색</button>
+        </div>
+        <div id="lrc-status" class="search-status" hidden></div>
+        <textarea id="lrc-input" class="lrc-input" placeholder="싱크 가사(LRC) - 예: [00:12.34]가사 한 줄. 자동 검색하거나 .lrc 파일 내용을 그대로 붙여넣으세요."></textarea>
+        <div class="attach-audio-row">
+          <label class="btn btn-ghost file-label">
+            음원 파일 선택
+            <input id="audio-file-input" type="file" accept="audio/*" hidden />
+          </label>
+          <span id="audio-file-name" class="audio-file-name">첨부된 음원 없음 (새로고침하면 다시 선택해야 해요)</span>
+        </div>
+      </div>
+
       <div class="prompter-bar">
+        <div class="audio-transport" id="audio-transport" hidden>
+          <audio id="audio-player" controls></audio>
+        </div>
         <div class="prompter-status">
           <span class="dot"></span>
           <span id="now-showing">프롬프터: 대기 중</span>
@@ -232,6 +290,26 @@ function uid() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+// LRC 텍스트("[00:12.34]가사 줄")를 { time(초), text } 배열로 파싱
+function parseLRC(text) {
+  const timeTag = /\[(\d{1,2}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
+  const lines = (text || '').split(/\r?\n/);
+  const result = [];
+  for (const rawLine of lines) {
+    const tags = [...rawLine.matchAll(timeTag)];
+    if (tags.length === 0) continue;
+    const content = rawLine.replace(timeTag, '').trim();
+    for (const m of tags) {
+      const min = parseInt(m[1], 10);
+      const sec = parseInt(m[2], 10);
+      const frac = parseInt((m[3] || '0').padEnd(3, '0').slice(0, 3), 10);
+      result.push({ time: min * 60 + sec + frac / 1000, text: content });
+    }
+  }
+  result.sort((a, b) => a.time - b.time);
+  return result;
+}
+
 const SongStorage = {
   getAll() {
     return readSongs().sort((a, b) => a.title.localeCompare(b.title, 'ko'));
@@ -239,7 +317,7 @@ const SongStorage = {
   getById(id) {
     return readSongs().find((s) => s.id === id) || null;
   },
-  add({ title, artist, lyrics }) {
+  add({ title, artist, lyrics, lrc }) {
     const list = readSongs();
     const now = new Date().toISOString();
     const song = {
@@ -247,6 +325,7 @@ const SongStorage = {
       title: (title || '').trim() || '제목 없음',
       artist: (artist || '').trim(),
       lyrics: lyrics || '',
+      lrc: lrc || '',
       createdAt: now,
       updatedAt: now,
     };
@@ -261,6 +340,7 @@ const SongStorage = {
     if (typeof patch.title === 'string') song.title = patch.title.trim() || '제목 없음';
     if (typeof patch.artist === 'string') song.artist = patch.artist.trim();
     if (typeof patch.lyrics === 'string') song.lyrics = patch.lyrics;
+    if (typeof patch.lrc === 'string') song.lrc = patch.lrc;
     song.updatedAt = new Date().toISOString();
     writeSongs(list);
     return song;
@@ -280,6 +360,13 @@ const searchInputEl = document.getElementById('search-input');
 const titleInputEl = document.getElementById('title-input');
 const artistInputEl = document.getElementById('artist-input');
 const lyricsInputEl = document.getElementById('lyrics-input');
+const lrcInputEl = document.getElementById('lrc-input');
+const lrcStatusEl = document.getElementById('lrc-status');
+const searchLrcBtn = document.getElementById('search-lrc-btn');
+const audioFileInputEl = document.getElementById('audio-file-input');
+const audioFileNameEl = document.getElementById('audio-file-name');
+const audioTransportEl = document.getElementById('audio-transport');
+const audioPlayerEl = document.getElementById('audio-player');
 const newSongBtn = document.getElementById('new-song-btn');
 const searchLyricsBtn = document.getElementById('search-lyrics-btn');
 const searchStatusEl = document.getElementById('search-status');
@@ -303,6 +390,9 @@ let selectedId = null;
 let onAirSong = null;
 let fontSize = 64;
 let prompterWin = null;
+
+// 브라우저 메모리에만 유지 (새로고침하면 사라짐) - songId -> File
+const audioFiles = {};
 
 function refreshSongs() {
   songs = SongStorage.getAll();
@@ -345,8 +435,11 @@ function selectSong(id) {
   titleInputEl.value = song.title;
   artistInputEl.value = song.artist || '';
   lyricsInputEl.value = song.lyrics;
+  lrcInputEl.value = song.lrc || '';
   deleteBtn.hidden = false;
   setSearchStatus('');
+  setLrcStatus('');
+  updateAudioFileLabel(id);
   renderList();
 }
 
@@ -355,8 +448,11 @@ function startNewSong() {
   titleInputEl.value = '';
   artistInputEl.value = '';
   lyricsInputEl.value = '';
+  lrcInputEl.value = '';
   deleteBtn.hidden = true;
   setSearchStatus('');
+  setLrcStatus('');
+  updateAudioFileLabel(null);
   titleInputEl.focus();
   renderList();
 }
@@ -369,17 +465,124 @@ function saveSong() {
   }
   const artist = artistInputEl.value.trim();
   const lyrics = lyricsInputEl.value;
+  const lrc = lrcInputEl.value;
   let song;
   if (selectedId) {
-    song = SongStorage.update(selectedId, { title, artist, lyrics });
+    song = SongStorage.update(selectedId, { title, artist, lyrics, lrc });
   } else {
-    song = SongStorage.add({ title, artist, lyrics });
+    song = SongStorage.add({ title, artist, lyrics, lrc });
     selectedId = song.id;
     deleteBtn.hidden = false;
   }
   refreshSongs();
   return song;
 }
+
+function updateAudioFileLabel(songId) {
+  const file = songId ? audioFiles[songId] : null;
+  audioFileNameEl.textContent = file
+    ? `첨부됨: ${file.name}`
+    : '첨부된 음원 없음 (새로고침하면 다시 선택해야 해요)';
+}
+
+function setLrcStatus(text, kind) {
+  if (!text) {
+    lrcStatusEl.hidden = true;
+    lrcStatusEl.textContent = '';
+    return;
+  }
+  lrcStatusEl.hidden = false;
+  lrcStatusEl.textContent = text;
+  lrcStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+async function searchSyncedLyricsOnline() {
+  const title = titleInputEl.value.trim();
+  const artist = artistInputEl.value.trim();
+
+  if (!title || !artist) {
+    (title ? artistInputEl : titleInputEl).focus();
+    setLrcStatus('제목과 가수를 모두 입력해야 싱크 가사를 검색할 수 있어요.', 'error');
+    return;
+  }
+
+  searchLrcBtn.disabled = true;
+  setLrcStatus('싱크 가사 검색 중...');
+
+  try {
+    const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    let response;
+    try {
+      response = await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) throw new Error('lrc-not-found');
+    const data = await response.json();
+    if (!data.syncedLyrics) throw new Error('lrc-empty');
+
+    lrcInputEl.value = data.syncedLyrics.trim();
+    setLrcStatus('싱크 가사를 찾았어요. 확인 후 저장하세요.', 'success');
+  } catch (err) {
+    setLrcStatus(
+      '싱크 가사를 찾지 못했어요. .lrc 파일이 있다면 그 내용을 위 칸에 직접 붙여넣어보세요.',
+      'error'
+    );
+  } finally {
+    searchLrcBtn.disabled = false;
+  }
+}
+
+function setAudioPlayerForSong(songId) {
+  if (audioPlayerEl.dataset.objectUrl) {
+    URL.revokeObjectURL(audioPlayerEl.dataset.objectUrl);
+    delete audioPlayerEl.dataset.objectUrl;
+  }
+  const file = songId ? audioFiles[songId] : null;
+  if (file) {
+    const url = URL.createObjectURL(file);
+    audioPlayerEl.src = url;
+    audioPlayerEl.dataset.objectUrl = url;
+    audioTransportEl.hidden = false;
+  } else {
+    audioPlayerEl.removeAttribute('src');
+    audioPlayerEl.load();
+    audioTransportEl.hidden = true;
+  }
+}
+
+audioFileInputEl.addEventListener('change', () => {
+  const file = audioFileInputEl.files[0];
+  if (!file) return;
+
+  let id = selectedId;
+  if (!id) {
+    const song = saveSong();
+    if (!song) {
+      audioFileInputEl.value = '';
+      return;
+    }
+    id = song.id;
+  }
+
+  audioFiles[id] = file;
+  updateAudioFileLabel(id);
+  if (onAirSong && onAirSong.id === id) {
+    setAudioPlayerForSong(id);
+  }
+  audioFileInputEl.value = '';
+});
+
+audioPlayerEl.addEventListener('timeupdate', () => {
+  if (onAirSong && onAirSong.syncedLyrics && onAirSong.syncedLyrics.length) {
+    postToPrompter({ type: 'audioTime', time: audioPlayerEl.currentTime });
+  }
+});
+
+searchLrcBtn.addEventListener('click', searchSyncedLyricsOnline);
 
 function setSearchStatus(text, kind) {
   if (!text) {
@@ -499,17 +702,20 @@ function sendToPrompter(idOverride) {
   const song = id === selectedId ? saveSong() : SongStorage.getById(id);
   if (!song) return;
 
-  onAirSong = song;
+  const syncedLyrics = song.lrc ? parseLRC(song.lrc) : [];
+  onAirSong = { ...song, syncedLyrics };
   setOnAirStatus(song.title);
   renderList();
+  setAudioPlayerForSong(song.id);
 
   openPrompterWindow().then(() => {
-    postToPrompter({ type: 'show', song, fontSize });
+    postToPrompter({ type: 'show', song: onAirSong, fontSize });
   });
 }
 
 function clearPrompter() {
   postToPrompter({ type: 'clear' });
+  audioPlayerEl.pause();
   onAirSong = null;
   setOnAirStatus(null);
   renderList();

@@ -732,6 +732,22 @@ function loadYouTubeAPI() {
   return ytApiPromise;
 }
 
+function describeYouTubeError(code) {
+  switch (code) {
+    case 2:
+      return '유튜브 링크에 문제가 있어요 (잘못된 동영상 ID). URL을 다시 확인해주세요.';
+    case 5:
+      return '이 브라우저에서 유튜브 영상을 재생할 수 없어요 (플레이어 오류).';
+    case 100:
+      return '영상을 찾을 수 없어요 (삭제되었거나 비공개 영상일 수 있어요).';
+    case 101:
+    case 150:
+      return '이 영상은 업로더가 다른 사이트에서의 재생(임베드)을 막아놨어요. 음원 파일을 직접 첨부해주세요.';
+    default:
+      return `이 유튜브 영상은 재생할 수 없어요 (오류 코드: ${code}).`;
+  }
+}
+
 async function createYouTubeAudioController(containerEl, videoId) {
   containerEl.textContent = '유튜브 불러오는 중...';
   let YT;
@@ -763,16 +779,25 @@ async function createYouTubeAudioController(containerEl, videoId) {
   }
 
   const player = await new Promise((resolve) => {
+    let settled = false;
     const p = new YT.Player(playerDiv, {
       width: '100%',
       height: '200',
       videoId,
       playerVars: { rel: 0 },
       events: {
-        onReady: () => resolve(p),
-        onError: () => {
+        onReady: () => {
+          if (settled) return;
+          settled = true;
+          resolve(p);
+        },
+        onError: (e) => {
           failed = true;
-          containerEl.textContent = '이 유튜브 영상은 재생할 수 없어요 (삽입 제한 또는 잘못된 링크).';
+          containerEl.textContent = describeYouTubeError(e.data);
+          if (!settled) {
+            settled = true;
+            resolve(null);
+          }
         },
         onStateChange: (e) => {
           if (e.data === YT.PlayerState.PLAYING) startPolling();
@@ -782,15 +807,15 @@ async function createYouTubeAudioController(containerEl, videoId) {
     });
   });
 
-  if (failed) return null;
+  if (!player || failed) return null;
 
   return {
     type: 'youtube',
-    play() { player.playVideo(); },
-    pause() { player.pauseVideo(); },
-    getCurrentTime() { return player.getCurrentTime(); },
-    seek(t) { player.seekTo(t, true); },
-    setPlaybackRate(r) { player.setPlaybackRate(r); },
+    play() { if (!failed) player.playVideo(); },
+    pause() { if (!failed) player.pauseVideo(); },
+    getCurrentTime() { return failed ? 0 : player.getCurrentTime(); },
+    seek(t) { if (!failed) player.seekTo(t, true); },
+    setPlaybackRate(r) { if (!failed) player.setPlaybackRate(r); },
     onTick(fn) { tickHandlers.push(fn); },
     destroy() {
       stopPolling();

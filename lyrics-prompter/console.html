@@ -695,19 +695,107 @@ async function loadLiveAudioForSong(song) {
   }
 }
 
-audioFileInputEl.addEventListener('change', () => {
+// mp3 파일 안에 들어있는 ID3 태그(제목/가수)를 읽어서 자동으로 채워주기 위한 파서.
+// ID3v2.3 / ID3v2.4 만 지원 (대부분의 mp3가 이 버전). 실패하면 조용히 null 반환.
+async function readId3Tags(file) {
+  try {
+    const headerBytes = new Uint8Array(await file.slice(0, 10).arrayBuffer());
+    if (headerBytes[0] !== 0x49 || headerBytes[1] !== 0x44 || headerBytes[2] !== 0x33) return null; // "ID3"
+
+    const majorVersion = headerBytes[3];
+    if (majorVersion !== 3 && majorVersion !== 4) return null;
+
+    const flags = headerBytes[5];
+    const unsynchronized = (flags & 0x80) !== 0;
+    const hasExtendedHeader = (flags & 0x40) !== 0;
+    const tagSize =
+      ((headerBytes[6] & 0x7f) << 21) |
+      ((headerBytes[7] & 0x7f) << 14) |
+      ((headerBytes[8] & 0x7f) << 7) |
+      (headerBytes[9] & 0x7f);
+
+    let bytes = new Uint8Array(await file.slice(10, 10 + tagSize).arrayBuffer());
+
+    if (unsynchronized) {
+      const out = [];
+      for (let i = 0; i < bytes.length; i++) {
+        out.push(bytes[i]);
+        if (bytes[i] === 0xff && bytes[i + 1] === 0x00) i++;
+      }
+      bytes = new Uint8Array(out);
+    }
+
+    let offset = 0;
+    if (hasExtendedHeader) {
+      const extSize =
+        majorVersion === 4
+          ? ((bytes[0] & 0x7f) << 21) | ((bytes[1] & 0x7f) << 14) | ((bytes[2] & 0x7f) << 7) | (bytes[3] & 0x7f)
+          : (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+      offset += extSize;
+    }
+
+    function readFrameSize(off) {
+      if (majorVersion === 4) {
+        return (
+          ((bytes[off] & 0x7f) << 21) |
+          ((bytes[off + 1] & 0x7f) << 14) |
+          ((bytes[off + 2] & 0x7f) << 7) |
+          (bytes[off + 3] & 0x7f)
+        );
+      }
+      return (bytes[off] << 24) | (bytes[off + 1] << 16) | (bytes[off + 2] << 8) | bytes[off + 3];
+    }
+
+    function decodeText(frameBytes) {
+      if (frameBytes.length === 0) return '';
+      const enc = frameBytes[0];
+      const textBytes = frameBytes.slice(1);
+      let text;
+      try {
+        if (enc === 0) text = new TextDecoder('iso-8859-1').decode(textBytes);
+        else if (enc === 1) text = new TextDecoder('utf-16').decode(textBytes);
+        else if (enc === 2) text = new TextDecoder('utf-16be').decode(textBytes);
+        else text = new TextDecoder('utf-8').decode(textBytes);
+      } catch (err) {
+        text = new TextDecoder('utf-8').decode(textBytes);
+      }
+      return text.replace(/\u0000+$/, '').trim();
+    }
+
+    const result = {};
+    while (offset + 10 <= bytes.length) {
+      if (bytes[offset] === 0) break; // 패딩 시작
+      const frameId = String.fromCharCode(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
+      const frameSize = readFrameSize(offset + 4);
+      if (frameSize <= 0 || offset + 10 + frameSize > bytes.length) break;
+      const frameBytes = bytes.slice(offset + 10, offset + 10 + frameSize);
+
+      if (frameId === 'TIT2') result.title = decodeText(frameBytes);
+      if (frameId === 'TPE1') result.artist = decodeText(frameBytes);
+
+      offset += 10 + frameSize;
+    }
+
+    return Object.keys(result).length ? result : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+audioFileInputEl.addEventListener('change', async () => {
   const file = audioFileInputEl.files[0];
   if (!file) return;
 
-  let id = selectedId;
-  if (!id) {
-    const song = saveSong();
-    if (!song) {
-      audioFileInputEl.value = '';
-      return;
-    }
-    id = song.id;
+  const tags = await readId3Tags(file);
+  if (tags && tags.title && !titleInputEl.value.trim()) titleInputEl.value = tags.title;
+  if (tags && tags.artist && !artistInputEl.value.trim()) artistInputEl.value = tags.artist;
+
+  const song = saveSong();
+  if (!song) {
+    audioFileInputEl.value = '';
+    return;
   }
+  const id = song.id;
 
   audioFiles[id] = file;
   updateAudioFileLabel(id);
@@ -715,6 +803,11 @@ audioFileInputEl.addEventListener('change', () => {
     loadLiveAudioForSong(onAirSong);
   }
   audioFileInputEl.value = '';
+
+  const hasTitleAndArtist = titleInputEl.value.trim() && artistInputEl.value.trim();
+  if (hasTitleAndArtist && !lyricsInputEl.value.trim()) {
+    searchLyricsOnline();
+  }
 });
 
 searchLrcBtn.addEventListener('click', searchSyncedLyricsOnline);

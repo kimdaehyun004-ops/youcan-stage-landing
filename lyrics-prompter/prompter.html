@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>가사 프롬프터</title>
+<style>
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000000;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif; }
+
+.placeholder {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a4d58;
+  font-size: 32px;
+  letter-spacing: 0.04em;
+}
+
+.stage { min-height: 100%; padding: 6vh 6vw 40vh; text-align: center; }
+
+.song-title { color: #7d818f; font-size: 24px; margin-bottom: 3vh; letter-spacing: 0.03em; }
+
+.lyrics {
+  color: #ffffff;
+  font-size: var(--lyrics-font-size, 64px);
+  line-height: 1.6;
+  font-weight: 600;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  font-family: inherit;
+  margin: 0;
+}
+
+.lrc-lines { padding: 32vh 6vw 60vh; }
+
+.lrc-line {
+  color: #55585f;
+  font-size: calc(var(--lyrics-font-size, 64px) * 0.55);
+  line-height: 1.9;
+  font-weight: 600;
+  word-break: keep-all;
+  transition: color 0.2s, font-size 0.2s;
+}
+
+.lrc-line.current {
+  color: #ffffff;
+  font-size: var(--lyrics-font-size, 64px);
+}
+
+.hint { position: fixed; bottom: 10px; right: 14px; color: #33353d; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div id="placeholder" class="placeholder">가사 대기 중...</div>
+
+  <div id="stage" class="stage" style="display: none;">
+    <div id="song-title" class="song-title"></div>
+    <pre id="lyrics" class="lyrics"></pre>
+    <div id="lrc-lines" class="lrc-lines" style="display: none;"></div>
+  </div>
+
+  <div class="hint">F11 전체화면 · ↑↓ 스크롤</div>
+
+<script>
+const placeholderEl = document.getElementById('placeholder');
+const stageEl = document.getElementById('stage');
+const titleEl = document.getElementById('song-title');
+const lyricsEl = document.getElementById('lyrics');
+const lrcLinesEl = document.getElementById('lrc-lines');
+
+let currentSynced = null; // { time, text }[] | null
+let currentLineIndex = -1;
+
+function showSong(song) {
+  titleEl.textContent = song.title;
+  placeholderEl.style.display = 'none';
+  stageEl.style.display = 'block';
+
+  currentSynced = song.syncedLyrics && song.syncedLyrics.length ? song.syncedLyrics : null;
+  currentLineIndex = -1;
+
+  if (currentSynced) {
+    lyricsEl.style.display = 'none';
+    lrcLinesEl.style.display = 'block';
+    lrcLinesEl.innerHTML = '';
+    for (let i = 0; i < currentSynced.length; i++) {
+      const div = document.createElement('div');
+      div.className = 'lrc-line';
+      div.textContent = currentSynced[i].text || ' ';
+      lrcLinesEl.appendChild(div);
+    }
+  } else {
+    lrcLinesEl.style.display = 'none';
+    lrcLinesEl.innerHTML = '';
+    lyricsEl.style.display = 'block';
+    lyricsEl.textContent = song.lyrics;
+  }
+  window.scrollTo(0, 0);
+}
+
+function showLiveLines(title, lines) {
+  titleEl.textContent = title || '';
+  placeholderEl.style.display = 'none';
+  stageEl.style.display = 'block';
+
+  currentSynced = null; // 시간이 아니라 콘솔의 수동 조작으로 진행됨
+  currentLineIndex = -1;
+
+  lyricsEl.style.display = 'none';
+  lrcLinesEl.style.display = 'block';
+  lrcLinesEl.innerHTML = '';
+  for (const text of lines) {
+    const div = document.createElement('div');
+    div.className = 'lrc-line';
+    div.textContent = text || ' ';
+    lrcLinesEl.appendChild(div);
+  }
+  window.scrollTo(0, 0);
+}
+
+let timerLines = null; // { duration, text }[] | null
+let timerHandle = null;
+
+function showTimerLines(title, lines) {
+  titleEl.textContent = title || '';
+  placeholderEl.style.display = 'none';
+  stageEl.style.display = 'block';
+
+  currentSynced = null;
+  currentLineIndex = -1;
+  clearTimerHandle();
+  timerLines = lines;
+
+  lyricsEl.style.display = 'none';
+  lrcLinesEl.style.display = 'block';
+  lrcLinesEl.innerHTML = '';
+  for (const line of lines) {
+    const div = document.createElement('div');
+    div.className = 'lrc-line';
+    div.textContent = line.text || ' ';
+    lrcLinesEl.appendChild(div);
+  }
+  window.scrollTo(0, 0);
+}
+
+function clearTimerHandle() {
+  if (timerHandle) {
+    clearTimeout(timerHandle);
+    timerHandle = null;
+  }
+}
+
+function reportTimerTick() {
+  if (window.opener) {
+    window.opener.postMessage({ type: 'timerTick', index: currentLineIndex }, '*');
+  }
+}
+
+function scheduleNextTimerLine() {
+  clearTimerHandle();
+  if (!timerLines || currentLineIndex >= timerLines.length - 1) return;
+  const duration = timerLines[currentLineIndex] ? timerLines[currentLineIndex].duration : 0;
+  const ms = Math.max(200, duration * 1000);
+  timerHandle = setTimeout(() => {
+    highlightLine(currentLineIndex + 1);
+    reportTimerTick();
+    scheduleNextTimerLine();
+  }, ms);
+}
+
+function timerControl(action) {
+  if (!timerLines) return;
+  if (action === 'start') {
+    if (currentLineIndex < 0) {
+      highlightLine(0);
+      reportTimerTick();
+    }
+    scheduleNextTimerLine();
+  } else if (action === 'pause') {
+    clearTimerHandle();
+  } else if (action === 'reset') {
+    clearTimerHandle();
+    highlightLine(-1);
+    reportTimerTick();
+  }
+}
+
+function clearLyrics() {
+  titleEl.textContent = '';
+  lyricsEl.textContent = '';
+  lrcLinesEl.innerHTML = '';
+  currentSynced = null;
+  currentLineIndex = -1;
+  clearTimerHandle();
+  timerLines = null;
+  stageEl.style.display = 'none';
+  placeholderEl.style.display = 'flex';
+}
+
+function setFontSize(size) {
+  document.documentElement.style.setProperty('--lyrics-font-size', `${size}px`);
+}
+
+function highlightLine(idx) {
+  if (idx === currentLineIndex) return;
+
+  const prevEl = lrcLinesEl.children[currentLineIndex];
+  if (prevEl) prevEl.classList.remove('current');
+
+  currentLineIndex = idx;
+  const currentEl = lrcLinesEl.children[idx];
+  if (currentEl) {
+    currentEl.classList.add('current');
+    currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function handleAudioTime(time) {
+  if (!currentSynced) return;
+
+  let idx = -1;
+  for (let i = 0; i < currentSynced.length; i++) {
+    if (currentSynced[i].time <= time) idx = i;
+    else break;
+  }
+  highlightLine(idx);
+}
+
+window.addEventListener('message', (e) => {
+  const msg = e.data;
+  if (!msg || typeof msg !== 'object') return;
+  if (msg.type === 'show') {
+    showSong(msg.song);
+    if (typeof msg.fontSize === 'number') setFontSize(msg.fontSize);
+  } else if (msg.type === 'liveShow') {
+    showLiveLines(msg.title, msg.lines);
+    if (typeof msg.fontSize === 'number') setFontSize(msg.fontSize);
+  } else if (msg.type === 'liveIndex') {
+    highlightLine(msg.index);
+  } else if (msg.type === 'timerShow') {
+    showTimerLines(msg.title, msg.lines);
+    if (typeof msg.fontSize === 'number') setFontSize(msg.fontSize);
+  } else if (msg.type === 'timerControl') {
+    timerControl(msg.action);
+  } else if (msg.type === 'clear') {
+    clearLyrics();
+  } else if (msg.type === 'fontSize') {
+    setFontSize(msg.size);
+  } else if (msg.type === 'audioTime') {
+    handleAudioTime(msg.time);
+  }
+});
+
+// 콘솔(opener)에게 "준비 완료"를 알려서 현재 표시 중인 곡을 다시 받아옴
+if (window.opener) {
+  window.opener.postMessage({ type: 'ready' }, '*');
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+    e.preventDefault();
+    window.scrollBy({ top: 200, behavior: 'smooth' });
+  } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+    e.preventDefault();
+    window.scrollBy({ top: -200, behavior: 'smooth' });
+  }
+});
+</script>
+</body>
+</html>

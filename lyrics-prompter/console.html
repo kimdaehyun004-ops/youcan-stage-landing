@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<title>가사 프롬프터 - 콘솔</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;
+  background: #1c1e24;
+  color: #e8e9ee;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout { display: flex; height: 100vh; }
+
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #16171c;
+  border-right: 1px solid #2a2c34;
+  padding: 16px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sidebar-header h1 {
+  font-size: 16px;
+  margin: 0;
+  color: #a8abb8;
+  font-weight: 600;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.song-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+
+.song-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: background 0.12s;
+}
+
+.song-item:hover { background: #22242c; }
+.song-item.active { background: #2e3140; }
+.song-item.on-air { background: #2a3f2e; }
+
+.song-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+
+.song-item-live-badge {
+  font-size: 10px;
+  color: #6cd97e;
+  border: 1px solid #3a6b42;
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.editor { flex: 1; display: flex; flex-direction: column; padding: 20px 24px; min-width: 0; }
+
+.editor-header { display: flex; gap: 12px; margin-bottom: 12px; }
+
+.title-input {
+  flex: 1;
+  font-size: 20px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+}
+
+.editor-actions { display: flex; gap: 8px; }
+
+.lyrics-input {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  border-radius: 8px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  padding: 16px;
+  font-size: 16px;
+  line-height: 1.7;
+  font-family: inherit;
+}
+
+.prompter-bar {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #16171c;
+  border: 1px solid #2a2c34;
+  border-radius: 8px;
+  padding: 12px 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prompter-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #a8abb8; }
+
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #565a68; }
+.prompter-status.live .dot { background: #6cd97e; box-shadow: 0 0 6px #6cd97e; }
+
+.prompter-controls { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #a8abb8; flex-wrap: wrap; }
+
+#font-size-label { min-width: 44px; text-align: center; color: #e8e9ee; }
+
+.btn { border: none; border-radius: 6px; padding: 9px 14px; font-size: 13px; cursor: pointer; font-weight: 500; }
+.btn-primary { background: #4c6ef5; color: white; }
+.btn-primary:hover { background: #3d5ce0; }
+.btn-danger { background: transparent; color: #e5636b; border: 1px solid #5a2a2e; }
+.btn-danger:hover { background: #2a1c1e; }
+.btn-ghost { background: #22242c; color: #e8e9ee; border: 1px solid #2a2c34; padding: 6px 10px; }
+.btn-ghost:hover { background: #2a2c34; }
+.btn-accent { background: #2f9e44; color: white; padding: 9px 16px; }
+.btn-accent:hover { background: #268b3a; }
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.artist-input {
+  width: 200px;
+  flex-shrink: 0;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+}
+
+.search-status {
+  margin: -6px 0 10px;
+  font-size: 12.5px;
+  color: #a8abb8;
+}
+
+.search-status.error { color: #e5636b; }
+.search-status.success { color: #6cd97e; }
+
+.sync-section {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #2a2c34;
+  border-radius: 8px;
+  background: #1a1c22;
+}
+
+.sync-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #a8abb8;
+}
+
+.lrc-input {
+  width: 100%;
+  height: 90px;
+  resize: vertical;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: Consolas, 'SFMono-Regular', monospace;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.attach-audio-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.file-label { cursor: pointer; }
+.audio-file-name { font-size: 12.5px; color: #a8abb8; }
+
+.audio-transport { flex-basis: 100%; margin-bottom: 4px; }
+.audio-transport audio { width: 100%; height: 34px; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay[hidden] { display: none; }
+
+.modal-panel {
+  width: min(640px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #1c1e24;
+  border: 1px solid #2a2c34;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.modal-header h2 { margin: 0; font-size: 17px; color: #e8e9ee; }
+
+.tap-progress { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #a8abb8; }
+.tap-progress select { background: #22242c; color: #e8e9ee; border: 1px solid #2a2c34; border-radius: 6px; padding: 4px 8px; }
+
+#sync-audio-container { width: 100%; margin-bottom: 18px; min-height: 40px; }
+#sync-audio-container audio { width: 100%; }
+
+.stopwatch-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #2a2c34;
+  border-radius: 6px;
+  background: #16171c;
+}
+.stopwatch-label { font-size: 13px; color: #a8abb8; font-family: Consolas, 'SFMono-Regular', monospace; }
+
+.tap-lines { text-align: center; margin-bottom: 18px; }
+.tap-line { padding: 6px 0; word-break: keep-all; }
+.tap-line-prev, .tap-line-next { color: #565a68; font-size: 15px; min-height: 1.4em; }
+.tap-line-current { color: #ffffff; font-size: 22px; font-weight: 700; margin: 6px 0; min-height: 1.4em; }
+
+.tap-actions { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.tap-hint { text-align: center; font-size: 12.5px; color: #7d818f; margin: 0; }
+
+.live-panel {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid #3a6b42;
+  border-radius: 8px;
+  background: #16201a;
+}
+
+.live-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #a8abb8;
+}
+
+.live-actions { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>곡 목록</h1>
+        <button id="new-song-btn" class="btn btn-primary">+ 새 곡</button>
+      </div>
+      <input id="search-input" class="search-input" type="text" placeholder="곡 제목 검색..." />
+      <ul id="song-list" class="song-list"></ul>
+    </aside>
+
+    <main class="editor">
+      <div class="editor-header">
+        <input id="title-input" class="title-input" type="text" placeholder="곡 제목" />
+        <input id="artist-input" class="artist-input" type="text" placeholder="가수 (검색용)" />
+        <div class="editor-actions">
+          <button id="search-lyrics-btn" class="btn btn-ghost">가사 자동 검색</button>
+          <button id="save-btn" class="btn btn-primary">저장</button>
+          <button id="delete-btn" class="btn btn-danger" hidden>삭제</button>
+        </div>
+      </div>
+      <div id="search-status" class="search-status" hidden></div>
+
+      <textarea id="lyrics-input" class="lyrics-input" placeholder="가사를 붙여넣거나 입력하세요... (또는 위에서 자동 검색)"></textarea>
+
+      <div class="sync-section">
+        <div class="sync-header">
+          <label>노래방처럼 자동 진행 (선택 — 싱크 가사 + 음원 필요)</label>
+          <div style="display: flex; gap: 8px;">
+            <button id="start-tap-sync-btn" class="btn btn-ghost">탭으로 싱크 찍기</button>
+            <button id="search-lrc-btn" class="btn btn-ghost">싱크 가사 자동 검색</button>
+          </div>
+        </div>
+        <div id="lrc-status" class="search-status" hidden></div>
+        <textarea id="lrc-input" class="lrc-input" placeholder="싱크 가사(LRC) - 예: [00:12.34]가사 한 줄. 자동 검색하거나 .lrc 파일 내용을 그대로 붙여넣으세요."></textarea>
+        <div class="attach-audio-row">
+          <label class="btn btn-ghost file-label">
+            음원 파일 선택
+            <input id="audio-file-input" type="file" accept="audio/*" hidden />
+          </label>
+          <span id="audio-file-name" class="audio-file-name">첨부된 음원 없음 (새로고침하면 다시 선택해야 해요)</span>
+        </div>
+      </div>
+
+      <div class="sync-section">
+        <div class="sync-header">
+          <label>가사 유지 시간 (선택 — 음원 없이 정해진 시간으로 자동 진행)</label>
+          <div style="display: flex; gap: 8px;">
+            <button id="start-tap-duration-btn" class="btn btn-ghost">탭으로 유지 시간 찍기</button>
+            <button id="convert-lrc-btn" class="btn btn-ghost">싱크 가사(LRC)에서 변환</button>
+          </div>
+        </div>
+        <div id="duration-status" class="search-status" hidden></div>
+        <textarea id="duration-input" class="lrc-input" placeholder="예: [00:05.54]가사 한 줄 → 이 줄을 5.54초 동안 보여준 뒤 자동으로 다음 줄로 넘어갑니다. (싱크 가사와 달리 '시작 시각'이 아니라 '유지 시간'입니다)"></textarea>
+      </div>
+
+      <div class="prompter-bar">
+        <div class="audio-transport" id="audio-transport" hidden>
+          <div id="audio-transport-inner"></div>
+        </div>
+        <div class="prompter-status">
+          <span class="dot"></span>
+          <span id="now-showing">프롬프터: 대기 중</span>
+        </div>
+        <div class="prompter-controls">
+          <button id="open-prompter-btn" class="btn btn-ghost">프롬프터 창 열기</button>
+          <label>글자 크기</label>
+          <button id="font-minus-btn" class="btn btn-ghost">−</button>
+          <span id="font-size-label">64px</span>
+          <button id="font-plus-btn" class="btn btn-ghost">+</button>
+          <button id="clear-prompter-btn" class="btn btn-ghost">지우기</button>
+          <button id="live-mode-btn" class="btn btn-accent">🎤 라이브 모드로 보내기</button>
+          <button id="timer-mode-btn" class="btn btn-accent">⏱ 자동 타이머로 보내기</button>
+          <button id="send-btn" class="btn btn-accent">▶ 프롬프터로 보내기</button>
+        </div>
+      </div>
+
+      <div id="timer-panel" class="live-panel" hidden>
+        <div class="live-header">
+          <span id="timer-progress-label">0 / 0줄</span>
+          <button id="timer-exit-btn" class="btn btn-ghost">타이머 모드 종료</button>
+        </div>
+        <div class="tap-lines">
+          <div id="timer-line-prev" class="tap-line tap-line-prev"></div>
+          <div id="timer-line-current" class="tap-line tap-line-current"></div>
+          <div id="timer-line-next" class="tap-line tap-line-next"></div>
+        </div>
+        <div class="live-actions">
+          <button id="timer-start-btn" class="btn btn-accent">▶ 시작</button>
+          <button id="timer-pause-btn" class="btn btn-ghost">일시정지</button>
+          <button id="timer-reset-btn" class="btn btn-ghost">처음부터</button>
+        </div>
+        <p class="tap-hint">각 줄에 설정한 시간이 지나면 자동으로 다음 줄로 넘어갑니다. 타이머는
+          프롬프터 창이 직접 관리하므로 이 콘솔 창에 포커스가 없어도 정확하게 진행됩니다.</p>
+      </div>
+
+      <div id="live-panel" class="live-panel" hidden>
+        <div class="live-header">
+          <span id="live-progress-label">0 / 0줄</span>
+          <button id="live-exit-btn" class="btn btn-ghost">라이브 모드 종료</button>
+        </div>
+        <div class="tap-lines">
+          <div id="live-line-prev" class="tap-line tap-line-prev"></div>
+          <div id="live-line-current" class="tap-line tap-line-current"></div>
+          <div id="live-line-next" class="tap-line tap-line-next"></div>
+        </div>
+        <div class="live-actions">
+          <button id="live-prev-btn" class="btn btn-ghost">◀ 이전 줄 (Backspace)</button>
+          <button id="live-next-btn" class="btn btn-accent">다음 줄 ▶ (스페이스바)</button>
+        </div>
+        <p class="tap-hint">유튜브 등 어떤 소스로 음원을 재생하든 상관없이, 실제로 그 가사가 나오는
+          순간 "다음 줄"을 누르면 프롬프터에 바로 그 줄이 뜹니다.</p>
+      </div>
+    </main>
+  </div>
+
+  <div id="tap-sync-modal" class="modal-overlay" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="tap-modal-title">탭으로 싱크 찍기</h2>
+        <button id="tap-close-btn" class="btn btn-ghost">닫기</button>
+      </div>
+
+      <div class="tap-progress">
+        <span id="tap-progress-label">0 / 0줄</span>
+        <select id="tap-speed-select">
+          <option value="1">1.0배속</option>
+          <option value="0.75">0.75배속</option>
+          <option value="0.5">0.5배속</option>
+        </select>
+      </div>
+
+      <div id="sync-audio-container"></div>
+
+      <div class="tap-lines">
+        <div id="tap-line-prev" class="tap-line tap-line-prev"></div>
+        <div id="tap-line-current" class="tap-line tap-line-current"></div>
+        <div id="tap-line-next" class="tap-line tap-line-next"></div>
+      </div>
+
+      <div class="tap-actions">
+        <button id="tap-undo-btn" class="btn btn-ghost">↩ 되돌리기</button>
+        <button id="tap-reset-btn" class="btn btn-ghost">처음부터</button>
+        <button id="tap-btn" class="btn btn-accent">TAP (스페이스바)</button>
+        <button id="tap-finish-btn" class="btn btn-primary" disabled>LRC 만들기</button>
+      </div>
+
+      <p id="tap-hint" class="tap-hint">음원을 재생하다가 화면의 굵은 줄이 실제로 나오는 순간 스페이스바(또는 TAP 버튼)를 누르세요. 실수하면 되돌리기로 취소할 수 있어요.</p>
+    </div>
+  </div>
+
+<script>
+const STORAGE_KEY = 'lp:songs';
+
+function readSongs() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function writeSongs(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+function uid() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+// LRC 텍스트("[00:12.34]가사 줄")를 { time(초), text } 배열로 파싱
+function parseLRC(text) {
+  const timeTag = /\[(\d{1,2}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
+  const lines = (text || '').split(/\r?\n/);
+  const result = [];
+  for (const rawLine of lines) {
+    const tags = [...rawLine.matchAll(timeTag)];
+    if (tags.length === 0) continue;
+    const content = rawLine.replace(timeTag, '').trim();
+    for (const m of tags) {
+      const min = parseInt(m[1], 10);
+      const sec = parseInt(m[2], 10);
+      const frac = parseInt((m[3] || '0').padEnd(3, '0').slice(0, 3), 10);
+      result.push({ time: min * 60 + sec + frac / 1000, text: content });
+    }
+  }
+  result.sort((a, b) => a.time - b.time);
+  return result;
+}
+
+const SongStorage = {
+  getAll() {
+    return readSongs().sort((a, b) => a.title.localeCompare(b.title, 'ko'));
+  },
+  getById(id) {
+    return readSongs().find((s) => s.id === id) || null;
+  },
+  add({ title, artist, lyrics, lrc }) {
+    const list = readSongs();
+    const now = new Date().toISOString();
+    const song = {
+      id: uid(),
+      title: (title || '').trim() || '제목 없음',
+      artist: (artist || '').trim(),
+      lyrics: lyrics || '',
+      lrc: lrc || '',
+      createdAt: now,
+      updatedAt: now,
+    };
+    list.push(song);
+    writeSongs(list);
+    return song;
+  },
+  update(id, patch) {
+    const list = readSongs();
+    const song = list.find((s) => s.id === id);
+    if (!song) return null;
+    if (typeof patch.title === 'string') song.title = patch.title.trim() || '제목 없음';
+    if (typeof patch.artist === 'string') song.artist = patch.artist.trim();
+    if (typeof patch.lyrics === 'string') song.lyrics = patch.lyrics;
+    if (typeof patch.lrc === 'string') song.lrc = patch.lrc;
+    song.updatedAt = new Date().toISOString();
+    writeSongs(list);
+    return song;
+  },
+  remove(id) {
+    const list = readSongs();
+    const idx = list.findIndex((s) => s.id === id);
+    if (idx === -1) return false;
+    list.splice(idx, 1);
+    writeSongs(list);
+    return true;
+  },
+};
+
+const songListEl = document.getElementById('song-list');
+const searchInputEl = document.getElementById('search-input');
+const titleInputEl = document.getElementById('title-input');
+const artistInputEl = document.getElementById('artist-input');
+const lyricsInputEl = document.getElementById('lyrics-input');
+const lrcInputEl = document.getElementById('lrc-input');
+const lrcStatusEl = document.getElementById('lrc-status');
+const searchLrcBtn = document.getElementById('search-lrc-btn');
+const audioFileInputEl = document.getElementById('audio-file-input');
+const audioFileNameEl = document.getElementById('audio-file-name');
+const audioTransportEl = document.getElementById('audio-transport');
+const audioTransportInnerEl = document.getElementById('audio-transport-inner');
+const startTapSyncBtn = document.getElementById('start-tap-sync-btn');
+const startTapDurationBtn = document.getElementById('start-tap-duration-btn');
+const tapSyncModal = document.getElementById('tap-sync-modal');
+const tapModalTitleEl = document.getElementById('tap-modal-title');
+const tapHintEl = document.getElementById('tap-hint');
+const tapCloseBtn = document.getElementById('tap-close-btn');
+const tapProgressLabel = document.getElementById('tap-progress-label');
+const tapSpeedSelect = document.getElementById('tap-speed-select');
+const syncAudioContainerEl = document.getElementById('sync-audio-container');
+const tapLinePrevEl = document.getElementById('tap-line-prev');
+const tapLineCurrentEl = document.getElementById('tap-line-current');
+const tapLineNextEl = document.getElementById('tap-line-next');
+const tapUndoBtn = document.getElementById('tap-undo-btn');
+const tapResetBtn = document.getElementById('tap-reset-btn');
+const tapBtn = document.getElementById('tap-btn');
+const tapFinishBtn = document.getElementById('tap-finish-btn');
+const newSongBtn = document.getElementById('new-song-btn');
+const searchLyricsBtn = document.getElementById('search-lyrics-btn');
+const searchStatusEl = document.getElementById('search-status');
+const saveBtn = document.getElementById('save-btn');
+const deleteBtn = document.getElementById('delete-btn');
+const sendBtn = document.getElementById('send-btn');
+const liveModeBtn = document.getElementById('live-mode-btn');
+const livePanelEl = document.getElementById('live-panel');
+const liveProgressLabel = document.getElementById('live-progress-label');
+const liveExitBtn = document.getElementById('live-exit-btn');
+const liveLinePrevEl = document.getElementById('live-line-prev');
+const liveLineCurrentEl = document.getElementById('live-line-current');
+const liveLineNextEl = document.getElementById('live-line-next');
+const livePrevBtn = document.getElementById('live-prev-btn');
+const liveNextBtn = document.getElementById('live-next-btn');
+const durationInputEl = document.getElementById('duration-input');
+const durationStatusEl = document.getElementById('duration-status');
+const convertLrcBtn = document.getElementById('convert-lrc-btn');
+const timerModeBtn = document.getElementById('timer-mode-btn');
+const timerPanelEl = document.getElementById('timer-panel');
+const timerProgressLabel = document.getElementById('timer-progress-label');
+const timerExitBtn = document.getElementById('timer-exit-btn');
+const timerLinePrevEl = document.getElementById('timer-line-prev');
+const timerLineCurrentEl = document.getElementById('timer-line-current');
+const timerLineNextEl = document.getElementById('timer-line-next');
+const timerStartBtn = document.getElementById('timer-start-btn');
+const timerPauseBtn = document.getElementById('timer-pause-btn');
+const timerResetBtn = document.getElementById('timer-reset-btn');
+const clearPrompterBtn = document.getElementById('clear-prompter-btn');
+const openPrompterBtn = document.getElementById('open-prompter-btn');
+const fontMinusBtn = document.getElementById('font-minus-btn');
+const fontPlusBtn = document.getElementById('font-plus-btn');
+const fontSizeLabel = document.getElementById('font-size-label');
+const nowShowingEl = document.getElementById('now-showing');
+const promptStatusWrap = nowShowingEl.parentElement;
+
+const MIN_FONT = 28;
+const MAX_FONT = 140;
+const FONT_STEP = 4;
+
+let songs = [];
+let selectedId = null;
+let onAirSong = null;
+let fontSize = 64;
+let prompterWin = null;
+
+// 브라우저 메모리에만 유지 (새로고침하면 사라짐) - songId -> File
+const audioFiles = {};
+
+function refreshSongs() {
+  songs = SongStorage.getAll();
+  renderList();
+}
+
+function renderList() {
+  const query = searchInputEl.value.trim().toLowerCase();
+  const filtered = query ? songs.filter((s) => s.title.toLowerCase().includes(query)) : songs;
+
+  songListEl.innerHTML = '';
+  for (const song of filtered) {
+    const li = document.createElement('li');
+    li.className = 'song-item';
+    if (song.id === selectedId) li.classList.add('active');
+    if (onAirSong && song.id === onAirSong.id) li.classList.add('on-air');
+
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'song-title';
+    titleSpan.textContent = song.title;
+    li.appendChild(titleSpan);
+
+    if (onAirSong && song.id === onAirSong.id) {
+      const badge = document.createElement('span');
+      badge.className = 'song-item-live-badge';
+      badge.textContent = 'LIVE';
+      li.appendChild(badge);
+    }
+
+    li.addEventListener('click', () => selectSong(song.id));
+    li.addEventListener('dblclick', () => sendToPrompter(song.id));
+    songListEl.appendChild(li);
+  }
+}
+
+function selectSong(id) {
+  const song = songs.find((s) => s.id === id);
+  if (!song) return;
+  selectedId = id;
+  titleInputEl.value = song.title;
+  artistInputEl.value = song.artist || '';
+  lyricsInputEl.value = song.lyrics;
+  lrcInputEl.value = song.lrc || '';
+  deleteBtn.hidden = false;
+  setSearchStatus('');
+  setLrcStatus('');
+  updateAudioFileLabel(id);
+  renderList();
+}
+
+function startNewSong() {
+  selectedId = null;
+  titleInputEl.value = '';
+  artistInputEl.value = '';
+  lyricsInputEl.value = '';
+  lrcInputEl.value = '';
+  deleteBtn.hidden = true;
+  setSearchStatus('');
+  setLrcStatus('');
+  updateAudioFileLabel(null);
+  titleInputEl.focus();
+  renderList();
+}
+
+function saveSong() {
+  const title = titleInputEl.value.trim();
+  if (!title) {
+    titleInputEl.focus();
+    return null;
+  }
+  const artist = artistInputEl.value.trim();
+  const lyrics = lyricsInputEl.value;
+  const lrc = lrcInputEl.value;
+  let song;
+  if (selectedId) {
+    song = SongStorage.update(selectedId, { title, artist, lyrics, lrc });
+  } else {
+    song = SongStorage.add({ title, artist, lyrics, lrc });
+    selectedId = song.id;
+    deleteBtn.hidden = false;
+  }
+  refreshSongs();
+  return song;
+}
+
+function updateAudioFileLabel(songId) {
+  const file = songId ? audioFiles[songId] : null;
+  audioFileNameEl.textContent = file
+    ? `첨부됨: ${file.name}`
+    : '첨부된 음원 없음 (새로고침하면 다시 선택해야 해요)';
+}
+
+function setLrcStatus(text, kind) {
+  if (!text) {
+    lrcStatusEl.hidden = true;
+    lrcStatusEl.textContent = '';
+    return;
+  }
+  lrcStatusEl.hidden = false;
+  lrcStatusEl.textContent = text;
+  lrcStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+async function searchSyncedLyricsOnline() {
+  const title = titleInputEl.value.trim();
+  const artist = artistInputEl.value.trim();
+
+  if (!title || !artist) {
+    (title ? artistInputEl : titleInputEl).focus();
+    setLrcStatus('제목과 가수를 모두 입력해야 싱크 가사를 검색할 수 있어요.', 'error');
+    return;
+  }
+
+  searchLrcBtn.disabled = true;
+  setLrcStatus('싱크 가사 검색 중...');
+
+  try {
+    const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    let response;
+    try {
+      response = await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) throw new Error('lrc-not-found');
+    const data = await response.json();
+    if (!data.syncedLyrics) throw new Error('lrc-empty');
+
+    lrcInputEl.value = data.syncedLyrics.trim();
+    setLrcStatus('싱크 가사를 찾았어요. 확인 후 저장하세요.', 'success');
+  } catch (err) {
+    setLrcStatus(
+      '싱크 가사를 찾지 못했어요. .lrc 파일이 있다면 그 내용을 위 칸에 직접 붙여넣어보세요.',
+      'error'
+    );
+  } finally {
+    searchLrcBtn.disabled = false;
+  }
+}
+
+// --- 오디오 소스: 로컬 파일(<audio>) ---
+
+function getAudioSourceForSong(songId) {
+  const file = songId ? audioFiles[songId] : null;
+  if (file) return { type: 'file', file };
+  return null;
+}
+
+function createFileAudioController(containerEl, file) {
+  containerEl.innerHTML = '';
+  const audioEl = document.createElement('audio');
+  audioEl.controls = true;
+  const objectUrl = URL.createObjectURL(file);
+  audioEl.src = objectUrl;
+  containerEl.appendChild(audioEl);
+
+  const tickHandlers = [];
+  audioEl.addEventListener('timeupdate', () => {
+    tickHandlers.forEach((fn) => fn(audioEl.currentTime));
+  });
+
+  return {
+    type: 'file',
+    play() { audioEl.play(); },
+    pause() { audioEl.pause(); },
+    getCurrentTime() { return audioEl.currentTime; },
+    seek(t) { audioEl.currentTime = t; },
+    setPlaybackRate(r) { audioEl.playbackRate = r; },
+    onTick(fn) { tickHandlers.push(fn); },
+    destroy() {
+      URL.revokeObjectURL(objectUrl);
+      containerEl.innerHTML = '';
+    },
+  };
+}
+
+function createAudioController(containerEl, source) {
+  if (!source) {
+    containerEl.innerHTML = '';
+    return Promise.resolve(null);
+  }
+  return Promise.resolve(createFileAudioController(containerEl, source.file));
+}
+
+// 음원 없이 "가사 유지 시간"을 탭으로 찍을 때 쓰는 스톱워치. 오디오 컨트롤러와
+// 동일한 인터페이스(getCurrentTime/play/pause/seek)를 제공해 탭 로직을 그대로 재사용.
+function createStopwatchController(containerEl) {
+  containerEl.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'stopwatch-controls';
+
+  const label = document.createElement('span');
+  label.className = 'stopwatch-label';
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.type = 'button';
+  toggleBtn.className = 'btn btn-accent';
+  toggleBtn.textContent = '⏱ 카운트 시작';
+
+  wrap.appendChild(label);
+  wrap.appendChild(toggleBtn);
+  containerEl.appendChild(wrap);
+
+  let startedAt = null;
+  let elapsedBeforePause = 0;
+  let running = false;
+  let labelTimer = null;
+
+  function currentTime() {
+    if (!running) return elapsedBeforePause;
+    return elapsedBeforePause + (performance.now() - startedAt) / 1000;
+  }
+
+  function updateLabel() {
+    label.textContent = `음원 없이 진행 중 · ${formatLrcTime(currentTime())}`;
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    startedAt = performance.now();
+    toggleBtn.textContent = '일시정지';
+    updateLabel();
+    labelTimer = setInterval(updateLabel, 100);
+  }
+
+  function stop() {
+    if (!running) return;
+    elapsedBeforePause = currentTime();
+    running = false;
+    toggleBtn.textContent = '⏱ 계속하기';
+    if (labelTimer) {
+      clearInterval(labelTimer);
+      labelTimer = null;
+    }
+    updateLabel();
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (running) stop();
+    else start();
+  });
+
+  updateLabel();
+
+  return {
+    type: 'stopwatch',
+    play: start,
+    pause: stop,
+    getCurrentTime: currentTime,
+    seek(t) {
+      elapsedBeforePause = t;
+      startedAt = performance.now();
+      updateLabel();
+    },
+    setPlaybackRate() {
+      // 스톱워치는 배속 개념이 없음
+    },
+    onTick() {
+      // 탭 싱크에서는 주기적 tick이 필요 없음
+    },
+    destroy() {
+      running = false;
+      if (labelTimer) clearInterval(labelTimer);
+      containerEl.innerHTML = '';
+    },
+  };
+}
+
+let liveAudioController = null;
+
+async function loadLiveAudioForSong(song) {
+  if (liveAudioController) {
+    liveAudioController.destroy();
+    liveAudioController = null;
+  }
+  const source = getAudioSourceForSong(song.id);
+  if (!source) {
+    audioTransportEl.hidden = true;
+    return;
+  }
+  audioTransportEl.hidden = false;
+  liveAudioController = await createAudioController(audioTransportInnerEl, source);
+  if (liveAudioController) {
+    liveAudioController.onTick((t) => {
+      if (onAirSong && onAirSong.syncedLyrics && onAirSong.syncedLyrics.length) {
+        postToPrompter({ type: 'audioTime', time: t });
+      }
+    });
+  }
+}
+
+// mp3 파일 안에 들어있는 ID3 태그(제목/가수)를 읽어서 자동으로 채워주기 위한 파서.
+// ID3v2.3 / ID3v2.4 만 지원 (대부분의 mp3가 이 버전). 실패하면 조용히 null 반환.
+async function readId3Tags(file) {
+  try {
+    const headerBytes = new Uint8Array(await file.slice(0, 10).arrayBuffer());
+    if (headerBytes[0] !== 0x49 || headerBytes[1] !== 0x44 || headerBytes[2] !== 0x33) return null; // "ID3"
+
+    const majorVersion = headerBytes[3];
+    if (majorVersion !== 3 && majorVersion !== 4) return null;
+
+    const flags = headerBytes[5];
+    const unsynchronized = (flags & 0x80) !== 0;
+    const hasExtendedHeader = (flags & 0x40) !== 0;
+    const tagSize =
+      ((headerBytes[6] & 0x7f) << 21) |
+      ((headerBytes[7] & 0x7f) << 14) |
+      ((headerBytes[8] & 0x7f) << 7) |
+      (headerBytes[9] & 0x7f);
+
+    let bytes = new Uint8Array(await file.slice(10, 10 + tagSize).arrayBuffer());
+
+    if (unsynchronized) {
+      const out = [];
+      for (let i = 0; i < bytes.length; i++) {
+        out.push(bytes[i]);
+        if (bytes[i] === 0xff && bytes[i + 1] === 0x00) i++;
+      }
+      bytes = new Uint8Array(out);
+    }
+
+    let offset = 0;
+    if (hasExtendedHeader) {
+      const extSize =
+        majorVersion === 4
+          ? ((bytes[0] & 0x7f) << 21) | ((bytes[1] & 0x7f) << 14) | ((bytes[2] & 0x7f) << 7) | (bytes[3] & 0x7f)
+          : (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+      offset += extSize;
+    }
+
+    function readFrameSize(off) {
+      if (majorVersion === 4) {
+        return (
+          ((bytes[off] & 0x7f) << 21) |
+          ((bytes[off + 1] & 0x7f) << 14) |
+          ((bytes[off + 2] & 0x7f) << 7) |
+          (bytes[off + 3] & 0x7f)
+        );
+      }
+      return (bytes[off] << 24) | (bytes[off + 1] << 16) | (bytes[off + 2] << 8) | bytes[off + 3];
+    }
+
+    function decodeText(frameBytes) {
+      if (frameBytes.length === 0) return '';
+      const enc = frameBytes[0];
+      const textBytes = frameBytes.slice(1);
+      let text;
+      try {
+        if (enc === 0) text = new TextDecoder('iso-8859-1').decode(textBytes);
+        else if (enc === 1) text = new TextDecoder('utf-16').decode(textBytes);
+        else if (enc === 2) text = new TextDecoder('utf-16be').decode(textBytes);
+        else text = new TextDecoder('utf-8').decode(textBytes);
+      } catch (err) {
+        text = new TextDecoder('utf-8').decode(textBytes);
+      }
+      return text.replace(/\u0000+$/, '').trim();
+    }
+
+    const result = {};
+    while (offset + 10 <= bytes.length) {
+      if (bytes[offset] === 0) break; // 패딩 시작
+      const frameId = String.fromCharCode(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
+      const frameSize = readFrameSize(offset + 4);
+      if (frameSize <= 0 || offset + 10 + frameSize > bytes.length) break;
+      const frameBytes = bytes.slice(offset + 10, offset + 10 + frameSize);
+
+      if (frameId === 'TIT2') result.title = decodeText(frameBytes);
+      if (frameId === 'TPE1') result.artist = decodeText(frameBytes);
+
+      offset += 10 + frameSize;
+    }
+
+    return Object.keys(result).length ? result : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+audioFileInputEl.addEventListener('change', async () => {
+  const file = audioFileInputEl.files[0];
+  if (!file) return;
+
+  const tags = await readId3Tags(file);
+  if (tags && tags.title && !titleInputEl.value.trim()) titleInputEl.value = tags.title;
+  if (tags && tags.artist && !artistInputEl.value.trim()) artistInputEl.value = tags.artist;
+
+  const song = saveSong();
+  if (!song) {
+    audioFileInputEl.value = '';
+    return;
+  }
+  const id = song.id;
+
+  audioFiles[id] = file;
+  updateAudioFileLabel(id);
+  if (onAirSong && onAirSong.id === id) {
+    loadLiveAudioForSong(onAirSong);
+  }
+  audioFileInputEl.value = '';
+
+  const hasTitleAndArtist = titleInputEl.value.trim() && artistInputEl.value.trim();
+  if (hasTitleAndArtist && !lyricsInputEl.value.trim()) {
+    searchLyricsOnline();
+  }
+});
+
+searchLrcBtn.addEventListener('click', searchSyncedLyricsOnline);
+
+// --- 탭으로 싱크 찍기 / 탭으로 유지 시간 찍기 (같은 모달을 공유) ---
+let tapLines = [];
+let tapResults = [];
+let tapAudioController = null;
+let tapTargetMode = 'lrc'; // 'lrc' | 'duration'
+
+function formatLrcTime(totalSeconds) {
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds - mins * 60;
+  return `${String(mins).padStart(2, '0')}:${secs.toFixed(2).padStart(5, '0')}`;
+}
+
+// 연속된 절대 시각 목록을 "각 줄을 얼마나 유지할지"로 변환 (원래 순서 유지).
+// 마지막 줄은 다음 시각이 없어서 defaultLastDuration을 사용.
+function computeDurations(entries, defaultLastDuration) {
+  return entries.map((entry, i) => {
+    const next = entries[i + 1];
+    const duration = next ? Math.max(0.1, next.time - entry.time) : defaultLastDuration;
+    return { duration, text: entry.text };
+  });
+}
+
+async function startTapSync(mode) {
+  tapTargetMode = mode;
+
+  const lines = lyricsInputEl.value
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  if (lines.length === 0) {
+    setLrcStatus('먼저 가사를 입력해야 탭으로 싱크를 찍을 수 있어요.', 'error');
+    return;
+  }
+
+  // 폼에 방금 입력한 값을 반영하기 위해 항상 저장부터 함
+  const song = saveSong();
+  if (!song) return;
+  const id = song.id;
+
+  const source = getAudioSourceForSong(id);
+  if (!source && mode === 'lrc') {
+    setLrcStatus('먼저 "음원 파일 선택"으로 음원을 첨부해야 탭으로 싱크를 찍을 수 있어요.', 'error');
+    return;
+  }
+  // mode === 'duration'은 음원이 없어도 스톱워치로 진행 가능
+
+  if (document.activeElement) document.activeElement.blur();
+
+  tapLines = lines;
+  tapResults = [];
+
+  if (tapAudioController) {
+    tapAudioController.destroy();
+    tapAudioController = null;
+  }
+
+  tapModalTitleEl.textContent = mode === 'duration' ? '탭으로 유지 시간 찍기' : '탭으로 싱크 찍기';
+  tapHintEl.textContent =
+    mode === 'duration'
+      ? '음원이 있으면 재생하면서, 없으면 "카운트 시작"을 누르고 원하는 속도로, 그 가사를 보여줄 타이밍에 스페이스바(또는 TAP 버튼)를 누르세요.'
+      : '음원을 재생하다가 화면의 굵은 줄이 실제로 나오는 순간 스페이스바(또는 TAP 버튼)를 누르세요. 실수하면 되돌리기로 취소할 수 있어요.';
+  tapFinishBtn.textContent = mode === 'duration' ? '유지 시간 만들기' : 'LRC 만들기';
+
+  tapSyncModal.hidden = false;
+  updateTapDisplay();
+
+  if (source) {
+    tapAudioController = await createAudioController(syncAudioContainerEl, source);
+    if (tapAudioController) {
+      tapAudioController.setPlaybackRate(Number(tapSpeedSelect.value));
+    }
+  } else {
+    tapAudioController = createStopwatchController(syncAudioContainerEl);
+  }
+}
+
+function updateTapDisplay() {
+  const idx = tapResults.length;
+  tapProgressLabel.textContent = `${idx} / ${tapLines.length}줄`;
+  tapLinePrevEl.textContent = idx > 0 ? tapLines[idx - 1] : '';
+  tapLineCurrentEl.textContent = idx < tapLines.length ? tapLines[idx] : '(완료! 아래 버튼을 누르세요)';
+  tapLineNextEl.textContent = idx + 1 < tapLines.length ? tapLines[idx + 1] : '';
+  tapBtn.disabled = idx >= tapLines.length;
+  tapFinishBtn.disabled = tapResults.length === 0;
+}
+
+function doTap() {
+  if (tapSyncModal.hidden || !tapAudioController || tapResults.length >= tapLines.length) return;
+  const text = tapLines[tapResults.length];
+  tapResults.push({ time: tapAudioController.getCurrentTime(), text });
+  updateTapDisplay();
+}
+
+function undoTap() {
+  if (tapSyncModal.hidden || tapResults.length === 0) return;
+  tapResults.pop();
+  updateTapDisplay();
+}
+
+function resetTap() {
+  tapResults = [];
+  if (tapAudioController) {
+    tapAudioController.seek(0);
+    tapAudioController.pause();
+  }
+  updateTapDisplay();
+}
+
+function finishTapSync() {
+  if (tapTargetMode === 'duration') {
+    const durations = computeDurations(tapResults, 4);
+    durationInputEl.value = durations.map((d) => `[${formatLrcTime(d.duration)}]${d.text}`).join('\n');
+    setDurationStatus(`탭으로 ${tapResults.length}줄 유지 시간을 만들었어요. 확인 후 저장하세요.`, 'success');
+  } else {
+    lrcInputEl.value = tapResults.map((r) => `[${formatLrcTime(r.time)}]${r.text}`).join('\n');
+    setLrcStatus(`탭으로 ${tapResults.length}줄 싱크를 만들었어요. 확인 후 저장하세요.`, 'success');
+  }
+  closeTapSync();
+}
+
+function closeTapSync() {
+  tapSyncModal.hidden = true;
+  if (tapAudioController) {
+    tapAudioController.destroy();
+    tapAudioController = null;
+  }
+}
+
+startTapSyncBtn.addEventListener('click', () => startTapSync('lrc'));
+startTapDurationBtn.addEventListener('click', () => startTapSync('duration'));
+tapCloseBtn.addEventListener('click', closeTapSync);
+tapBtn.addEventListener('click', doTap);
+tapUndoBtn.addEventListener('click', undoTap);
+tapResetBtn.addEventListener('click', resetTap);
+tapFinishBtn.addEventListener('click', finishTapSync);
+tapSpeedSelect.addEventListener('change', () => {
+  if (tapAudioController) tapAudioController.setPlaybackRate(Number(tapSpeedSelect.value));
+});
+
+document.addEventListener('keydown', (e) => {
+  if (tapSyncModal.hidden) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  if (e.code === 'Space') {
+    e.preventDefault();
+    doTap();
+  } else if (e.key === 'Backspace') {
+    e.preventDefault();
+    undoTap();
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    closeTapSync();
+  }
+});
+
+function setSearchStatus(text, kind) {
+  if (!text) {
+    searchStatusEl.hidden = true;
+    searchStatusEl.textContent = '';
+    return;
+  }
+  searchStatusEl.hidden = false;
+  searchStatusEl.textContent = text;
+  searchStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+async function searchLyricsOnline() {
+  const title = titleInputEl.value.trim();
+  const artist = artistInputEl.value.trim();
+
+  if (!title) {
+    titleInputEl.focus();
+    setSearchStatus('곡 제목을 먼저 입력해주세요.', 'error');
+    return;
+  }
+  if (!artist) {
+    artistInputEl.focus();
+    setSearchStatus('가수 이름도 입력해야 검색할 수 있어요.', 'error');
+    return;
+  }
+
+  searchLyricsBtn.disabled = true;
+  setSearchStatus('가사 검색 중...');
+
+  try {
+    const url = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    let response;
+    try {
+      response = await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) throw new Error('lyrics-not-found');
+    const data = await response.json();
+    if (!data.lyrics) throw new Error('lyrics-empty');
+
+    lyricsInputEl.value = data.lyrics.trim();
+    setSearchStatus('가사를 찾아서 채워넣었어요. 내용을 확인한 뒤 저장하세요.', 'success');
+  } catch (err) {
+    setSearchStatus(
+      '가사를 찾지 못했어요 (국내 가요는 지원이 잘 안 될 수 있습니다). 아래에 직접 입력/붙여넣기 해주세요.',
+      'error'
+    );
+  } finally {
+    searchLyricsBtn.disabled = false;
+  }
+}
+
+function deleteSong() {
+  if (!selectedId) return;
+  const song = songs.find((s) => s.id === selectedId);
+  const ok = confirm(`"${song ? song.title : '이 곡'}"을(를) 삭제할까요?`);
+  if (!ok) return;
+
+  if (onAirSong && onAirSong.id === selectedId) {
+    exitAllModes();
+    postToPrompter({ type: 'clear' });
+    onAirSong = null;
+    setOnAirStatus(null);
+  }
+  SongStorage.remove(selectedId);
+  startNewSong();
+  refreshSongs();
+}
+
+function setOnAirStatus(title) {
+  if (title) {
+    nowShowingEl.textContent = `프롬프터: "${title}" 표시 중`;
+    promptStatusWrap.classList.add('live');
+  } else {
+    nowShowingEl.textContent = '프롬프터: 대기 중';
+    promptStatusWrap.classList.remove('live');
+  }
+}
+
+function postToPrompter(message) {
+  if (prompterWin && !prompterWin.closed) {
+    prompterWin.postMessage(message, '*');
+  }
+}
+
+async function openPrompterWindow() {
+  if (prompterWin && !prompterWin.closed) {
+    prompterWin.focus();
+    return;
+  }
+
+  let features = 'width=1280,height=720';
+
+  if ('getScreenDetails' in window) {
+    try {
+      // 권한 프롬프트가 응답 없이 멈추는 경우를 대비해 타임아웃으로 폴백
+      const details = await Promise.race([
+        window.getScreenDetails(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('getScreenDetails-timeout')), 4000)),
+      ]);
+      const current = details.currentScreen;
+      const secondary = details.screens.find((s) => s !== current);
+      if (secondary) {
+        features = `left=${secondary.availLeft},top=${secondary.availTop},width=${secondary.availWidth},height=${secondary.availHeight}`;
+      }
+    } catch (err) {
+      // 권한 거부, 타임아웃, 또는 미지원 브라우저 - 기본 창으로 폴백
+    }
+  }
+
+  prompterWin = window.open('prompter.html', 'lyrics-prompter-window', features);
+}
+
+async function sendToPrompter(idOverride) {
+  exitAllModes();
+
+  const id = idOverride || selectedId;
+  if (!id) return;
+  const song = id === selectedId ? saveSong() : SongStorage.getById(id);
+  if (!song) return;
+
+  const syncedLyrics = song.lrc ? parseLRC(song.lrc) : [];
+  onAirSong = { ...song, syncedLyrics };
+  setOnAirStatus(song.title);
+  renderList();
+  await loadLiveAudioForSong(song);
+
+  openPrompterWindow().then(() => {
+    postToPrompter({ type: 'show', song: onAirSong, fontSize });
+  });
+}
+
+function clearPrompter() {
+  exitAllModes();
+  postToPrompter({ type: 'clear' });
+  if (liveAudioController) liveAudioController.pause();
+  onAirSong = null;
+  setOnAirStatus(null);
+  renderList();
+}
+
+// --- 라이브(수동) 모드: 음원을 앱이 재생하지 않아도, 오퍼레이터가 실시간으로
+// 다음 줄을 눌러 진행. 유튜브를 다른 탭에서 그냥 틀어놓는 경우에 유용함. ---
+let liveModeActive = false;
+let liveLines = [];
+let liveIndex = -1;
+
+function startLiveMode() {
+  const song = saveSong();
+  if (!song) return;
+
+  const lines = song.lyrics.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length === 0) {
+    setSearchStatus('먼저 가사를 입력해야 라이브 모드를 쓸 수 있어요.', 'error');
+    return;
+  }
+
+  exitTimerMode();
+  if (liveAudioController) {
+    liveAudioController.destroy();
+    liveAudioController = null;
+  }
+  audioTransportEl.hidden = true;
+
+  liveLines = lines;
+  liveIndex = -1;
+  liveModeActive = true;
+  onAirSong = { ...song, syncedLyrics: [] };
+  setOnAirStatus(song.title);
+  renderList();
+  livePanelEl.hidden = false;
+  updateLiveDisplay();
+
+  openPrompterWindow().then(() => {
+    postToPrompter({ type: 'liveShow', title: song.title, lines: liveLines, fontSize });
+    postToPrompter({ type: 'liveIndex', index: liveIndex });
+  });
+}
+
+function updateLiveDisplay() {
+  liveProgressLabel.textContent = `${Math.max(liveIndex + 1, 0)} / ${liveLines.length}줄`;
+  liveLinePrevEl.textContent = liveIndex > 0 ? liveLines[liveIndex - 1] : '';
+  liveLineCurrentEl.textContent = liveIndex >= 0 ? liveLines[liveIndex] : '"다음 줄"을 눌러 시작하세요';
+  liveLineNextEl.textContent = liveIndex + 1 < liveLines.length ? liveLines[liveIndex + 1] : '';
+  livePrevBtn.disabled = liveIndex <= 0;
+  liveNextBtn.disabled = liveIndex >= liveLines.length - 1;
+}
+
+function liveNext() {
+  if (!liveModeActive || liveIndex >= liveLines.length - 1) return;
+  liveIndex++;
+  updateLiveDisplay();
+  postToPrompter({ type: 'liveIndex', index: liveIndex });
+}
+
+function livePrev() {
+  if (!liveModeActive || liveIndex <= 0) return;
+  liveIndex--;
+  updateLiveDisplay();
+  postToPrompter({ type: 'liveIndex', index: liveIndex });
+}
+
+function exitLiveMode() {
+  if (!liveModeActive) return;
+  liveModeActive = false;
+  liveLines = [];
+  liveIndex = -1;
+  livePanelEl.hidden = true;
+}
+
+// --- 자동 타이머 모드: 음원 없이, 줄마다 정해둔 시간이 지나면 자동으로 다음 줄로
+// 진행. 실제 타이머는 프롬프터 창이 관리 (포커스와 무관하게 정확히 동작). ---
+
+// "[mm:ss.xx]가사" 한 줄 = 이 줄을 그 시간(초)만큼 유지 후 자동 진행.
+// parseLRC와 달리 시간순 정렬을 하지 않고 입력한 줄 순서를 그대로 유지합니다.
+function parseDurations(text) {
+  const timeTag = /\[(\d{1,2}):(\d{2})(?:[.:](\d{1,3}))?\]/;
+  const lines = (text || '').split(/\r?\n/);
+  const result = [];
+  for (const rawLine of lines) {
+    const m = rawLine.match(timeTag);
+    if (!m) continue;
+    const min = parseInt(m[1], 10);
+    const sec = parseInt(m[2], 10);
+    const frac = parseInt((m[3] || '0').padEnd(3, '0').slice(0, 3), 10);
+    const duration = min * 60 + sec + frac / 1000;
+    result.push({ duration, text: rawLine.replace(timeTag, '').trim() });
+  }
+  return result;
+}
+
+function setDurationStatus(text, kind) {
+  if (!text) {
+    durationStatusEl.hidden = true;
+    durationStatusEl.textContent = '';
+    return;
+  }
+  durationStatusEl.hidden = false;
+  durationStatusEl.textContent = text;
+  durationStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+function convertLrcToDurations() {
+  const synced = parseLRC(lrcInputEl.value);
+  if (synced.length === 0) {
+    setDurationStatus('먼저 싱크 가사(LRC)를 채워야 변환할 수 있어요.', 'error');
+    return;
+  }
+  const durations = computeDurations(synced, 4);
+  durationInputEl.value = durations.map((d) => `[${formatLrcTime(d.duration)}]${d.text}`).join('\n');
+  setDurationStatus('싱크 가사에서 변환했어요. 필요하면 각 줄의 시간을 직접 수정하세요.', 'success');
+}
+
+let timerModeActive = false;
+let timerLines = [];
+let timerDisplayIndex = -1;
+
+function startTimerMode() {
+  const song = saveSong();
+  if (!song) return;
+
+  const lines = parseDurations(durationInputEl.value);
+  if (lines.length === 0) {
+    setDurationStatus('먼저 가사 유지 시간을 입력해야 타이머 모드를 쓸 수 있어요.', 'error');
+    return;
+  }
+
+  exitLiveMode();
+  if (liveAudioController) {
+    liveAudioController.destroy();
+    liveAudioController = null;
+  }
+  audioTransportEl.hidden = true;
+
+  timerLines = lines;
+  timerDisplayIndex = -1;
+  timerModeActive = true;
+  onAirSong = { ...song, syncedLyrics: [] };
+  setOnAirStatus(song.title);
+  renderList();
+  timerPanelEl.hidden = false;
+  updateTimerDisplay();
+
+  openPrompterWindow().then(() => {
+    postToPrompter({ type: 'timerShow', title: song.title, lines: timerLines, fontSize });
+  });
+}
+
+function updateTimerDisplay() {
+  const idx = timerDisplayIndex;
+  timerProgressLabel.textContent = `${Math.max(idx + 1, 0)} / ${timerLines.length}줄`;
+  timerLinePrevEl.textContent = idx > 0 ? timerLines[idx - 1].text : '';
+  timerLineCurrentEl.textContent = idx >= 0 ? timerLines[idx].text : '"시작"을 누르면 진행됩니다';
+  timerLineNextEl.textContent = idx + 1 < timerLines.length ? timerLines[idx + 1].text : '';
+}
+
+function timerStart() {
+  if (!timerModeActive) return;
+  postToPrompter({ type: 'timerControl', action: 'start' });
+}
+
+function timerPause() {
+  if (!timerModeActive) return;
+  postToPrompter({ type: 'timerControl', action: 'pause' });
+}
+
+function timerReset() {
+  if (!timerModeActive) return;
+  postToPrompter({ type: 'timerControl', action: 'reset' });
+  timerDisplayIndex = -1;
+  updateTimerDisplay();
+}
+
+function exitTimerMode() {
+  if (!timerModeActive) return;
+  timerModeActive = false;
+  timerLines = [];
+  timerDisplayIndex = -1;
+  timerPanelEl.hidden = true;
+}
+
+function exitAllModes() {
+  exitLiveMode();
+  exitTimerMode();
+}
+
+function changeFontSize(delta) {
+  fontSize = Math.min(MAX_FONT, Math.max(MIN_FONT, fontSize + delta));
+  fontSizeLabel.textContent = `${fontSize}px`;
+  postToPrompter({ type: 'fontSize', size: fontSize });
+}
+
+// 프롬프터 창과의 메시지 교환: (재)로딩되어 "준비 완료" 신호를 보내오면 현재
+// 상태를 다시 보내주고, 타이머 모드의 진행 상황(timerTick)을 받아 콘솔에 반영함
+window.addEventListener('message', (e) => {
+  if (!e.data || e.source !== prompterWin) return;
+
+  if (e.data.type === 'timerTick') {
+    if (timerModeActive) {
+      timerDisplayIndex = e.data.index;
+      updateTimerDisplay();
+    }
+    return;
+  }
+
+  if (e.data.type !== 'ready') return;
+  if (liveModeActive) {
+    postToPrompter({ type: 'liveShow', title: onAirSong ? onAirSong.title : '', lines: liveLines, fontSize });
+    postToPrompter({ type: 'liveIndex', index: liveIndex });
+  } else if (timerModeActive) {
+    postToPrompter({ type: 'timerShow', title: onAirSong ? onAirSong.title : '', lines: timerLines, fontSize });
+  } else if (onAirSong) {
+    postToPrompter({ type: 'show', song: onAirSong, fontSize });
+  } else {
+    postToPrompter({ type: 'fontSize', size: fontSize });
+  }
+});
+
+newSongBtn.addEventListener('click', startNewSong);
+searchLyricsBtn.addEventListener('click', searchLyricsOnline);
+saveBtn.addEventListener('click', saveSong);
+deleteBtn.addEventListener('click', deleteSong);
+sendBtn.addEventListener('click', () => sendToPrompter());
+liveModeBtn.addEventListener('click', startLiveMode);
+liveExitBtn.addEventListener('click', clearPrompter);
+liveNextBtn.addEventListener('click', liveNext);
+livePrevBtn.addEventListener('click', livePrev);
+convertLrcBtn.addEventListener('click', convertLrcToDurations);
+timerModeBtn.addEventListener('click', startTimerMode);
+timerExitBtn.addEventListener('click', clearPrompter);
+timerStartBtn.addEventListener('click', timerStart);
+timerPauseBtn.addEventListener('click', timerPause);
+timerResetBtn.addEventListener('click', timerReset);
+clearPrompterBtn.addEventListener('click', clearPrompter);
+openPrompterBtn.addEventListener('click', openPrompterWindow);
+fontMinusBtn.addEventListener('click', () => changeFontSize(-FONT_STEP));
+fontPlusBtn.addEventListener('click', () => changeFontSize(FONT_STEP));
+searchInputEl.addEventListener('input', renderList);
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveSong();
+    return;
+  }
+
+  if (!liveModeActive || !tapSyncModal.hidden) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  if (e.code === 'Space') {
+    e.preventDefault();
+    liveNext();
+  } else if (e.key === 'Backspace') {
+    e.preventDefault();
+    livePrev();
+  }
+});
+
+fontSizeLabel.textContent = `${fontSize}px`;
+refreshSongs();
+</script>
+</body>
+</html>

@@ -243,6 +243,25 @@ body {
 .tap-actions { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
 
 .tap-hint { text-align: center; font-size: 12.5px; color: #7d818f; margin: 0; }
+
+.live-panel {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid #3a6b42;
+  border-radius: 8px;
+  background: #16201a;
+}
+
+.live-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #a8abb8;
+}
+
+.live-actions { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -304,8 +323,27 @@ body {
           <span id="font-size-label">64px</span>
           <button id="font-plus-btn" class="btn btn-ghost">+</button>
           <button id="clear-prompter-btn" class="btn btn-ghost">지우기</button>
+          <button id="live-mode-btn" class="btn btn-accent">🎤 라이브 모드로 보내기</button>
           <button id="send-btn" class="btn btn-accent">▶ 프롬프터로 보내기</button>
         </div>
+      </div>
+
+      <div id="live-panel" class="live-panel" hidden>
+        <div class="live-header">
+          <span id="live-progress-label">0 / 0줄</span>
+          <button id="live-exit-btn" class="btn btn-ghost">라이브 모드 종료</button>
+        </div>
+        <div class="tap-lines">
+          <div id="live-line-prev" class="tap-line tap-line-prev"></div>
+          <div id="live-line-current" class="tap-line tap-line-current"></div>
+          <div id="live-line-next" class="tap-line tap-line-next"></div>
+        </div>
+        <div class="live-actions">
+          <button id="live-prev-btn" class="btn btn-ghost">◀ 이전 줄 (Backspace)</button>
+          <button id="live-next-btn" class="btn btn-accent">다음 줄 ▶ (스페이스바)</button>
+        </div>
+        <p class="tap-hint">유튜브 등 어떤 소스로 음원을 재생하든 상관없이, 실제로 그 가사가 나오는
+          순간 "다음 줄"을 누르면 프롬프터에 바로 그 줄이 뜹니다.</p>
       </div>
     </main>
   </div>
@@ -465,6 +503,15 @@ const searchStatusEl = document.getElementById('search-status');
 const saveBtn = document.getElementById('save-btn');
 const deleteBtn = document.getElementById('delete-btn');
 const sendBtn = document.getElementById('send-btn');
+const liveModeBtn = document.getElementById('live-mode-btn');
+const livePanelEl = document.getElementById('live-panel');
+const liveProgressLabel = document.getElementById('live-progress-label');
+const liveExitBtn = document.getElementById('live-exit-btn');
+const liveLinePrevEl = document.getElementById('live-line-prev');
+const liveLineCurrentEl = document.getElementById('live-line-current');
+const liveLineNextEl = document.getElementById('live-line-next');
+const livePrevBtn = document.getElementById('live-prev-btn');
+const liveNextBtn = document.getElementById('live-next-btn');
 const clearPrompterBtn = document.getElementById('clear-prompter-btn');
 const openPrompterBtn = document.getElementById('open-prompter-btn');
 const fontMinusBtn = document.getElementById('font-minus-btn');
@@ -1001,6 +1048,7 @@ function deleteSong() {
   if (!ok) return;
 
   if (onAirSong && onAirSong.id === selectedId) {
+    exitLiveMode();
     postToPrompter({ type: 'clear' });
     onAirSong = null;
     setOnAirStatus(null);
@@ -1036,14 +1084,18 @@ async function openPrompterWindow() {
 
   if ('getScreenDetails' in window) {
     try {
-      const details = await window.getScreenDetails();
+      // 권한 프롬프트가 응답 없이 멈추는 경우를 대비해 타임아웃으로 폴백
+      const details = await Promise.race([
+        window.getScreenDetails(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('getScreenDetails-timeout')), 4000)),
+      ]);
       const current = details.currentScreen;
       const secondary = details.screens.find((s) => s !== current);
       if (secondary) {
         features = `left=${secondary.availLeft},top=${secondary.availTop},width=${secondary.availWidth},height=${secondary.availHeight}`;
       }
     } catch (err) {
-      // 권한 거부 또는 미지원 브라우저 - 기본 창으로 폴백
+      // 권한 거부, 타임아웃, 또는 미지원 브라우저 - 기본 창으로 폴백
     }
   }
 
@@ -1051,6 +1103,8 @@ async function openPrompterWindow() {
 }
 
 async function sendToPrompter(idOverride) {
+  exitLiveMode();
+
   const id = idOverride || selectedId;
   if (!id) return;
   const song = id === selectedId ? saveSong() : SongStorage.getById(id);
@@ -1068,11 +1122,80 @@ async function sendToPrompter(idOverride) {
 }
 
 function clearPrompter() {
+  exitLiveMode();
   postToPrompter({ type: 'clear' });
   if (liveAudioController) liveAudioController.pause();
   onAirSong = null;
   setOnAirStatus(null);
   renderList();
+}
+
+// --- 라이브(수동) 모드: 음원을 앱이 재생하지 않아도, 오퍼레이터가 실시간으로
+// 다음 줄을 눌러 진행. 유튜브를 다른 탭에서 그냥 틀어놓는 경우에 유용함. ---
+let liveModeActive = false;
+let liveLines = [];
+let liveIndex = -1;
+
+function startLiveMode() {
+  const song = saveSong();
+  if (!song) return;
+
+  const lines = song.lyrics.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length === 0) {
+    setSearchStatus('먼저 가사를 입력해야 라이브 모드를 쓸 수 있어요.', 'error');
+    return;
+  }
+
+  if (liveAudioController) {
+    liveAudioController.destroy();
+    liveAudioController = null;
+  }
+  audioTransportEl.hidden = true;
+
+  liveLines = lines;
+  liveIndex = -1;
+  liveModeActive = true;
+  onAirSong = { ...song, syncedLyrics: [] };
+  setOnAirStatus(song.title);
+  renderList();
+  livePanelEl.hidden = false;
+  updateLiveDisplay();
+
+  openPrompterWindow().then(() => {
+    postToPrompter({ type: 'liveShow', title: song.title, lines: liveLines, fontSize });
+    postToPrompter({ type: 'liveIndex', index: liveIndex });
+  });
+}
+
+function updateLiveDisplay() {
+  liveProgressLabel.textContent = `${Math.max(liveIndex + 1, 0)} / ${liveLines.length}줄`;
+  liveLinePrevEl.textContent = liveIndex > 0 ? liveLines[liveIndex - 1] : '';
+  liveLineCurrentEl.textContent = liveIndex >= 0 ? liveLines[liveIndex] : '"다음 줄"을 눌러 시작하세요';
+  liveLineNextEl.textContent = liveIndex + 1 < liveLines.length ? liveLines[liveIndex + 1] : '';
+  livePrevBtn.disabled = liveIndex <= 0;
+  liveNextBtn.disabled = liveIndex >= liveLines.length - 1;
+}
+
+function liveNext() {
+  if (!liveModeActive || liveIndex >= liveLines.length - 1) return;
+  liveIndex++;
+  updateLiveDisplay();
+  postToPrompter({ type: 'liveIndex', index: liveIndex });
+}
+
+function livePrev() {
+  if (!liveModeActive || liveIndex <= 0) return;
+  liveIndex--;
+  updateLiveDisplay();
+  postToPrompter({ type: 'liveIndex', index: liveIndex });
+}
+
+function exitLiveMode() {
+  if (!liveModeActive) return;
+  liveModeActive = false;
+  liveLines = [];
+  liveIndex = -1;
+  livePanelEl.hidden = true;
 }
 
 function changeFontSize(delta) {
@@ -1085,7 +1208,10 @@ function changeFontSize(delta) {
 window.addEventListener('message', (e) => {
   if (!e.data || e.data.type !== 'ready') return;
   if (e.source !== prompterWin) return;
-  if (onAirSong) {
+  if (liveModeActive) {
+    postToPrompter({ type: 'liveShow', title: onAirSong ? onAirSong.title : '', lines: liveLines, fontSize });
+    postToPrompter({ type: 'liveIndex', index: liveIndex });
+  } else if (onAirSong) {
     postToPrompter({ type: 'show', song: onAirSong, fontSize });
   } else {
     postToPrompter({ type: 'fontSize', size: fontSize });
@@ -1097,6 +1223,10 @@ searchLyricsBtn.addEventListener('click', searchLyricsOnline);
 saveBtn.addEventListener('click', saveSong);
 deleteBtn.addEventListener('click', deleteSong);
 sendBtn.addEventListener('click', () => sendToPrompter());
+liveModeBtn.addEventListener('click', startLiveMode);
+liveExitBtn.addEventListener('click', clearPrompter);
+liveNextBtn.addEventListener('click', liveNext);
+livePrevBtn.addEventListener('click', livePrev);
 clearPrompterBtn.addEventListener('click', clearPrompter);
 openPrompterBtn.addEventListener('click', openPrompterWindow);
 fontMinusBtn.addEventListener('click', () => changeFontSize(-FONT_STEP));
@@ -1107,6 +1237,19 @@ document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault();
     saveSong();
+    return;
+  }
+
+  if (!liveModeActive || !tapSyncModal.hidden) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  if (e.code === 'Space') {
+    e.preventDefault();
+    liveNext();
+  } else if (e.key === 'Backspace') {
+    e.preventDefault();
+    livePrev();
   }
 });
 

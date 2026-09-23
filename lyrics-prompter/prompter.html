@@ -109,6 +109,26 @@ function showSong(song) {
   window.scrollTo(0, 0);
 }
 
+function showLiveLines(title, lines) {
+  titleEl.textContent = title || '';
+  placeholderEl.style.display = 'none';
+  stageEl.style.display = 'block';
+
+  currentSynced = null; // 시간이 아니라 콘솔의 수동 조작으로 진행됨
+  currentLineIndex = -1;
+
+  lyricsEl.style.display = 'none';
+  lrcLinesEl.style.display = 'block';
+  lrcLinesEl.innerHTML = '';
+  for (const text of lines) {
+    const div = document.createElement('div');
+    div.className = 'lrc-line';
+    div.textContent = text || ' ';
+    lrcLinesEl.appendChild(div);
+  }
+  window.scrollTo(0, 0);
+}
+
 function clearLyrics() {
   titleEl.textContent = '';
   lyricsEl.textContent = '';
@@ -123,14 +143,7 @@ function setFontSize(size) {
   document.documentElement.style.setProperty('--lyrics-font-size', `${size}px`);
 }
 
-function handleAudioTime(time) {
-  if (!currentSynced) return;
-
-  let idx = -1;
-  for (let i = 0; i < currentSynced.length; i++) {
-    if (currentSynced[i].time <= time) idx = i;
-    else break;
-  }
+function highlightLine(idx) {
   if (idx === currentLineIndex) return;
 
   const prevEl = lrcLinesEl.children[currentLineIndex];
@@ -144,12 +157,28 @@ function handleAudioTime(time) {
   }
 }
 
+function handleAudioTime(time) {
+  if (!currentSynced) return;
+
+  let idx = -1;
+  for (let i = 0; i < currentSynced.length; i++) {
+    if (currentSynced[i].time <= time) idx = i;
+    else break;
+  }
+  highlightLine(idx);
+}
+
 window.addEventListener('message', (e) => {
   const msg = e.data;
   if (!msg || typeof msg !== 'object') return;
   if (msg.type === 'show') {
     showSong(msg.song);
     if (typeof msg.fontSize === 'number') setFontSize(msg.fontSize);
+  } else if (msg.type === 'liveShow') {
+    showLiveLines(msg.title, msg.lines);
+    if (typeof msg.fontSize === 'number') setFontSize(msg.fontSize);
+  } else if (msg.type === 'liveIndex') {
+    highlightLine(msg.index);
   } else if (msg.type === 'clear') {
     clearLyrics();
   } else if (msg.type === 'fontSize') {

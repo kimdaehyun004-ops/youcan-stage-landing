@@ -308,6 +308,15 @@ body {
         </div>
       </div>
 
+      <div class="sync-section">
+        <div class="sync-header">
+          <label>가사 유지 시간 (선택 — 음원 없이 정해진 시간으로 자동 진행)</label>
+          <button id="convert-lrc-btn" class="btn btn-ghost">싱크 가사(LRC)에서 변환</button>
+        </div>
+        <div id="duration-status" class="search-status" hidden></div>
+        <textarea id="duration-input" class="lrc-input" placeholder="예: [00:05.54]가사 한 줄 → 이 줄을 5.54초 동안 보여준 뒤 자동으로 다음 줄로 넘어갑니다. (싱크 가사와 달리 '시작 시각'이 아니라 '유지 시간'입니다)"></textarea>
+      </div>
+
       <div class="prompter-bar">
         <div class="audio-transport" id="audio-transport" hidden>
           <div id="audio-transport-inner"></div>
@@ -324,8 +333,28 @@ body {
           <button id="font-plus-btn" class="btn btn-ghost">+</button>
           <button id="clear-prompter-btn" class="btn btn-ghost">지우기</button>
           <button id="live-mode-btn" class="btn btn-accent">🎤 라이브 모드로 보내기</button>
+          <button id="timer-mode-btn" class="btn btn-accent">⏱ 자동 타이머로 보내기</button>
           <button id="send-btn" class="btn btn-accent">▶ 프롬프터로 보내기</button>
         </div>
+      </div>
+
+      <div id="timer-panel" class="live-panel" hidden>
+        <div class="live-header">
+          <span id="timer-progress-label">0 / 0줄</span>
+          <button id="timer-exit-btn" class="btn btn-ghost">타이머 모드 종료</button>
+        </div>
+        <div class="tap-lines">
+          <div id="timer-line-prev" class="tap-line tap-line-prev"></div>
+          <div id="timer-line-current" class="tap-line tap-line-current"></div>
+          <div id="timer-line-next" class="tap-line tap-line-next"></div>
+        </div>
+        <div class="live-actions">
+          <button id="timer-start-btn" class="btn btn-accent">▶ 시작</button>
+          <button id="timer-pause-btn" class="btn btn-ghost">일시정지</button>
+          <button id="timer-reset-btn" class="btn btn-ghost">처음부터</button>
+        </div>
+        <p class="tap-hint">각 줄에 설정한 시간이 지나면 자동으로 다음 줄로 넘어갑니다. 타이머는
+          프롬프터 창이 직접 관리하므로 이 콘솔 창에 포커스가 없어도 정확하게 진행됩니다.</p>
       </div>
 
       <div id="live-panel" class="live-panel" hidden>
@@ -512,6 +541,19 @@ const liveLineCurrentEl = document.getElementById('live-line-current');
 const liveLineNextEl = document.getElementById('live-line-next');
 const livePrevBtn = document.getElementById('live-prev-btn');
 const liveNextBtn = document.getElementById('live-next-btn');
+const durationInputEl = document.getElementById('duration-input');
+const durationStatusEl = document.getElementById('duration-status');
+const convertLrcBtn = document.getElementById('convert-lrc-btn');
+const timerModeBtn = document.getElementById('timer-mode-btn');
+const timerPanelEl = document.getElementById('timer-panel');
+const timerProgressLabel = document.getElementById('timer-progress-label');
+const timerExitBtn = document.getElementById('timer-exit-btn');
+const timerLinePrevEl = document.getElementById('timer-line-prev');
+const timerLineCurrentEl = document.getElementById('timer-line-current');
+const timerLineNextEl = document.getElementById('timer-line-next');
+const timerStartBtn = document.getElementById('timer-start-btn');
+const timerPauseBtn = document.getElementById('timer-pause-btn');
+const timerResetBtn = document.getElementById('timer-reset-btn');
 const clearPrompterBtn = document.getElementById('clear-prompter-btn');
 const openPrompterBtn = document.getElementById('open-prompter-btn');
 const fontMinusBtn = document.getElementById('font-minus-btn');
@@ -1048,7 +1090,7 @@ function deleteSong() {
   if (!ok) return;
 
   if (onAirSong && onAirSong.id === selectedId) {
-    exitLiveMode();
+    exitAllModes();
     postToPrompter({ type: 'clear' });
     onAirSong = null;
     setOnAirStatus(null);
@@ -1103,7 +1145,7 @@ async function openPrompterWindow() {
 }
 
 async function sendToPrompter(idOverride) {
-  exitLiveMode();
+  exitAllModes();
 
   const id = idOverride || selectedId;
   if (!id) return;
@@ -1122,7 +1164,7 @@ async function sendToPrompter(idOverride) {
 }
 
 function clearPrompter() {
-  exitLiveMode();
+  exitAllModes();
   postToPrompter({ type: 'clear' });
   if (liveAudioController) liveAudioController.pause();
   onAirSong = null;
@@ -1146,6 +1188,7 @@ function startLiveMode() {
     return;
   }
 
+  exitTimerMode();
   if (liveAudioController) {
     liveAudioController.destroy();
     liveAudioController = null;
@@ -1198,19 +1241,152 @@ function exitLiveMode() {
   livePanelEl.hidden = true;
 }
 
+// --- 자동 타이머 모드: 음원 없이, 줄마다 정해둔 시간이 지나면 자동으로 다음 줄로
+// 진행. 실제 타이머는 프롬프터 창이 관리 (포커스와 무관하게 정확히 동작). ---
+
+// "[mm:ss.xx]가사" 한 줄 = 이 줄을 그 시간(초)만큼 유지 후 자동 진행.
+// parseLRC와 달리 시간순 정렬을 하지 않고 입력한 줄 순서를 그대로 유지합니다.
+function parseDurations(text) {
+  const timeTag = /\[(\d{1,2}):(\d{2})(?:[.:](\d{1,3}))?\]/;
+  const lines = (text || '').split(/\r?\n/);
+  const result = [];
+  for (const rawLine of lines) {
+    const m = rawLine.match(timeTag);
+    if (!m) continue;
+    const min = parseInt(m[1], 10);
+    const sec = parseInt(m[2], 10);
+    const frac = parseInt((m[3] || '0').padEnd(3, '0').slice(0, 3), 10);
+    const duration = min * 60 + sec + frac / 1000;
+    result.push({ duration, text: rawLine.replace(timeTag, '').trim() });
+  }
+  return result;
+}
+
+function setDurationStatus(text, kind) {
+  if (!text) {
+    durationStatusEl.hidden = true;
+    durationStatusEl.textContent = '';
+    return;
+  }
+  durationStatusEl.hidden = false;
+  durationStatusEl.textContent = text;
+  durationStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+function convertLrcToDurations() {
+  const synced = parseLRC(lrcInputEl.value);
+  if (synced.length === 0) {
+    setDurationStatus('먼저 싱크 가사(LRC)를 채워야 변환할 수 있어요.', 'error');
+    return;
+  }
+  const DEFAULT_LAST_DURATION = 4;
+  const lines = synced.map((line, i) => {
+    const next = synced[i + 1];
+    const duration = next ? Math.max(0.1, next.time - line.time) : DEFAULT_LAST_DURATION;
+    return `[${formatLrcTime(duration)}]${line.text}`;
+  });
+  durationInputEl.value = lines.join('\n');
+  setDurationStatus('싱크 가사에서 변환했어요. 필요하면 각 줄의 시간을 직접 수정하세요.', 'success');
+}
+
+let timerModeActive = false;
+let timerLines = [];
+let timerDisplayIndex = -1;
+
+function startTimerMode() {
+  const song = saveSong();
+  if (!song) return;
+
+  const lines = parseDurations(durationInputEl.value);
+  if (lines.length === 0) {
+    setDurationStatus('먼저 가사 유지 시간을 입력해야 타이머 모드를 쓸 수 있어요.', 'error');
+    return;
+  }
+
+  exitLiveMode();
+  if (liveAudioController) {
+    liveAudioController.destroy();
+    liveAudioController = null;
+  }
+  audioTransportEl.hidden = true;
+
+  timerLines = lines;
+  timerDisplayIndex = -1;
+  timerModeActive = true;
+  onAirSong = { ...song, syncedLyrics: [] };
+  setOnAirStatus(song.title);
+  renderList();
+  timerPanelEl.hidden = false;
+  updateTimerDisplay();
+
+  openPrompterWindow().then(() => {
+    postToPrompter({ type: 'timerShow', title: song.title, lines: timerLines, fontSize });
+  });
+}
+
+function updateTimerDisplay() {
+  const idx = timerDisplayIndex;
+  timerProgressLabel.textContent = `${Math.max(idx + 1, 0)} / ${timerLines.length}줄`;
+  timerLinePrevEl.textContent = idx > 0 ? timerLines[idx - 1].text : '';
+  timerLineCurrentEl.textContent = idx >= 0 ? timerLines[idx].text : '"시작"을 누르면 진행됩니다';
+  timerLineNextEl.textContent = idx + 1 < timerLines.length ? timerLines[idx + 1].text : '';
+}
+
+function timerStart() {
+  if (!timerModeActive) return;
+  postToPrompter({ type: 'timerControl', action: 'start' });
+}
+
+function timerPause() {
+  if (!timerModeActive) return;
+  postToPrompter({ type: 'timerControl', action: 'pause' });
+}
+
+function timerReset() {
+  if (!timerModeActive) return;
+  postToPrompter({ type: 'timerControl', action: 'reset' });
+  timerDisplayIndex = -1;
+  updateTimerDisplay();
+}
+
+function exitTimerMode() {
+  if (!timerModeActive) return;
+  timerModeActive = false;
+  timerLines = [];
+  timerDisplayIndex = -1;
+  timerPanelEl.hidden = true;
+}
+
+function exitAllModes() {
+  exitLiveMode();
+  exitTimerMode();
+}
+
 function changeFontSize(delta) {
   fontSize = Math.min(MAX_FONT, Math.max(MIN_FONT, fontSize + delta));
   fontSizeLabel.textContent = `${fontSize}px`;
   postToPrompter({ type: 'fontSize', size: fontSize });
 }
 
-// 프롬프터 창이 (재)로딩되어 "준비 완료" 신호를 보내오면 현재 상태를 다시 보내줌
+// 프롬프터 창과의 메시지 교환: (재)로딩되어 "준비 완료" 신호를 보내오면 현재
+// 상태를 다시 보내주고, 타이머 모드의 진행 상황(timerTick)을 받아 콘솔에 반영함
 window.addEventListener('message', (e) => {
-  if (!e.data || e.data.type !== 'ready') return;
-  if (e.source !== prompterWin) return;
+  if (!e.data || e.source !== prompterWin) return;
+
+  if (e.data.type === 'timerTick') {
+    if (timerModeActive) {
+      timerDisplayIndex = e.data.index;
+      updateTimerDisplay();
+    }
+    return;
+  }
+
+  if (e.data.type !== 'ready') return;
   if (liveModeActive) {
     postToPrompter({ type: 'liveShow', title: onAirSong ? onAirSong.title : '', lines: liveLines, fontSize });
     postToPrompter({ type: 'liveIndex', index: liveIndex });
+  } else if (timerModeActive) {
+    postToPrompter({ type: 'timerShow', title: onAirSong ? onAirSong.title : '', lines: timerLines, fontSize });
   } else if (onAirSong) {
     postToPrompter({ type: 'show', song: onAirSong, fontSize });
   } else {
@@ -1227,6 +1403,12 @@ liveModeBtn.addEventListener('click', startLiveMode);
 liveExitBtn.addEventListener('click', clearPrompter);
 liveNextBtn.addEventListener('click', liveNext);
 livePrevBtn.addEventListener('click', livePrev);
+convertLrcBtn.addEventListener('click', convertLrcToDurations);
+timerModeBtn.addEventListener('click', startTimerMode);
+timerExitBtn.addEventListener('click', clearPrompter);
+timerStartBtn.addEventListener('click', timerStart);
+timerPauseBtn.addEventListener('click', timerPause);
+timerResetBtn.addEventListener('click', timerReset);
 clearPrompterBtn.addEventListener('click', clearPrompter);
 openPrompterBtn.addEventListener('click', openPrompterWindow);
 fontMinusBtn.addEventListener('click', () => changeFontSize(-FONT_STEP));

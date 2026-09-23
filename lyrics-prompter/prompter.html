@@ -129,12 +129,81 @@ function showLiveLines(title, lines) {
   window.scrollTo(0, 0);
 }
 
+let timerLines = null; // { duration, text }[] | null
+let timerHandle = null;
+
+function showTimerLines(title, lines) {
+  titleEl.textContent = title || '';
+  placeholderEl.style.display = 'none';
+  stageEl.style.display = 'block';
+
+  currentSynced = null;
+  currentLineIndex = -1;
+  clearTimerHandle();
+  timerLines = lines;
+
+  lyricsEl.style.display = 'none';
+  lrcLinesEl.style.display = 'block';
+  lrcLinesEl.innerHTML = '';
+  for (const line of lines) {
+    const div = document.createElement('div');
+    div.className = 'lrc-line';
+    div.textContent = line.text || ' ';
+    lrcLinesEl.appendChild(div);
+  }
+  window.scrollTo(0, 0);
+}
+
+function clearTimerHandle() {
+  if (timerHandle) {
+    clearTimeout(timerHandle);
+    timerHandle = null;
+  }
+}
+
+function reportTimerTick() {
+  if (window.opener) {
+    window.opener.postMessage({ type: 'timerTick', index: currentLineIndex }, '*');
+  }
+}
+
+function scheduleNextTimerLine() {
+  clearTimerHandle();
+  if (!timerLines || currentLineIndex >= timerLines.length - 1) return;
+  const duration = timerLines[currentLineIndex] ? timerLines[currentLineIndex].duration : 0;
+  const ms = Math.max(200, duration * 1000);
+  timerHandle = setTimeout(() => {
+    highlightLine(currentLineIndex + 1);
+    reportTimerTick();
+    scheduleNextTimerLine();
+  }, ms);
+}
+
+function timerControl(action) {
+  if (!timerLines) return;
+  if (action === 'start') {
+    if (currentLineIndex < 0) {
+      highlightLine(0);
+      reportTimerTick();
+    }
+    scheduleNextTimerLine();
+  } else if (action === 'pause') {
+    clearTimerHandle();
+  } else if (action === 'reset') {
+    clearTimerHandle();
+    highlightLine(-1);
+    reportTimerTick();
+  }
+}
+
 function clearLyrics() {
   titleEl.textContent = '';
   lyricsEl.textContent = '';
   lrcLinesEl.innerHTML = '';
   currentSynced = null;
   currentLineIndex = -1;
+  clearTimerHandle();
+  timerLines = null;
   stageEl.style.display = 'none';
   placeholderEl.style.display = 'flex';
 }
@@ -179,6 +248,11 @@ window.addEventListener('message', (e) => {
     if (typeof msg.fontSize === 'number') setFontSize(msg.fontSize);
   } else if (msg.type === 'liveIndex') {
     highlightLine(msg.index);
+  } else if (msg.type === 'timerShow') {
+    showTimerLines(msg.title, msg.lines);
+    if (typeof msg.fontSize === 'number') setFontSize(msg.fontSize);
+  } else if (msg.type === 'timerControl') {
+    timerControl(msg.action);
   } else if (msg.type === 'clear') {
     clearLyrics();
   } else if (msg.type === 'fontSize') {

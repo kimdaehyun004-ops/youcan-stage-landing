@@ -874,14 +874,11 @@ async function startTapSync() {
     return;
   }
 
-  let id = selectedId;
-  if (!id) {
-    const song = saveSong();
-    if (!song) return;
-    id = song.id;
-  }
+  // 폼에 방금 입력한 값(유튜브 URL 등)을 반영하기 위해 항상 저장부터 함
+  const song = saveSong();
+  if (!song) return;
+  const id = song.id;
 
-  const song = SongStorage.getById(id);
   const source = getAudioSourceForSong(id, song);
   if (!source) {
     setLrcStatus('먼저 음원 파일을 첨부하거나 유튜브 URL을 입력해야 탭으로 싱크를 찍을 수 있어요.', 'error');

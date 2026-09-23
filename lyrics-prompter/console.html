@@ -235,6 +235,18 @@ body {
 #sync-audio-container { width: 100%; margin-bottom: 18px; min-height: 40px; }
 #sync-audio-container audio { width: 100%; }
 
+.stopwatch-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #2a2c34;
+  border-radius: 6px;
+  background: #16171c;
+}
+.stopwatch-label { font-size: 13px; color: #a8abb8; font-family: Consolas, 'SFMono-Regular', monospace; }
+
 .tap-lines { text-align: center; margin-bottom: 18px; }
 .tap-line { padding: 6px 0; word-break: keep-all; }
 .tap-line-prev, .tap-line-next { color: #565a68; font-size: 15px; min-height: 1.4em; }
@@ -311,7 +323,10 @@ body {
       <div class="sync-section">
         <div class="sync-header">
           <label>가사 유지 시간 (선택 — 음원 없이 정해진 시간으로 자동 진행)</label>
-          <button id="convert-lrc-btn" class="btn btn-ghost">싱크 가사(LRC)에서 변환</button>
+          <div style="display: flex; gap: 8px;">
+            <button id="start-tap-duration-btn" class="btn btn-ghost">탭으로 유지 시간 찍기</button>
+            <button id="convert-lrc-btn" class="btn btn-ghost">싱크 가사(LRC)에서 변환</button>
+          </div>
         </div>
         <div id="duration-status" class="search-status" hidden></div>
         <textarea id="duration-input" class="lrc-input" placeholder="예: [00:05.54]가사 한 줄 → 이 줄을 5.54초 동안 보여준 뒤 자동으로 다음 줄로 넘어갑니다. (싱크 가사와 달리 '시작 시각'이 아니라 '유지 시간'입니다)"></textarea>
@@ -380,7 +395,7 @@ body {
   <div id="tap-sync-modal" class="modal-overlay" hidden>
     <div class="modal-panel">
       <div class="modal-header">
-        <h2>탭으로 싱크 찍기</h2>
+        <h2 id="tap-modal-title">탭으로 싱크 찍기</h2>
         <button id="tap-close-btn" class="btn btn-ghost">닫기</button>
       </div>
 
@@ -408,7 +423,7 @@ body {
         <button id="tap-finish-btn" class="btn btn-primary" disabled>LRC 만들기</button>
       </div>
 
-      <p class="tap-hint">음원을 재생하다가 화면의 굵은 줄이 실제로 나오는 순간 스페이스바(또는 TAP 버튼)를 누르세요. 실수하면 되돌리기로 취소할 수 있어요.</p>
+      <p id="tap-hint" class="tap-hint">음원을 재생하다가 화면의 굵은 줄이 실제로 나오는 순간 스페이스바(또는 TAP 버튼)를 누르세요. 실수하면 되돌리기로 취소할 수 있어요.</p>
     </div>
   </div>
 
@@ -514,7 +529,10 @@ const audioFileNameEl = document.getElementById('audio-file-name');
 const audioTransportEl = document.getElementById('audio-transport');
 const audioTransportInnerEl = document.getElementById('audio-transport-inner');
 const startTapSyncBtn = document.getElementById('start-tap-sync-btn');
+const startTapDurationBtn = document.getElementById('start-tap-duration-btn');
 const tapSyncModal = document.getElementById('tap-sync-modal');
+const tapModalTitleEl = document.getElementById('tap-modal-title');
+const tapHintEl = document.getElementById('tap-hint');
 const tapCloseBtn = document.getElementById('tap-close-btn');
 const tapProgressLabel = document.getElementById('tap-progress-label');
 const tapSpeedSelect = document.getElementById('tap-speed-select');
@@ -761,6 +779,91 @@ function createAudioController(containerEl, source) {
   return Promise.resolve(createFileAudioController(containerEl, source.file));
 }
 
+// 음원 없이 "가사 유지 시간"을 탭으로 찍을 때 쓰는 스톱워치. 오디오 컨트롤러와
+// 동일한 인터페이스(getCurrentTime/play/pause/seek)를 제공해 탭 로직을 그대로 재사용.
+function createStopwatchController(containerEl) {
+  containerEl.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'stopwatch-controls';
+
+  const label = document.createElement('span');
+  label.className = 'stopwatch-label';
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.type = 'button';
+  toggleBtn.className = 'btn btn-accent';
+  toggleBtn.textContent = '⏱ 카운트 시작';
+
+  wrap.appendChild(label);
+  wrap.appendChild(toggleBtn);
+  containerEl.appendChild(wrap);
+
+  let startedAt = null;
+  let elapsedBeforePause = 0;
+  let running = false;
+  let labelTimer = null;
+
+  function currentTime() {
+    if (!running) return elapsedBeforePause;
+    return elapsedBeforePause + (performance.now() - startedAt) / 1000;
+  }
+
+  function updateLabel() {
+    label.textContent = `음원 없이 진행 중 · ${formatLrcTime(currentTime())}`;
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    startedAt = performance.now();
+    toggleBtn.textContent = '일시정지';
+    updateLabel();
+    labelTimer = setInterval(updateLabel, 100);
+  }
+
+  function stop() {
+    if (!running) return;
+    elapsedBeforePause = currentTime();
+    running = false;
+    toggleBtn.textContent = '⏱ 계속하기';
+    if (labelTimer) {
+      clearInterval(labelTimer);
+      labelTimer = null;
+    }
+    updateLabel();
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (running) stop();
+    else start();
+  });
+
+  updateLabel();
+
+  return {
+    type: 'stopwatch',
+    play: start,
+    pause: stop,
+    getCurrentTime: currentTime,
+    seek(t) {
+      elapsedBeforePause = t;
+      startedAt = performance.now();
+      updateLabel();
+    },
+    setPlaybackRate() {
+      // 스톱워치는 배속 개념이 없음
+    },
+    onTick() {
+      // 탭 싱크에서는 주기적 tick이 필요 없음
+    },
+    destroy() {
+      running = false;
+      if (labelTimer) clearInterval(labelTimer);
+      containerEl.innerHTML = '';
+    },
+  };
+}
+
 let liveAudioController = null;
 
 async function loadLiveAudioForSong(song) {
@@ -901,12 +1004,31 @@ audioFileInputEl.addEventListener('change', async () => {
 
 searchLrcBtn.addEventListener('click', searchSyncedLyricsOnline);
 
-// --- 탭으로 싱크 찍기 ---
+// --- 탭으로 싱크 찍기 / 탭으로 유지 시간 찍기 (같은 모달을 공유) ---
 let tapLines = [];
 let tapResults = [];
 let tapAudioController = null;
+let tapTargetMode = 'lrc'; // 'lrc' | 'duration'
 
-async function startTapSync() {
+function formatLrcTime(totalSeconds) {
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds - mins * 60;
+  return `${String(mins).padStart(2, '0')}:${secs.toFixed(2).padStart(5, '0')}`;
+}
+
+// 연속된 절대 시각 목록을 "각 줄을 얼마나 유지할지"로 변환 (원래 순서 유지).
+// 마지막 줄은 다음 시각이 없어서 defaultLastDuration을 사용.
+function computeDurations(entries, defaultLastDuration) {
+  return entries.map((entry, i) => {
+    const next = entries[i + 1];
+    const duration = next ? Math.max(0.1, next.time - entry.time) : defaultLastDuration;
+    return { duration, text: entry.text };
+  });
+}
+
+async function startTapSync(mode) {
+  tapTargetMode = mode;
+
   const lines = lyricsInputEl.value
     .split(/\r?\n/)
     .map((l) => l.trim())
@@ -923,10 +1045,11 @@ async function startTapSync() {
   const id = song.id;
 
   const source = getAudioSourceForSong(id);
-  if (!source) {
+  if (!source && mode === 'lrc') {
     setLrcStatus('먼저 "음원 파일 선택"으로 음원을 첨부해야 탭으로 싱크를 찍을 수 있어요.', 'error');
     return;
   }
+  // mode === 'duration'은 음원이 없어도 스톱워치로 진행 가능
 
   if (document.activeElement) document.activeElement.blur();
 
@@ -938,12 +1061,23 @@ async function startTapSync() {
     tapAudioController = null;
   }
 
+  tapModalTitleEl.textContent = mode === 'duration' ? '탭으로 유지 시간 찍기' : '탭으로 싱크 찍기';
+  tapHintEl.textContent =
+    mode === 'duration'
+      ? '음원이 있으면 재생하면서, 없으면 "카운트 시작"을 누르고 원하는 속도로, 그 가사를 보여줄 타이밍에 스페이스바(또는 TAP 버튼)를 누르세요.'
+      : '음원을 재생하다가 화면의 굵은 줄이 실제로 나오는 순간 스페이스바(또는 TAP 버튼)를 누르세요. 실수하면 되돌리기로 취소할 수 있어요.';
+  tapFinishBtn.textContent = mode === 'duration' ? '유지 시간 만들기' : 'LRC 만들기';
+
   tapSyncModal.hidden = false;
   updateTapDisplay();
 
-  tapAudioController = await createAudioController(syncAudioContainerEl, source);
-  if (tapAudioController) {
-    tapAudioController.setPlaybackRate(Number(tapSpeedSelect.value));
+  if (source) {
+    tapAudioController = await createAudioController(syncAudioContainerEl, source);
+    if (tapAudioController) {
+      tapAudioController.setPlaybackRate(Number(tapSpeedSelect.value));
+    }
+  } else {
+    tapAudioController = createStopwatchController(syncAudioContainerEl);
   }
 }
 
@@ -951,16 +1085,10 @@ function updateTapDisplay() {
   const idx = tapResults.length;
   tapProgressLabel.textContent = `${idx} / ${tapLines.length}줄`;
   tapLinePrevEl.textContent = idx > 0 ? tapLines[idx - 1] : '';
-  tapLineCurrentEl.textContent = idx < tapLines.length ? tapLines[idx] : '(완료! "LRC 만들기"를 누르세요)';
+  tapLineCurrentEl.textContent = idx < tapLines.length ? tapLines[idx] : '(완료! 아래 버튼을 누르세요)';
   tapLineNextEl.textContent = idx + 1 < tapLines.length ? tapLines[idx + 1] : '';
   tapBtn.disabled = idx >= tapLines.length;
   tapFinishBtn.disabled = tapResults.length === 0;
-}
-
-function formatLrcTime(totalSeconds) {
-  const mins = Math.floor(totalSeconds / 60);
-  const secs = totalSeconds - mins * 60;
-  return `${String(mins).padStart(2, '0')}:${secs.toFixed(2).padStart(5, '0')}`;
 }
 
 function doTap() {
@@ -986,9 +1114,14 @@ function resetTap() {
 }
 
 function finishTapSync() {
-  const lrcText = tapResults.map((r) => `[${formatLrcTime(r.time)}]${r.text}`).join('\n');
-  lrcInputEl.value = lrcText;
-  setLrcStatus(`탭으로 ${tapResults.length}줄 싱크를 만들었어요. 확인 후 저장하세요.`, 'success');
+  if (tapTargetMode === 'duration') {
+    const durations = computeDurations(tapResults, 4);
+    durationInputEl.value = durations.map((d) => `[${formatLrcTime(d.duration)}]${d.text}`).join('\n');
+    setDurationStatus(`탭으로 ${tapResults.length}줄 유지 시간을 만들었어요. 확인 후 저장하세요.`, 'success');
+  } else {
+    lrcInputEl.value = tapResults.map((r) => `[${formatLrcTime(r.time)}]${r.text}`).join('\n');
+    setLrcStatus(`탭으로 ${tapResults.length}줄 싱크를 만들었어요. 확인 후 저장하세요.`, 'success');
+  }
   closeTapSync();
 }
 
@@ -1000,7 +1133,8 @@ function closeTapSync() {
   }
 }
 
-startTapSyncBtn.addEventListener('click', startTapSync);
+startTapSyncBtn.addEventListener('click', () => startTapSync('lrc'));
+startTapDurationBtn.addEventListener('click', () => startTapSync('duration'));
 tapCloseBtn.addEventListener('click', closeTapSync);
 tapBtn.addEventListener('click', doTap);
 tapUndoBtn.addEventListener('click', undoTap);
@@ -1279,13 +1413,8 @@ function convertLrcToDurations() {
     setDurationStatus('먼저 싱크 가사(LRC)를 채워야 변환할 수 있어요.', 'error');
     return;
   }
-  const DEFAULT_LAST_DURATION = 4;
-  const lines = synced.map((line, i) => {
-    const next = synced[i + 1];
-    const duration = next ? Math.max(0.1, next.time - line.time) : DEFAULT_LAST_DURATION;
-    return `[${formatLrcTime(duration)}]${line.text}`;
-  });
-  durationInputEl.value = lines.join('\n');
+  const durations = computeDurations(synced, 4);
+  durationInputEl.value = durations.map((d) => `[${formatLrcTime(d.duration)}]${d.text}`).join('\n');
   setDurationStatus('싱크 가사에서 변환했어요. 필요하면 각 줄의 시간을 직접 수정하세요.', 'success');
 }
 

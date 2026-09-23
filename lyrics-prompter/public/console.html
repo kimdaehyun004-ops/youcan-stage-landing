@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
 <title>가사 프롬프터 - 콘솔</title>
 <style>
 * { box-sizing: border-box; }
@@ -789,6 +790,8 @@ async function createYouTubeAudioController(containerEl, videoId) {
         onReady: () => {
           if (settled) return;
           settled = true;
+          const iframe = p.getIframe && p.getIframe();
+          if (iframe) iframe.referrerPolicy = 'strict-origin-when-cross-origin';
           resolve(p);
         },
         onError: (e) => {

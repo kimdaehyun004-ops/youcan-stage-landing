@@ -201,21 +201,8 @@ body {
 .file-label { cursor: pointer; }
 .audio-file-name { font-size: 12.5px; color: #a8abb8; }
 
-.youtube-input {
-  width: 100%;
-  margin-top: 8px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #2a2c34;
-  background: #22242c;
-  color: #e8e9ee;
-  font-size: 13px;
-  box-sizing: border-box;
-}
-
 .audio-transport { flex-basis: 100%; margin-bottom: 4px; }
 .audio-transport audio { width: 100%; height: 34px; }
-#audio-transport-inner iframe { width: 100%; height: 160px; border-radius: 6px; }
 
 .modal-overlay {
   position: fixed;
@@ -247,7 +234,6 @@ body {
 
 #sync-audio-container { width: 100%; margin-bottom: 18px; min-height: 40px; }
 #sync-audio-container audio { width: 100%; }
-#sync-audio-container iframe { width: 100%; height: 200px; border-radius: 6px; }
 
 .tap-lines { text-align: center; margin-bottom: 18px; }
 .tap-line { padding: 6px 0; word-break: keep-all; }
@@ -301,7 +287,6 @@ body {
           </label>
           <span id="audio-file-name" class="audio-file-name">첨부된 음원 없음 (새로고침하면 다시 선택해야 해요)</span>
         </div>
-        <input id="youtube-url-input" class="youtube-input" type="text" placeholder="또는 유튜브 URL 붙여넣기 (예: https://www.youtube.com/watch?v=...) - 음원 파일이 없을 때만 사용됨" />
       </div>
 
       <div class="prompter-bar">
@@ -411,7 +396,7 @@ const SongStorage = {
   getById(id) {
     return readSongs().find((s) => s.id === id) || null;
   },
-  add({ title, artist, lyrics, lrc, youtubeUrl }) {
+  add({ title, artist, lyrics, lrc }) {
     const list = readSongs();
     const now = new Date().toISOString();
     const song = {
@@ -420,7 +405,6 @@ const SongStorage = {
       artist: (artist || '').trim(),
       lyrics: lyrics || '',
       lrc: lrc || '',
-      youtubeUrl: (youtubeUrl || '').trim(),
       createdAt: now,
       updatedAt: now,
     };
@@ -436,7 +420,6 @@ const SongStorage = {
     if (typeof patch.artist === 'string') song.artist = patch.artist.trim();
     if (typeof patch.lyrics === 'string') song.lyrics = patch.lyrics;
     if (typeof patch.lrc === 'string') song.lrc = patch.lrc;
-    if (typeof patch.youtubeUrl === 'string') song.youtubeUrl = patch.youtubeUrl.trim();
     song.updatedAt = new Date().toISOString();
     writeSongs(list);
     return song;
@@ -461,7 +444,6 @@ const lrcStatusEl = document.getElementById('lrc-status');
 const searchLrcBtn = document.getElementById('search-lrc-btn');
 const audioFileInputEl = document.getElementById('audio-file-input');
 const audioFileNameEl = document.getElementById('audio-file-name');
-const youtubeUrlInputEl = document.getElementById('youtube-url-input');
 const audioTransportEl = document.getElementById('audio-transport');
 const audioTransportInnerEl = document.getElementById('audio-transport-inner');
 const startTapSyncBtn = document.getElementById('start-tap-sync-btn');
@@ -546,7 +528,6 @@ function selectSong(id) {
   artistInputEl.value = song.artist || '';
   lyricsInputEl.value = song.lyrics;
   lrcInputEl.value = song.lrc || '';
-  youtubeUrlInputEl.value = song.youtubeUrl || '';
   deleteBtn.hidden = false;
   setSearchStatus('');
   setLrcStatus('');
@@ -560,7 +541,6 @@ function startNewSong() {
   artistInputEl.value = '';
   lyricsInputEl.value = '';
   lrcInputEl.value = '';
-  youtubeUrlInputEl.value = '';
   deleteBtn.hidden = true;
   setSearchStatus('');
   setLrcStatus('');
@@ -578,12 +558,11 @@ function saveSong() {
   const artist = artistInputEl.value.trim();
   const lyrics = lyricsInputEl.value;
   const lrc = lrcInputEl.value;
-  const youtubeUrl = youtubeUrlInputEl.value;
   let song;
   if (selectedId) {
-    song = SongStorage.update(selectedId, { title, artist, lyrics, lrc, youtubeUrl });
+    song = SongStorage.update(selectedId, { title, artist, lyrics, lrc });
   } else {
-    song = SongStorage.add({ title, artist, lyrics, lrc, youtubeUrl });
+    song = SongStorage.add({ title, artist, lyrics, lrc });
     selectedId = song.id;
     deleteBtn.hidden = false;
   }
@@ -649,31 +628,11 @@ async function searchSyncedLyricsOnline() {
   }
 }
 
-// --- 오디오 소스 추상화: 로컬 파일(<audio>) 또는 유튜브(IFrame Player) ---
+// --- 오디오 소스: 로컬 파일(<audio>) ---
 
-function extractYouTubeId(url) {
-  try {
-    const u = new URL((url || '').trim());
-    const host = u.hostname.replace(/^www\./, '');
-    if (host === 'youtu.be') return u.pathname.slice(1).split('/')[0] || null;
-    if (host === 'youtube.com' || host === 'm.youtube.com') {
-      if (u.pathname === '/watch') return u.searchParams.get('v');
-      const shortsMatch = u.pathname.match(/^\/shorts\/([^/]+)/);
-      if (shortsMatch) return shortsMatch[1];
-      const embedMatch = u.pathname.match(/^\/embed\/([^/]+)/);
-      if (embedMatch) return embedMatch[1];
-    }
-    return null;
-  } catch (err) {
-    return null;
-  }
-}
-
-function getAudioSourceForSong(songId, song) {
+function getAudioSourceForSong(songId) {
   const file = songId ? audioFiles[songId] : null;
   if (file) return { type: 'file', file };
-  const videoId = song && song.youtubeUrl ? extractYouTubeId(song.youtubeUrl) : null;
-  if (videoId) return { type: 'youtube', videoId };
   return null;
 }
 
@@ -705,138 +664,12 @@ function createFileAudioController(containerEl, file) {
   };
 }
 
-let ytApiPromise = null;
-function loadYouTubeAPI() {
-  if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
-  if (ytApiPromise) return ytApiPromise;
-  ytApiPromise = new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(() => {
-      ytApiPromise = null;
-      reject(new Error('youtube-api-timeout'));
-    }, 10000);
-
-    const prevCallback = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
-      clearTimeout(timeoutId);
-      if (typeof prevCallback === 'function') prevCallback();
-      resolve(window.YT);
-    };
-    const script = document.createElement('script');
-    script.src = 'https://www.youtube.com/iframe_api';
-    script.onerror = () => {
-      clearTimeout(timeoutId);
-      ytApiPromise = null;
-      reject(new Error('youtube-api-load-error'));
-    };
-    document.head.appendChild(script);
-  });
-  return ytApiPromise;
-}
-
-function describeYouTubeError(code) {
-  switch (code) {
-    case 2:
-      return '유튜브 링크에 문제가 있어요 (잘못된 동영상 ID). URL을 다시 확인해주세요.';
-    case 5:
-      return '이 브라우저에서 유튜브 영상을 재생할 수 없어요 (플레이어 오류).';
-    case 100:
-      return '영상을 찾을 수 없어요 (삭제되었거나 비공개 영상일 수 있어요).';
-    case 101:
-    case 150:
-      return '이 영상은 업로더가 다른 사이트에서의 재생(임베드)을 막아놨어요. 음원 파일을 직접 첨부해주세요.';
-    default:
-      return `이 유튜브 영상은 재생할 수 없어요 (오류 코드: ${code}).`;
-  }
-}
-
-async function createYouTubeAudioController(containerEl, videoId) {
-  containerEl.textContent = '유튜브 불러오는 중...';
-  let YT;
-  try {
-    YT = await loadYouTubeAPI();
-  } catch (err) {
-    containerEl.textContent = '유튜브 API를 불러오지 못했어요 (인터넷 연결을 확인하세요).';
-    return null;
-  }
-
-  containerEl.innerHTML = '';
-  const playerDiv = document.createElement('div');
-  containerEl.appendChild(playerDiv);
-
-  const tickHandlers = [];
-  let pollTimer = null;
-  let failed = false;
-
-  function startPolling() {
-    stopPolling();
-    pollTimer = setInterval(() => {
-      const t = player.getCurrentTime();
-      tickHandlers.forEach((fn) => fn(t));
-    }, 200);
-  }
-  function stopPolling() {
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = null;
-  }
-
-  const player = await new Promise((resolve) => {
-    let settled = false;
-    const p = new YT.Player(playerDiv, {
-      width: '100%',
-      height: '200',
-      videoId,
-      playerVars: { rel: 0 },
-      events: {
-        onReady: () => {
-          if (settled) return;
-          settled = true;
-          const iframe = p.getIframe && p.getIframe();
-          if (iframe) iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-          resolve(p);
-        },
-        onError: (e) => {
-          failed = true;
-          containerEl.textContent = describeYouTubeError(e.data);
-          if (!settled) {
-            settled = true;
-            resolve(null);
-          }
-        },
-        onStateChange: (e) => {
-          if (e.data === YT.PlayerState.PLAYING) startPolling();
-          else stopPolling();
-        },
-      },
-    });
-  });
-
-  if (!player || failed) return null;
-
-  return {
-    type: 'youtube',
-    play() { if (!failed) player.playVideo(); },
-    pause() { if (!failed) player.pauseVideo(); },
-    getCurrentTime() { return failed ? 0 : player.getCurrentTime(); },
-    seek(t) { if (!failed) player.seekTo(t, true); },
-    setPlaybackRate(r) { if (!failed) player.setPlaybackRate(r); },
-    onTick(fn) { tickHandlers.push(fn); },
-    destroy() {
-      stopPolling();
-      player.destroy();
-      containerEl.innerHTML = '';
-    },
-  };
-}
-
 function createAudioController(containerEl, source) {
   if (!source) {
     containerEl.innerHTML = '';
     return Promise.resolve(null);
   }
-  if (source.type === 'file') {
-    return Promise.resolve(createFileAudioController(containerEl, source.file));
-  }
-  return createYouTubeAudioController(containerEl, source.videoId);
+  return Promise.resolve(createFileAudioController(containerEl, source.file));
 }
 
 let liveAudioController = null;
@@ -846,7 +679,7 @@ async function loadLiveAudioForSong(song) {
     liveAudioController.destroy();
     liveAudioController = null;
   }
-  const source = getAudioSourceForSong(song.id, song);
+  const source = getAudioSourceForSong(song.id);
   if (!source) {
     audioTransportEl.hidden = true;
     return;
@@ -902,14 +735,14 @@ async function startTapSync() {
     return;
   }
 
-  // 폼에 방금 입력한 값(유튜브 URL 등)을 반영하기 위해 항상 저장부터 함
+  // 폼에 방금 입력한 값을 반영하기 위해 항상 저장부터 함
   const song = saveSong();
   if (!song) return;
   const id = song.id;
 
-  const source = getAudioSourceForSong(id, song);
+  const source = getAudioSourceForSong(id);
   if (!source) {
-    setLrcStatus('먼저 음원 파일을 첨부하거나 유튜브 URL을 입력해야 탭으로 싱크를 찍을 수 있어요.', 'error');
+    setLrcStatus('먼저 "음원 파일 선택"으로 음원을 첨부해야 탭으로 싱크를 찍을 수 있어요.', 'error');
     return;
   }
 

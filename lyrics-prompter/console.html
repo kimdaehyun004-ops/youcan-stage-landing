@@ -200,8 +200,21 @@ body {
 .file-label { cursor: pointer; }
 .audio-file-name { font-size: 12.5px; color: #a8abb8; }
 
+.youtube-input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
 .audio-transport { flex-basis: 100%; margin-bottom: 4px; }
 .audio-transport audio { width: 100%; height: 34px; }
+#audio-transport-inner iframe { width: 100%; height: 160px; border-radius: 6px; }
 
 .modal-overlay {
   position: fixed;
@@ -231,7 +244,9 @@ body {
 .tap-progress { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #a8abb8; }
 .tap-progress select { background: #22242c; color: #e8e9ee; border: 1px solid #2a2c34; border-radius: 6px; padding: 4px 8px; }
 
-#sync-audio { width: 100%; margin-bottom: 18px; }
+#sync-audio-container { width: 100%; margin-bottom: 18px; min-height: 40px; }
+#sync-audio-container audio { width: 100%; }
+#sync-audio-container iframe { width: 100%; height: 200px; border-radius: 6px; }
 
 .tap-lines { text-align: center; margin-bottom: 18px; }
 .tap-line { padding: 6px 0; word-break: keep-all; }
@@ -285,11 +300,12 @@ body {
           </label>
           <span id="audio-file-name" class="audio-file-name">첨부된 음원 없음 (새로고침하면 다시 선택해야 해요)</span>
         </div>
+        <input id="youtube-url-input" class="youtube-input" type="text" placeholder="또는 유튜브 URL 붙여넣기 (예: https://www.youtube.com/watch?v=...) - 음원 파일이 없을 때만 사용됨" />
       </div>
 
       <div class="prompter-bar">
         <div class="audio-transport" id="audio-transport" hidden>
-          <audio id="audio-player" controls></audio>
+          <div id="audio-transport-inner"></div>
         </div>
         <div class="prompter-status">
           <span class="dot"></span>
@@ -324,7 +340,7 @@ body {
         </select>
       </div>
 
-      <audio id="sync-audio" controls></audio>
+      <div id="sync-audio-container"></div>
 
       <div class="tap-lines">
         <div id="tap-line-prev" class="tap-line tap-line-prev"></div>
@@ -394,7 +410,7 @@ const SongStorage = {
   getById(id) {
     return readSongs().find((s) => s.id === id) || null;
   },
-  add({ title, artist, lyrics, lrc }) {
+  add({ title, artist, lyrics, lrc, youtubeUrl }) {
     const list = readSongs();
     const now = new Date().toISOString();
     const song = {
@@ -403,6 +419,7 @@ const SongStorage = {
       artist: (artist || '').trim(),
       lyrics: lyrics || '',
       lrc: lrc || '',
+      youtubeUrl: (youtubeUrl || '').trim(),
       createdAt: now,
       updatedAt: now,
     };
@@ -418,6 +435,7 @@ const SongStorage = {
     if (typeof patch.artist === 'string') song.artist = patch.artist.trim();
     if (typeof patch.lyrics === 'string') song.lyrics = patch.lyrics;
     if (typeof patch.lrc === 'string') song.lrc = patch.lrc;
+    if (typeof patch.youtubeUrl === 'string') song.youtubeUrl = patch.youtubeUrl.trim();
     song.updatedAt = new Date().toISOString();
     writeSongs(list);
     return song;
@@ -442,14 +460,15 @@ const lrcStatusEl = document.getElementById('lrc-status');
 const searchLrcBtn = document.getElementById('search-lrc-btn');
 const audioFileInputEl = document.getElementById('audio-file-input');
 const audioFileNameEl = document.getElementById('audio-file-name');
+const youtubeUrlInputEl = document.getElementById('youtube-url-input');
 const audioTransportEl = document.getElementById('audio-transport');
-const audioPlayerEl = document.getElementById('audio-player');
+const audioTransportInnerEl = document.getElementById('audio-transport-inner');
 const startTapSyncBtn = document.getElementById('start-tap-sync-btn');
 const tapSyncModal = document.getElementById('tap-sync-modal');
 const tapCloseBtn = document.getElementById('tap-close-btn');
 const tapProgressLabel = document.getElementById('tap-progress-label');
 const tapSpeedSelect = document.getElementById('tap-speed-select');
-const syncAudioEl = document.getElementById('sync-audio');
+const syncAudioContainerEl = document.getElementById('sync-audio-container');
 const tapLinePrevEl = document.getElementById('tap-line-prev');
 const tapLineCurrentEl = document.getElementById('tap-line-current');
 const tapLineNextEl = document.getElementById('tap-line-next');
@@ -526,6 +545,7 @@ function selectSong(id) {
   artistInputEl.value = song.artist || '';
   lyricsInputEl.value = song.lyrics;
   lrcInputEl.value = song.lrc || '';
+  youtubeUrlInputEl.value = song.youtubeUrl || '';
   deleteBtn.hidden = false;
   setSearchStatus('');
   setLrcStatus('');
@@ -539,6 +559,7 @@ function startNewSong() {
   artistInputEl.value = '';
   lyricsInputEl.value = '';
   lrcInputEl.value = '';
+  youtubeUrlInputEl.value = '';
   deleteBtn.hidden = true;
   setSearchStatus('');
   setLrcStatus('');
@@ -556,11 +577,12 @@ function saveSong() {
   const artist = artistInputEl.value.trim();
   const lyrics = lyricsInputEl.value;
   const lrc = lrcInputEl.value;
+  const youtubeUrl = youtubeUrlInputEl.value;
   let song;
   if (selectedId) {
-    song = SongStorage.update(selectedId, { title, artist, lyrics, lrc });
+    song = SongStorage.update(selectedId, { title, artist, lyrics, lrc, youtubeUrl });
   } else {
-    song = SongStorage.add({ title, artist, lyrics, lrc });
+    song = SongStorage.add({ title, artist, lyrics, lrc, youtubeUrl });
     selectedId = song.id;
     deleteBtn.hidden = false;
   }
@@ -626,21 +648,189 @@ async function searchSyncedLyricsOnline() {
   }
 }
 
-function setAudioPlayerForSong(songId) {
-  if (audioPlayerEl.dataset.objectUrl) {
-    URL.revokeObjectURL(audioPlayerEl.dataset.objectUrl);
-    delete audioPlayerEl.dataset.objectUrl;
+// --- 오디오 소스 추상화: 로컬 파일(<audio>) 또는 유튜브(IFrame Player) ---
+
+function extractYouTubeId(url) {
+  try {
+    const u = new URL((url || '').trim());
+    const host = u.hostname.replace(/^www\./, '');
+    if (host === 'youtu.be') return u.pathname.slice(1).split('/')[0] || null;
+    if (host === 'youtube.com' || host === 'm.youtube.com') {
+      if (u.pathname === '/watch') return u.searchParams.get('v');
+      const shortsMatch = u.pathname.match(/^\/shorts\/([^/]+)/);
+      if (shortsMatch) return shortsMatch[1];
+      const embedMatch = u.pathname.match(/^\/embed\/([^/]+)/);
+      if (embedMatch) return embedMatch[1];
+    }
+    return null;
+  } catch (err) {
+    return null;
   }
+}
+
+function getAudioSourceForSong(songId, song) {
   const file = songId ? audioFiles[songId] : null;
-  if (file) {
-    const url = URL.createObjectURL(file);
-    audioPlayerEl.src = url;
-    audioPlayerEl.dataset.objectUrl = url;
-    audioTransportEl.hidden = false;
-  } else {
-    audioPlayerEl.removeAttribute('src');
-    audioPlayerEl.load();
+  if (file) return { type: 'file', file };
+  const videoId = song && song.youtubeUrl ? extractYouTubeId(song.youtubeUrl) : null;
+  if (videoId) return { type: 'youtube', videoId };
+  return null;
+}
+
+function createFileAudioController(containerEl, file) {
+  containerEl.innerHTML = '';
+  const audioEl = document.createElement('audio');
+  audioEl.controls = true;
+  const objectUrl = URL.createObjectURL(file);
+  audioEl.src = objectUrl;
+  containerEl.appendChild(audioEl);
+
+  const tickHandlers = [];
+  audioEl.addEventListener('timeupdate', () => {
+    tickHandlers.forEach((fn) => fn(audioEl.currentTime));
+  });
+
+  return {
+    type: 'file',
+    play() { audioEl.play(); },
+    pause() { audioEl.pause(); },
+    getCurrentTime() { return audioEl.currentTime; },
+    seek(t) { audioEl.currentTime = t; },
+    setPlaybackRate(r) { audioEl.playbackRate = r; },
+    onTick(fn) { tickHandlers.push(fn); },
+    destroy() {
+      URL.revokeObjectURL(objectUrl);
+      containerEl.innerHTML = '';
+    },
+  };
+}
+
+let ytApiPromise = null;
+function loadYouTubeAPI() {
+  if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+  if (ytApiPromise) return ytApiPromise;
+  ytApiPromise = new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      ytApiPromise = null;
+      reject(new Error('youtube-api-timeout'));
+    }, 10000);
+
+    const prevCallback = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      clearTimeout(timeoutId);
+      if (typeof prevCallback === 'function') prevCallback();
+      resolve(window.YT);
+    };
+    const script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    script.onerror = () => {
+      clearTimeout(timeoutId);
+      ytApiPromise = null;
+      reject(new Error('youtube-api-load-error'));
+    };
+    document.head.appendChild(script);
+  });
+  return ytApiPromise;
+}
+
+async function createYouTubeAudioController(containerEl, videoId) {
+  containerEl.textContent = '유튜브 불러오는 중...';
+  let YT;
+  try {
+    YT = await loadYouTubeAPI();
+  } catch (err) {
+    containerEl.textContent = '유튜브 API를 불러오지 못했어요 (인터넷 연결을 확인하세요).';
+    return null;
+  }
+
+  containerEl.innerHTML = '';
+  const playerDiv = document.createElement('div');
+  containerEl.appendChild(playerDiv);
+
+  const tickHandlers = [];
+  let pollTimer = null;
+  let failed = false;
+
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(() => {
+      const t = player.getCurrentTime();
+      tickHandlers.forEach((fn) => fn(t));
+    }, 200);
+  }
+  function stopPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = null;
+  }
+
+  const player = await new Promise((resolve) => {
+    const p = new YT.Player(playerDiv, {
+      width: '100%',
+      height: '200',
+      videoId,
+      playerVars: { rel: 0 },
+      events: {
+        onReady: () => resolve(p),
+        onError: () => {
+          failed = true;
+          containerEl.textContent = '이 유튜브 영상은 재생할 수 없어요 (삽입 제한 또는 잘못된 링크).';
+        },
+        onStateChange: (e) => {
+          if (e.data === YT.PlayerState.PLAYING) startPolling();
+          else stopPolling();
+        },
+      },
+    });
+  });
+
+  if (failed) return null;
+
+  return {
+    type: 'youtube',
+    play() { player.playVideo(); },
+    pause() { player.pauseVideo(); },
+    getCurrentTime() { return player.getCurrentTime(); },
+    seek(t) { player.seekTo(t, true); },
+    setPlaybackRate(r) { player.setPlaybackRate(r); },
+    onTick(fn) { tickHandlers.push(fn); },
+    destroy() {
+      stopPolling();
+      player.destroy();
+      containerEl.innerHTML = '';
+    },
+  };
+}
+
+function createAudioController(containerEl, source) {
+  if (!source) {
+    containerEl.innerHTML = '';
+    return Promise.resolve(null);
+  }
+  if (source.type === 'file') {
+    return Promise.resolve(createFileAudioController(containerEl, source.file));
+  }
+  return createYouTubeAudioController(containerEl, source.videoId);
+}
+
+let liveAudioController = null;
+
+async function loadLiveAudioForSong(song) {
+  if (liveAudioController) {
+    liveAudioController.destroy();
+    liveAudioController = null;
+  }
+  const source = getAudioSourceForSong(song.id, song);
+  if (!source) {
     audioTransportEl.hidden = true;
+    return;
+  }
+  audioTransportEl.hidden = false;
+  liveAudioController = await createAudioController(audioTransportInnerEl, source);
+  if (liveAudioController) {
+    liveAudioController.onTick((t) => {
+      if (onAirSong && onAirSong.syncedLyrics && onAirSong.syncedLyrics.length) {
+        postToPrompter({ type: 'audioTime', time: t });
+      }
+    });
   }
 }
 
@@ -661,15 +851,9 @@ audioFileInputEl.addEventListener('change', () => {
   audioFiles[id] = file;
   updateAudioFileLabel(id);
   if (onAirSong && onAirSong.id === id) {
-    setAudioPlayerForSong(id);
+    loadLiveAudioForSong(onAirSong);
   }
   audioFileInputEl.value = '';
-});
-
-audioPlayerEl.addEventListener('timeupdate', () => {
-  if (onAirSong && onAirSong.syncedLyrics && onAirSong.syncedLyrics.length) {
-    postToPrompter({ type: 'audioTime', time: audioPlayerEl.currentTime });
-  }
 });
 
 searchLrcBtn.addEventListener('click', searchSyncedLyricsOnline);
@@ -677,9 +861,9 @@ searchLrcBtn.addEventListener('click', searchSyncedLyricsOnline);
 // --- 탭으로 싱크 찍기 ---
 let tapLines = [];
 let tapResults = [];
-let tapAudioObjectUrl = null;
+let tapAudioController = null;
 
-function startTapSync() {
+async function startTapSync() {
   const lines = lyricsInputEl.value
     .split(/\r?\n/)
     .map((l) => l.trim())
@@ -697,9 +881,10 @@ function startTapSync() {
     id = song.id;
   }
 
-  const file = audioFiles[id];
-  if (!file) {
-    setLrcStatus('먼저 "음원 파일 선택"으로 음원을 첨부해야 탭으로 싱크를 찍을 수 있어요.', 'error');
+  const song = SongStorage.getById(id);
+  const source = getAudioSourceForSong(id, song);
+  if (!source) {
+    setLrcStatus('먼저 음원 파일을 첨부하거나 유튜브 URL을 입력해야 탭으로 싱크를 찍을 수 있어요.', 'error');
     return;
   }
 
@@ -708,14 +893,18 @@ function startTapSync() {
   tapLines = lines;
   tapResults = [];
 
-  if (tapAudioObjectUrl) URL.revokeObjectURL(tapAudioObjectUrl);
-  tapAudioObjectUrl = URL.createObjectURL(file);
-  syncAudioEl.src = tapAudioObjectUrl;
-  syncAudioEl.currentTime = 0;
-  syncAudioEl.playbackRate = Number(tapSpeedSelect.value);
+  if (tapAudioController) {
+    tapAudioController.destroy();
+    tapAudioController = null;
+  }
 
   tapSyncModal.hidden = false;
   updateTapDisplay();
+
+  tapAudioController = await createAudioController(syncAudioContainerEl, source);
+  if (tapAudioController) {
+    tapAudioController.setPlaybackRate(Number(tapSpeedSelect.value));
+  }
 }
 
 function updateTapDisplay() {
@@ -735,9 +924,9 @@ function formatLrcTime(totalSeconds) {
 }
 
 function doTap() {
-  if (tapSyncModal.hidden || tapResults.length >= tapLines.length) return;
+  if (tapSyncModal.hidden || !tapAudioController || tapResults.length >= tapLines.length) return;
   const text = tapLines[tapResults.length];
-  tapResults.push({ time: syncAudioEl.currentTime, text });
+  tapResults.push({ time: tapAudioController.getCurrentTime(), text });
   updateTapDisplay();
 }
 
@@ -749,8 +938,10 @@ function undoTap() {
 
 function resetTap() {
   tapResults = [];
-  syncAudioEl.currentTime = 0;
-  syncAudioEl.pause();
+  if (tapAudioController) {
+    tapAudioController.seek(0);
+    tapAudioController.pause();
+  }
   updateTapDisplay();
 }
 
@@ -763,12 +954,9 @@ function finishTapSync() {
 
 function closeTapSync() {
   tapSyncModal.hidden = true;
-  syncAudioEl.pause();
-  syncAudioEl.removeAttribute('src');
-  syncAudioEl.load();
-  if (tapAudioObjectUrl) {
-    URL.revokeObjectURL(tapAudioObjectUrl);
-    tapAudioObjectUrl = null;
+  if (tapAudioController) {
+    tapAudioController.destroy();
+    tapAudioController = null;
   }
 }
 
@@ -779,7 +967,7 @@ tapUndoBtn.addEventListener('click', undoTap);
 tapResetBtn.addEventListener('click', resetTap);
 tapFinishBtn.addEventListener('click', finishTapSync);
 tapSpeedSelect.addEventListener('change', () => {
-  syncAudioEl.playbackRate = Number(tapSpeedSelect.value);
+  if (tapAudioController) tapAudioController.setPlaybackRate(Number(tapSpeedSelect.value));
 });
 
 document.addEventListener('keydown', (e) => {
@@ -911,7 +1099,7 @@ async function openPrompterWindow() {
   prompterWin = window.open('prompter.html', 'lyrics-prompter-window', features);
 }
 
-function sendToPrompter(idOverride) {
+async function sendToPrompter(idOverride) {
   const id = idOverride || selectedId;
   if (!id) return;
   const song = id === selectedId ? saveSong() : SongStorage.getById(id);
@@ -921,7 +1109,7 @@ function sendToPrompter(idOverride) {
   onAirSong = { ...song, syncedLyrics };
   setOnAirStatus(song.title);
   renderList();
-  setAudioPlayerForSong(song.id);
+  await loadLiveAudioForSong(song);
 
   openPrompterWindow().then(() => {
     postToPrompter({ type: 'show', song: onAirSong, fontSize });
@@ -930,7 +1118,7 @@ function sendToPrompter(idOverride) {
 
 function clearPrompter() {
   postToPrompter({ type: 'clear' });
-  audioPlayerEl.pause();
+  if (liveAudioController) liveAudioController.pause();
   onAirSong = null;
   setOnAirStatus(null);
   renderList();

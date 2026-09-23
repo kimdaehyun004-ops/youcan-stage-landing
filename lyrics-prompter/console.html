@@ -142,6 +142,27 @@ body {
 .btn-ghost:hover { background: #2a2c34; }
 .btn-accent { background: #2f9e44; color: white; padding: 9px 16px; }
 .btn-accent:hover { background: #268b3a; }
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.artist-input {
+  width: 200px;
+  flex-shrink: 0;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+}
+
+.search-status {
+  margin: -6px 0 10px;
+  font-size: 12.5px;
+  color: #a8abb8;
+}
+
+.search-status.error { color: #e5636b; }
+.search-status.success { color: #6cd97e; }
 </style>
 </head>
 <body>
@@ -158,13 +179,16 @@ body {
     <main class="editor">
       <div class="editor-header">
         <input id="title-input" class="title-input" type="text" placeholder="곡 제목" />
+        <input id="artist-input" class="artist-input" type="text" placeholder="가수 (검색용)" />
         <div class="editor-actions">
+          <button id="search-lyrics-btn" class="btn btn-ghost">가사 자동 검색</button>
           <button id="save-btn" class="btn btn-primary">저장</button>
           <button id="delete-btn" class="btn btn-danger" hidden>삭제</button>
         </div>
       </div>
+      <div id="search-status" class="search-status" hidden></div>
 
-      <textarea id="lyrics-input" class="lyrics-input" placeholder="가사를 붙여넣거나 입력하세요..."></textarea>
+      <textarea id="lyrics-input" class="lyrics-input" placeholder="가사를 붙여넣거나 입력하세요... (또는 위에서 자동 검색)"></textarea>
 
       <div class="prompter-bar">
         <div class="prompter-status">
@@ -215,12 +239,13 @@ const SongStorage = {
   getById(id) {
     return readSongs().find((s) => s.id === id) || null;
   },
-  add({ title, lyrics }) {
+  add({ title, artist, lyrics }) {
     const list = readSongs();
     const now = new Date().toISOString();
     const song = {
       id: uid(),
       title: (title || '').trim() || '제목 없음',
+      artist: (artist || '').trim(),
       lyrics: lyrics || '',
       createdAt: now,
       updatedAt: now,
@@ -234,6 +259,7 @@ const SongStorage = {
     const song = list.find((s) => s.id === id);
     if (!song) return null;
     if (typeof patch.title === 'string') song.title = patch.title.trim() || '제목 없음';
+    if (typeof patch.artist === 'string') song.artist = patch.artist.trim();
     if (typeof patch.lyrics === 'string') song.lyrics = patch.lyrics;
     song.updatedAt = new Date().toISOString();
     writeSongs(list);
@@ -252,8 +278,11 @@ const SongStorage = {
 const songListEl = document.getElementById('song-list');
 const searchInputEl = document.getElementById('search-input');
 const titleInputEl = document.getElementById('title-input');
+const artistInputEl = document.getElementById('artist-input');
 const lyricsInputEl = document.getElementById('lyrics-input');
 const newSongBtn = document.getElementById('new-song-btn');
+const searchLyricsBtn = document.getElementById('search-lyrics-btn');
+const searchStatusEl = document.getElementById('search-status');
 const saveBtn = document.getElementById('save-btn');
 const deleteBtn = document.getElementById('delete-btn');
 const sendBtn = document.getElementById('send-btn');
@@ -314,16 +343,20 @@ function selectSong(id) {
   if (!song) return;
   selectedId = id;
   titleInputEl.value = song.title;
+  artistInputEl.value = song.artist || '';
   lyricsInputEl.value = song.lyrics;
   deleteBtn.hidden = false;
+  setSearchStatus('');
   renderList();
 }
 
 function startNewSong() {
   selectedId = null;
   titleInputEl.value = '';
+  artistInputEl.value = '';
   lyricsInputEl.value = '';
   deleteBtn.hidden = true;
+  setSearchStatus('');
   titleInputEl.focus();
   renderList();
 }
@@ -334,17 +367,74 @@ function saveSong() {
     titleInputEl.focus();
     return null;
   }
+  const artist = artistInputEl.value.trim();
   const lyrics = lyricsInputEl.value;
   let song;
   if (selectedId) {
-    song = SongStorage.update(selectedId, { title, lyrics });
+    song = SongStorage.update(selectedId, { title, artist, lyrics });
   } else {
-    song = SongStorage.add({ title, lyrics });
+    song = SongStorage.add({ title, artist, lyrics });
     selectedId = song.id;
     deleteBtn.hidden = false;
   }
   refreshSongs();
   return song;
+}
+
+function setSearchStatus(text, kind) {
+  if (!text) {
+    searchStatusEl.hidden = true;
+    searchStatusEl.textContent = '';
+    return;
+  }
+  searchStatusEl.hidden = false;
+  searchStatusEl.textContent = text;
+  searchStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+async function searchLyricsOnline() {
+  const title = titleInputEl.value.trim();
+  const artist = artistInputEl.value.trim();
+
+  if (!title) {
+    titleInputEl.focus();
+    setSearchStatus('곡 제목을 먼저 입력해주세요.', 'error');
+    return;
+  }
+  if (!artist) {
+    artistInputEl.focus();
+    setSearchStatus('가수 이름도 입력해야 검색할 수 있어요.', 'error');
+    return;
+  }
+
+  searchLyricsBtn.disabled = true;
+  setSearchStatus('가사 검색 중...');
+
+  try {
+    const url = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    let response;
+    try {
+      response = await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) throw new Error('lyrics-not-found');
+    const data = await response.json();
+    if (!data.lyrics) throw new Error('lyrics-empty');
+
+    lyricsInputEl.value = data.lyrics.trim();
+    setSearchStatus('가사를 찾아서 채워넣었어요. 내용을 확인한 뒤 저장하세요.', 'success');
+  } catch (err) {
+    setSearchStatus(
+      '가사를 찾지 못했어요 (국내 가요는 지원이 잘 안 될 수 있습니다). 아래에 직접 입력/붙여넣기 해주세요.',
+      'error'
+    );
+  } finally {
+    searchLyricsBtn.disabled = false;
+  }
 }
 
 function deleteSong() {
@@ -443,6 +533,7 @@ window.addEventListener('message', (e) => {
 });
 
 newSongBtn.addEventListener('click', startNewSong);
+searchLyricsBtn.addEventListener('click', searchLyricsOnline);
 saveBtn.addEventListener('click', saveSong);
 deleteBtn.addEventListener('click', deleteSong);
 sendBtn.addEventListener('click', () => sendToPrompter());

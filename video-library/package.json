@@ -1,0 +1,51 @@
+{
+  "name": "video-library",
+  "productName": "영상 라이브러리",
+  "version": "1.0.0",
+  "private": true,
+  "description": "모든 영상을 한눈에 보고, 그룹으로 정리하고, 편집 프로그램으로 바로 끌어다 쓰는 데스크톱 앱",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis portable",
+    "dist:mac": "electron-builder --mac dmg",
+    "dist:dir": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "kr.co.youcanstage.videolibrary",
+    "productName": "영상 라이브러리",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "artifactName": "VideoLibrary-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+      "category": "public.app-category.video",
+      "artifactName": "VideoLibrary-${version}.${ext}"
+    },
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ],
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.3.0"
+  }
+}

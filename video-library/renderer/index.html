@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' vlib: data:; media-src vlib:; connect-src vlib:; style-src 'self' 'unsafe-inline'">
+  <title>영상 라이브러리</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside id="sidebar">
+    <div class="brand">영상 라이브러리</div>
+
+    <nav class="section" id="nav-main">
+      <button class="nav-item" data-view="all"><span class="dot all"></span>모든 영상<span class="count" id="count-all"></span></button>
+      <button class="nav-item" data-view="fav"><span class="dot fav">★</span>즐겨찾기<span class="count" id="count-fav"></span></button>
+      <button class="nav-item" data-view="ungrouped"><span class="dot none"></span>그룹 없음<span class="count" id="count-ungrouped"></span></button>
+    </nav>
+
+    <div class="section-head">
+      <span>그룹</span>
+      <button class="icon-btn" id="btn-new-group" title="새 그룹">＋</button>
+    </div>
+    <nav class="section" id="nav-groups"></nav>
+    <p class="hint" id="group-hint">영상을 그룹 위로 끌어다 놓으면 추가돼요</p>
+
+    <div class="section-head">
+      <span>폴더</span>
+      <button class="icon-btn" id="btn-add-folder" title="폴더 추가">＋</button>
+    </div>
+    <nav class="section" id="nav-folders"></nav>
+  </aside>
+
+  <main id="main">
+    <header id="toolbar">
+      <h1 id="view-title">모든 영상</h1>
+      <input id="search" type="search" placeholder="이름·태그 검색  (Ctrl+F)">
+      <select id="sort" title="정렬">
+        <option value="mtime-desc">최근 수정순</option>
+        <option value="mtime-asc">오래된순</option>
+        <option value="name-asc">이름순</option>
+        <option value="size-desc">용량 큰순</option>
+        <option value="duration-desc">길이 긴순</option>
+        <option value="duration-asc">길이 짧은순</option>
+        <option value="added-asc">그룹에 넣은 순서</option>
+      </select>
+      <label class="size-ctl" title="썸네일 크기">
+        <span>▦</span><input id="zoom" type="range" min="140" max="420" step="10">
+      </label>
+      <label class="toggle" title="마우스를 올리면 소리도 재생">
+        <input type="checkbox" id="sound"> 소리
+      </label>
+      <button class="btn" id="btn-refresh" title="폴더 다시 읽기 (F5)">새로고침</button>
+    </header>
+
+    <div id="selbar" hidden>
+      <span id="sel-count"></span>
+      <button class="btn" data-act="add-group">그룹에 추가</button>
+      <button class="btn" data-act="remove-group" id="sel-remove">이 그룹에서 빼기</button>
+      <button class="btn" data-act="export">폴더로 복사</button>
+      <button class="btn" data-act="copy">경로 복사</button>
+      <button class="btn ghost" data-act="clear">선택 해제</button>
+    </div>
+
+    <section id="grid" tabindex="0"></section>
+    <div id="empty" hidden>
+      <div class="empty-box">
+        <h2>영상 폴더를 추가하세요</h2>
+        <p>폴더를 추가하면 안의 영상이 모두 한눈에 정리돼요.<br>
+          탐색기에서 폴더나 영상 파일을 이 창으로 끌어다 놓아도 됩니다.</p>
+        <button class="btn primary" id="btn-empty-add">폴더 추가</button>
+      </div>
+    </div>
+    <footer id="status"></footer>
+  </main>
+
+  <div id="menu" class="menu" hidden></div>
+  <div id="drop-overlay" hidden><div>여기에 놓으면 라이브러리에 추가</div></div>
+
+  <div id="player" hidden>
+    <div class="player-box">
+      <div class="player-head">
+        <span id="player-title"></span>
+        <button class="icon-btn" id="player-close" title="닫기 (Esc)">✕</button>
+      </div>
+      <video id="player-video" controls crossorigin="anonymous"></video>
+      <div class="player-info" id="player-info"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

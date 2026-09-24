@@ -10,3 +10,6 @@ node_modules
 /유캔스테이지로고 1000p@2x.png
 /유캔스테이지로고 1000p_250702.ai
 /스크린샷 *.png
+
+# 영상 라이브러리 데스크톱 앱 빌드 결과물
+/video-library/dist/

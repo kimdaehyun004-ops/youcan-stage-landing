@@ -1,0 +1,41 @@
+name: 영상 라이브러리 빌드
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'video-library/**'
+      - '.github/workflows/video-library.yml'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: --win nsis portable
+            files: video-library/dist/*.exe
+          - os: macos-latest
+            target: --mac dmg
+            files: video-library/dist/*.dmg
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: video-library
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: video-library/package-lock.json
+      - run: npm ci
+      - run: npx electron-builder ${{ matrix.target }} --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video-library-${{ runner.os }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error

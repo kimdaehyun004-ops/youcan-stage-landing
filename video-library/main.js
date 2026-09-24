@@ -4,7 +4,7 @@ const fs = require('fs');
 const fsp = fs.promises;
 const crypto = require('crypto');
 const { Readable } = require('stream');
-const { execFile, spawnSync } = require('child_process');
+const { execFile, spawn, spawnSync } = require('child_process');
 
 const VIDEO_EXT = new Set([
   '.mp4', '.m4v', '.mov', '.webm', '.mkv', '.avi', '.wmv', '.mts', '.m2ts', '.ts',
@@ -83,6 +83,7 @@ async function describe(file, folder) {
   const stripPath = path.join(thumbDir, key + '.strip.jpg');
   return {
     strip: fs.existsSync(stripPath) ? mediaUrl(stripPath) : null,
+    proxy: fs.existsSync(path.join(thumbDir, key + '.proxy.mp4')) ? mediaUrl(path.join(thumbDir, key + '.proxy.mp4')) : null,
     path: file,
     name: path.basename(file),
     ext: path.extname(file).slice(1).toLowerCase(),
@@ -162,6 +163,56 @@ async function ffmpegStrip(file, key) {
   return { duration, width, height, strip: mediaUrl(out) };
 }
 
+// ---------- 미리보기용 사본 (프록시) ----------
+// 앱이 직접 재생하지 못하는 코덱(10bit HEVC, 4:2:2, ProRes 등)은 360p H.264 사본을 만들어
+// 마우스 호버·크게 보기에서 앱 안에서 바로 재생한다. 원본은 건드리지 않는다.
+const proxyJobs = new Set();
+
+function encodeProxy(ff, file, tmp, duration, hw, onProgress) {
+  const args = ['-hide_banner', '-loglevel', 'error', '-y'];
+  if (hw) args.push('-hwaccel', 'auto');
+  args.push(
+    '-i', file, '-map', '0:v:0', '-map', '0:a:0?',
+    '-vf', 'scale=w=640:h=360:force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2',
+    // 키프레임을 촘촘하게 → 마우스로 탐색할 때 반응이 빠름
+    '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '30', '-pix_fmt', 'yuv420p', '-g', '12',
+    '-c:a', 'aac', '-b:a', '64k', '-ac', '2',
+    '-movflags', '+faststart', '-progress', 'pipe:1', '-nostats', tmp,
+  );
+  return new Promise((resolve) => {
+    const child = spawn(ff, args, { windowsHide: true });
+    proxyJobs.add(child);
+    let buf = '';
+    child.stdout.on('data', (d) => {
+      buf += d;
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const l of lines) {
+        const m = /^out_time_us=(\d+)/.exec(l);
+        if (m && duration) onProgress(Math.min(99, Math.round((Number(m[1]) / 1e6 / duration) * 100)));
+      }
+    });
+    child.stderr.on('data', () => {});
+    child.on('error', () => { proxyJobs.delete(child); resolve(false); });
+    child.on('close', (code) => { proxyJobs.delete(child); resolve(code === 0); });
+  });
+}
+
+async function makeProxy(sender, file, key, duration) {
+  const ff = findFfmpeg();
+  if (!ff) return null;
+  const out = path.join(thumbDir, key + '.proxy.mp4');
+  if (fs.existsSync(out)) return mediaUrl(out);
+  const tmp = path.join(thumbDir, key + '.proxy.part.mp4');
+  const progress = (pct) => { if (!sender.isDestroyed()) sender.send('proxy:progress', key, pct); };
+  // 하드웨어 디코딩이 실패하는 PC도 있어서, 실패하면 소프트웨어로 한 번 더
+  let ok = await encodeProxy(ff, file, tmp, duration, true, progress);
+  if (!ok) ok = await encodeProxy(ff, file, tmp, duration, false, progress);
+  if (!ok || !fs.existsSync(tmp)) { fsp.rm(tmp, { force: true }).catch(() => {}); return null; }
+  await fsp.rename(tmp, out);
+  return mediaUrl(out);
+}
+
 // ---------- 스트리밍 ----------
 function allowedFile(file) {
   const ext = path.extname(file).toLowerCase();
@@ -207,7 +258,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 560,
     backgroundColor: '#15161a',
-    title: '영상 라이브러리',
+    title: `영상 라이브러리 v${app.getVersion()}`,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -231,6 +282,8 @@ function groupById(id) {
 }
 
 function registerIpc() {
+  ipcMain.handle('app:version', () => app.getVersion());
+
   ipcMain.handle('library:get', async () => ({
     folders: library.folders,
     groups: library.groups,
@@ -307,6 +360,7 @@ function registerIpc() {
   });
 
   ipcMain.handle('thumb:ffmpeg', (_e, file, key) => ffmpegStrip(file, key));
+  ipcMain.handle('proxy:make', (e, file, key, duration) => makeProxy(e.sender, file, key, duration));
 
   // 편집 프로그램(프리미어, 다빈치, 파이널컷 등)으로 실제 파일을 끌어다 놓는 OS 드래그
   ipcMain.on('drag:start', (e, files, iconDataUrl) => {
@@ -360,6 +414,10 @@ app.whenReady().then(async () => {
   Menu.setApplicationMenu(process.platform === 'darwin' ? Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }]) : null);
   createWindow();
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
+});
+
+app.on('before-quit', () => {
+  for (const child of proxyJobs) child.kill();
 });
 
 app.on('window-all-closed', () => {

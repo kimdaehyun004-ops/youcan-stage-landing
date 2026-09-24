@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
+  version: () => ipcRenderer.invoke('app:version'),
   getLibrary: () => ipcRenderer.invoke('library:get'),
   addFolders: () => ipcRenderer.invoke('folders:add'),
   removeFolder: (folder) => ipcRenderer.invoke('folders:remove', folder),
@@ -10,6 +11,8 @@ contextBridge.exposeInMainWorld('api', {
   setSettings: (patch) => ipcRenderer.invoke('settings:set', patch),
   saveThumb: (key, dataUrl) => ipcRenderer.invoke('thumb:save', key, dataUrl),
   ffmpegStrip: (file, key) => ipcRenderer.invoke('thumb:ffmpeg', file, key),
+  makeProxy: (file, key, duration) => ipcRenderer.invoke('proxy:make', file, key, duration),
+  onProxyProgress: (cb) => ipcRenderer.on('proxy:progress', (_e, key, pct) => cb(key, pct)),
   startDrag: (files, iconDataUrl) => ipcRenderer.send('drag:start', files, iconDataUrl),
   reveal: (file) => ipcRenderer.invoke('file:reveal', file),
   open: (file) => ipcRenderer.invoke('file:open', file),

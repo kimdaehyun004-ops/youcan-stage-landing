@@ -1,7 +1,7 @@
 {
   "name": "video-library",
   "productName": "영상 라이브러리",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "모든 영상을 한눈에 보고, 그룹으로 정리하고, 편집 프로그램으로 바로 끌어다 쓰는 데스크톱 앱",
   "main": "main.js",

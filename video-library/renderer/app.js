@@ -51,7 +51,9 @@ function fmtDate(ms) {
 const metaOf = (p) => state.meta[p] || {};
 // 브라우저가 코덱을 못 읽어 ffmpeg 필름스트립으로만 미리보는 영상
 const stripOnly = (i) => !i.thumb && !!i.strip;
-const isFailed = (i) => !stripOnly(i) && (state.failed.has(i.path) || metaOf(i.path).unsupported === i.key);
+const isFailed = (i) => !stripOnly(i) && !i.proxy && (state.failed.has(i.path) || metaOf(i.path).unsupported === i.key);
+// 앱 안에서 재생할 주소: 원본을 못 읽는 코덱이면 미리보기용 사본(프록시)
+const playUrl = (i) => i.proxy || (stripOnly(i) || isFailed(i) ? null : i.url);
 const STRIP_FRAMES = 10;
 const stripPos = (ratio) => `${(Math.min(STRIP_FRAMES - 1, Math.floor(ratio * STRIP_FRAMES)) / (STRIP_FRAMES - 1)) * 100}% 0`;
 const groupsOf = (p) => state.groups.filter((g) => g.items.includes(p));
@@ -179,9 +181,10 @@ function cardHtml(i) {
   const failed = isFailed(i);
   let visual;
   if (i.thumb) visual = `<img src="${esc(i.thumb)}" crossorigin="anonymous" draggable="false" alt="">`;
-  else if (i.strip) visual = `<div class="strip" style="background-image:url('${esc(i.strip)}');background-position:${stripPos(0.25)}"></div><span class="codec-note">${esc(i.ext)} · 스트립 미리보기</span>`;
+  else if (i.strip) visual = `<div class="strip" style="background-image:url('${esc(i.strip)}');background-position:${stripPos(0.25)}"></div>` +
+    (i.proxy ? '' : `<span class="codec-note">${proxyNote(i)}</span>`);
   else visual = `<div class="ph"><div>${failed ? `미리보기 불가<small>${esc(i.ext.toUpperCase())} 코덱 미지원</small>` : '불러오는 중…'}</div></div>`;
-  return `<div class="card${state.selected.has(i.path) ? ' selected' : ''}" draggable="true" data-path="${esc(i.path)}">
+  return `<div class="card${state.selected.has(i.path) ? ' selected' : ''}" draggable="true" data-path="${esc(i.path)}" data-key="${esc(i.key)}">
     <div class="thumb${failed ? ' failed' : ''}">
       ${visual}
       <span class="dur">${fmtDur(m.duration)}</span>
@@ -212,6 +215,7 @@ function renderGrid() {
       if (!e.isIntersecting) continue;
       const item = state.byPath.get(e.target.dataset.path);
       if (item && needsProbe(item)) enqueueProbe(item);
+      if (item && needsProxy(item)) enqueueProxy(item);
       thumbObserver.unobserve(e.target);
     }
   }, { root: grid, rootMargin: '400px' });
@@ -224,10 +228,13 @@ function refreshCard(p) {
   const old = grid.querySelector(`.card[data-path="${CSS.escape(p)}"]`);
   const item = state.byPath.get(p);
   if (!old || !item) return;
-  if (hover?.card === old) stopHover();
+  const wasHovered = hover?.card === old;
+  if (wasHovered) stopHover();
   const tmp = document.createElement('div');
   tmp.innerHTML = cardHtml(item);
-  old.replaceWith(tmp.firstElementChild);
+  const card = tmp.firstElementChild;
+  old.replaceWith(card);
+  if (wasHovered) startHover(card); // 마우스가 그대로 있으면 새 미리보기로 바로 이어서
   // 길이 정보가 새로 들어왔으니 하단 합계도 갱신 (한 번에 몰아서)
   clearTimeout(refreshCard.t);
   refreshCard.t = setTimeout(renderStatus, 200);
@@ -239,7 +246,10 @@ function renderStatus() {
   const list = state.visible;
   const size = list.reduce((s, i) => s + i.size, 0);
   const dur = list.reduce((s, i) => s + (metaOf(i.path).duration || 0), 0);
-  el.textContent = `${list.length}개 영상 · ${fmtSize(size)} · 총 ${fmtDur(dur) || '0:00'}` +
+  const left = probeQueue.length + probing;
+  const proxLeft = proxyQueue.length + (proxyBusy ? 1 : 0);
+  el.textContent = (left ? `⏳ 썸네일 만드는 중… 남은 ${left}개   |   ` : '') +
+    (proxLeft ? `🎬 재생용 미리보기 변환 중… 남은 ${proxLeft}개   |   ` : '') + `${list.length}개 영상 · ${fmtSize(size)} · 총 ${fmtDur(dur) || '0:00'}` +
     `   |   마우스를 올리면 미리보기 · 좌우로 움직이면 탐색 · 끌어서 편집 프로그램에 놓기 · Space 크게 보기`;
 }
 
@@ -262,15 +272,17 @@ function needsProbe(i) {
 function enqueueProbe(item) {
   if (item._queued) return;
   item._queued = true;
-  probeQueue.push(item);
+  probeQueue.unshift(item); // 방금 화면에 들어온 영상부터 먼저
   pumpProbe();
+  clearTimeout(enqueueProbe.t);
+  enqueueProbe.t = setTimeout(renderStatus, 100);
 }
 
 function pumpProbe() {
   while (probing < 3 && probeQueue.length) {
     const item = probeQueue.shift();
     probing++;
-    probe(item).finally(() => { probing--; item._queued = false; pumpProbe(); });
+    probe(item).finally(() => { probing--; item._queued = false; pumpProbe(); renderStatus(); });
   }
 }
 
@@ -278,7 +290,7 @@ function probe(item) {
   return new Promise((resolve) => {
     const v = document.createElement('video');
     v.muted = true;
-    v.preload = 'auto';
+    v.preload = 'metadata';
     v.crossOrigin = 'anonymous';
     let done = false;
     const finish = async (ok) => {
@@ -293,6 +305,7 @@ function probe(item) {
         if (res) {
           item.strip = res.strip;
           setMeta(item.path, { duration: res.duration, width: res.width, height: res.height });
+          enqueueProxy(item);
         } else {
           state.failed.add(item.path);
           setMeta(item.path, { unsupported: item.key });
@@ -301,7 +314,7 @@ function probe(item) {
       }
       resolve();
     };
-    const timer = setTimeout(() => finish(false), 12000);
+    const timer = setTimeout(() => finish(false), 6000);
     v.addEventListener('error', () => finish(false));
     v.addEventListener('loadedmetadata', () => {
       if (!v.videoWidth) return finish(false); // 오디오만 있거나 영상 코덱을 못 읽음
@@ -325,6 +338,55 @@ function probe(item) {
   });
 }
 
+// ---------- 재생용 미리보기 사본 (앱이 못 읽는 코덱) ----------
+const proxyQueue = [];
+const proxyPct = new Map();
+let proxyBusy = false;
+
+const needsProxy = (i) => stripOnly(i) && !i.proxy;
+
+function proxyNote(i) {
+  return proxyPct.has(i.key) ? `미리보기 준비 중 ${proxyPct.get(i.key)}%` : '미리보기 준비 대기';
+}
+
+// 방금 화면에 들어오거나 마우스를 올린 영상을 맨 앞으로
+function enqueueProxy(item) {
+  if (!needsProxy(item) || proxyPct.has(item.key)) return;
+  const k = proxyQueue.indexOf(item);
+  if (k >= 0) proxyQueue.splice(k, 1);
+  proxyQueue.unshift(item);
+  pumpProxy();
+  clearTimeout(enqueueProxy.t);
+  enqueueProxy.t = setTimeout(renderStatus, 100);
+}
+
+async function pumpProxy() {
+  if (proxyBusy || !proxyQueue.length) return;
+  proxyBusy = true;
+  const item = proxyQueue.shift();
+  proxyPct.set(item.key, 0);
+  updateProxyNote(item.key);
+  const url = await api.makeProxy(item.path, item.key, metaOf(item.path).duration || 0).catch(() => null);
+  proxyPct.delete(item.key);
+  if (url) item.proxy = url;
+  refreshCard(item.path);
+  proxyBusy = false;
+  renderStatus();
+  pumpProxy();
+}
+
+function updateProxyNote(key) {
+  const card = grid.querySelector(`.card[data-key="${CSS.escape(key)}"]`);
+  const item = card && state.byPath.get(card.dataset.path);
+  const note = card?.querySelector('.codec-note');
+  if (note && item) note.textContent = proxyNote(item);
+}
+
+api.onProxyProgress((key, pct) => {
+  proxyPct.set(key, pct);
+  updateProxyNote(key);
+});
+
 // ---------- 마우스 올려서 미리보기 ----------
 let hover = null; // { card, video, item, idle }
 
@@ -334,8 +396,10 @@ function startHover(card) {
   const item = state.byPath.get(card.dataset.path);
   if (!item || isFailed(item)) return;
   card.classList.add('hovering');
-  if (stripOnly(item)) {
+  if (!item.proxy && stripOnly(item)) {
+    // 재생용 사본이 준비될 때까지는 필름스트립으로 보여주고, 이 영상을 먼저 변환
     hover = { card, item, strip: card.querySelector('.strip') };
+    enqueueProxy(item);
     return;
   }
   const thumb = card.querySelector('.thumb');
@@ -345,16 +409,27 @@ function startHover(card) {
   v.loop = true;
   v.playsInline = true;
   v.crossOrigin = 'anonymous';
-  v.src = item.url;
+  v.src = item.proxy || item.url;
   thumb.appendChild(v);
+  thumb.classList.add('loading');
   hover = { card, video: v, item, idle: null, ratio: null };
   v.addEventListener('loadedmetadata', () => {
     if (hover?.video !== v) return;
     if (hover.ratio != null) v.currentTime = hover.ratio * v.duration;
     v.play().catch(() => {});
   });
-  v.addEventListener('playing', () => v.classList.add('ready'));
-  v.addEventListener('seeked', () => v.classList.add('ready'));
+  const ready = () => { v.classList.add('ready'); thumb.classList.remove('loading'); };
+  v.addEventListener('playing', ready);
+  v.addEventListener('seeked', ready);
+  v.addEventListener('error', () => {
+    thumb.classList.remove('loading');
+    // 앱이 못 읽는 코덱 → 바로 분석해서 필름스트립 미리보기로 전환
+    if (needsProbe(item)) {
+      const i = probeQueue.indexOf(item);
+      if (i > 0) { probeQueue.splice(i, 1); probeQueue.unshift(item); }
+      else if (i < 0) enqueueProbe(item);
+    }
+  });
   v.addEventListener('timeupdate', () => {
     if (hover?.video !== v || !v.duration) return;
     card.querySelector('.scrub-bar').style.width = (v.currentTime / v.duration) * 100 + '%';
@@ -395,6 +470,7 @@ function stopHover() {
     hover.video.remove();
   }
   hover.card.classList.remove('hovering');
+  hover.card.querySelector('.thumb').classList.remove('loading');
   hover.card.querySelector('.scrub-bar').style.width = '0';
   hover.card.querySelector('.timecode').textContent = '';
   hover = null;
@@ -773,12 +849,20 @@ function openPlayer(p) {
   const item = state.byPath.get(p);
   if (!item) return;
   stopHover();
-  // 앱에서 재생할 수 없는 코덱은 기본 플레이어로
-  if (stripOnly(item) || isFailed(item)) { api.open(p); return; }
+  const src = playUrl(item);
+  if (!src) {
+    if (needsProxy(item)) {
+      enqueueProxy(item);
+      toast(`재생용 미리보기를 만들고 있어요 (${proxyPct.get(item.key) ?? 0}%) — 잠시 후 다시 눌러주세요`);
+    } else {
+      toast('이 영상은 앱에서 재생할 수 없어요 — 우클릭 → 기본 프로그램으로 열기');
+    }
+    return;
+  }
   const m = metaOf(p);
   $('#player-title').textContent = item.name;
   $('#player-info').textContent = [m.width && `${m.width}×${m.height}`, fmtDur(m.duration), fmtSize(item.size), fmtDate(item.mtime), item.path].filter(Boolean).join('   ·   ');
-  pv.src = item.url;
+  pv.src = src;
   pv.muted = false;
   player.hidden = false;
   player.dataset.path = p;
@@ -846,6 +930,7 @@ $('#sound').addEventListener('change', (e) => {
 
 // ---------- 시작 ----------
 (async () => {
+  api.version().then((v) => { $('#version').textContent = ' v' + v; });
   await load();
   const s = state.settings;
   if (s.sort) $('#sort').value = s.sort;

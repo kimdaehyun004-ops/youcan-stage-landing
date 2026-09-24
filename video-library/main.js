@@ -21,6 +21,11 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'vlib', privileges: { standard: true, secure: true, stream: true, supportFetchAPI: true, corsEnabled: true } },
 ]);
 
+// 포터블 exe 로 실행하면 그룹·썸네일 데이터를 exe 옆 폴더에 저장 (폴더째 옮겨도 그대로 유지)
+if (process.env.PORTABLE_EXECUTABLE_DIR) {
+  app.setPath('userData', path.join(process.env.PORTABLE_EXECUTABLE_DIR, '영상 라이브러리 데이터'));
+}
+
 let win;
 let dataDir, thumbDir, libraryFile;
 let library = { folders: [], groups: [], meta: {}, settings: {} };

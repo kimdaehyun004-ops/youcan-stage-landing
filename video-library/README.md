@@ -36,7 +36,7 @@ Windows와 macOS에서 동작합니다.
 GitHub 저장소의 **Actions → "영상 라이브러리 빌드"** 에서 가장 최근 실행을 열고
 아래쪽 *Artifacts* 에서 받습니다.
 
-- `video-library-Windows` : `VideoLibrary-1.0.0-x64.exe`(설치형)와 포터블 exe
+- `video-library-Windows` : `VideoLibrary-Setup-1.0.0.exe`(설치형)와 `VideoLibrary-Portable-1.0.0.exe`(설치 없이 실행)
 - `video-library-macOS` : `.dmg`
 
 코드 서명이 되어 있지 않아 처음 실행할 때 경고가 뜰 수 있습니다.
@@ -60,6 +60,8 @@ npm run dist:mac   # macOS dmg 만들기 (Mac에서)
 
 - Windows: `%APPDATA%\영상 라이브러리\` (`library.json`, `thumbs\`)
 - macOS: `~/Library/Application Support/영상 라이브러리/`
+
+포터블 exe로 실행하면 exe 옆의 `영상 라이브러리 데이터\` 폴더에 저장되므로, 폴더째 옮기거나 백업하기 쉽습니다.
 
 영상 파일을 옮기거나 이름을 바꾸면 그 영상의 그룹 정보는 연결이 끊어집니다.
 

@@ -7,7 +7,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist:win": "electron-builder --win nsis portable",
+    "dist:win": "electron-builder --win",
     "dist:mac": "electron-builder --mac dmg",
     "dist:dir": "electron-builder --dir"
   },
@@ -28,11 +28,15 @@
       "output": "dist"
     },
     "win": {
-      "artifactName": "VideoLibrary-${version}-${arch}.${ext}"
+      "target": [
+        "nsis",
+        "portable"
+      ]
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "VideoLibrary-Setup-${version}.${ext}"
     },
     "mac": {
       "category": "public.app-category.video",
@@ -43,6 +47,9 @@
     ],
     "linux": {
       "target": "AppImage"
+    },
+    "portable": {
+      "artifactName": "VideoLibrary-Portable-${version}.${ext}"
     }
   },
   "dependencies": {

@@ -198,6 +198,17 @@ body {
 }
 
 .attach-audio-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.attach-audio-url-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.audio-url-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #2a2c34;
+  background: #22242c;
+  color: #e8e9ee;
+  font-size: 13px;
+}
 .ai-align-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
 .file-label { cursor: pointer; }
 .audio-file-name { font-size: 12.5px; color: #a8abb8; }
@@ -319,6 +330,12 @@ body {
           </label>
           <span id="audio-file-name" class="audio-file-name">첨부된 음원 없음 (새로고침하면 다시 선택해야 해요)</span>
         </div>
+        <div class="attach-audio-url-row">
+          <input id="audio-url-input" class="audio-url-input" type="url" placeholder="또는 오디오 파일 URL (예: https://.../song.mp3)" />
+          <button id="load-audio-url-btn" class="btn btn-ghost">URL에서 불러오기</button>
+          <span id="audio-url-hint" class="audio-file-name">CORS를 허용하는 직접 오디오 파일 링크만 가능해요 (유튜브 링크는 지원하지 않습니다)</span>
+        </div>
+        <div id="audio-url-status" class="search-status" hidden></div>
         <div class="ai-align-row">
           <button id="ai-align-btn" class="btn btn-ghost">🤖 AI로 자동 정렬 (실험적)</button>
           <span id="ai-align-hint" class="audio-file-name">위 가사 + 첨부된 음원으로 싱크 가사를 자동으로 만들어봅니다. 처음 실행 시 AI 모델(수십~수백 MB)을 내려받아 시간이 걸릴 수 있어요.</span>
@@ -532,6 +549,9 @@ const lrcStatusEl = document.getElementById('lrc-status');
 const searchLrcBtn = document.getElementById('search-lrc-btn');
 const audioFileInputEl = document.getElementById('audio-file-input');
 const audioFileNameEl = document.getElementById('audio-file-name');
+const audioUrlInputEl = document.getElementById('audio-url-input');
+const loadAudioUrlBtn = document.getElementById('load-audio-url-btn');
+const audioUrlStatusEl = document.getElementById('audio-url-status');
 const audioTransportEl = document.getElementById('audio-transport');
 const audioTransportInnerEl = document.getElementById('audio-transport-inner');
 const aiAlignBtn = document.getElementById('ai-align-btn');
@@ -1007,6 +1027,79 @@ audioFileInputEl.addEventListener('change', async () => {
   const hasTitleAndArtist = titleInputEl.value.trim() && artistInputEl.value.trim();
   if (hasTitleAndArtist && !lyricsInputEl.value.trim()) {
     searchLyricsOnline();
+  }
+});
+
+function setAudioUrlStatus(text, kind) {
+  if (!text) {
+    audioUrlStatusEl.hidden = true;
+    audioUrlStatusEl.textContent = '';
+    return;
+  }
+  audioUrlStatusEl.hidden = false;
+  audioUrlStatusEl.textContent = text;
+  audioUrlStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+loadAudioUrlBtn.addEventListener('click', async () => {
+  const url = audioUrlInputEl.value.trim();
+  if (!url) {
+    setAudioUrlStatus('오디오 파일 URL을 입력해주세요.', 'error');
+    return;
+  }
+  if (/youtube\.com|youtu\.be/i.test(url)) {
+    setAudioUrlStatus('유튜브 링크는 지원하지 않아요. mp3 등 직접 오디오 파일 링크를 사용해주세요.', 'error');
+    return;
+  }
+
+  loadAudioUrlBtn.disabled = true;
+  setAudioUrlStatus('오디오 파일을 불러오는 중...');
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => timeoutController.abort(), 20000);
+  try {
+    const res = await fetch(url, { signal: timeoutController.signal });
+    if (!res.ok) throw new Error('http-error');
+    const blob = await res.blob();
+
+    let fileName = 'audio-from-url';
+    try {
+      const last = decodeURIComponent(new URL(url).pathname.split('/').filter(Boolean).pop() || '');
+      if (last) fileName = last;
+    } catch (e) {
+      // URL 파싱 실패 시 기본 이름 사용
+    }
+    const file = new File([blob], fileName, { type: blob.type || 'audio/mpeg' });
+
+    const tags = await readId3Tags(file);
+    if (tags && tags.title && !titleInputEl.value.trim()) titleInputEl.value = tags.title;
+    if (tags && tags.artist && !artistInputEl.value.trim()) artistInputEl.value = tags.artist;
+
+    const song = saveSong();
+    if (!song) return;
+    const id = song.id;
+
+    audioFiles[id] = file;
+    updateAudioFileLabel(id);
+    if (onAirSong && onAirSong.id === id) {
+      loadLiveAudioForSong(onAirSong);
+    }
+
+    setAudioUrlStatus(`URL에서 음원을 불러왔어요: ${fileName}`, 'success');
+
+    const hasTitleAndArtist = titleInputEl.value.trim() && artistInputEl.value.trim();
+    if (hasTitleAndArtist && !lyricsInputEl.value.trim()) {
+      searchLyricsOnline();
+    }
+  } catch (err) {
+    console.error(err);
+    if (err && err.name === 'AbortError') {
+      setAudioUrlStatus('오디오를 불러오는 데 시간이 너무 오래 걸려요. URL을 확인해주세요.', 'error');
+    } else {
+      setAudioUrlStatus('오디오를 불러오지 못했어요. 직접 오디오 파일(mp3 등) 링크가 맞는지, 그 서버가 CORS를 허용하는지 확인해주세요. (유튜브 링크는 지원하지 않습니다)', 'error');
+    }
+  } finally {
+    clearTimeout(timeoutId);
+    loadAudioUrlBtn.disabled = false;
   }
 });
 

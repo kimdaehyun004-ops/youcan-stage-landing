@@ -198,6 +198,7 @@ body {
 }
 
 .attach-audio-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.ai-align-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
 .file-label { cursor: pointer; }
 .audio-file-name { font-size: 12.5px; color: #a8abb8; }
 
@@ -318,6 +319,11 @@ body {
           </label>
           <span id="audio-file-name" class="audio-file-name">첨부된 음원 없음 (새로고침하면 다시 선택해야 해요)</span>
         </div>
+        <div class="ai-align-row">
+          <button id="ai-align-btn" class="btn btn-ghost">🤖 AI로 자동 정렬 (실험적)</button>
+          <span id="ai-align-hint" class="audio-file-name">위 가사 + 첨부된 음원으로 싱크 가사를 자동으로 만들어봅니다. 처음 실행 시 AI 모델(수십~수백 MB)을 내려받아 시간이 걸릴 수 있어요.</span>
+        </div>
+        <div id="ai-align-status" class="search-status" hidden></div>
       </div>
 
       <div class="sync-section">
@@ -528,6 +534,8 @@ const audioFileInputEl = document.getElementById('audio-file-input');
 const audioFileNameEl = document.getElementById('audio-file-name');
 const audioTransportEl = document.getElementById('audio-transport');
 const audioTransportInnerEl = document.getElementById('audio-transport-inner');
+const aiAlignBtn = document.getElementById('ai-align-btn');
+const aiAlignStatusEl = document.getElementById('ai-align-status');
 const startTapSyncBtn = document.getElementById('start-tap-sync-btn');
 const startTapDurationBtn = document.getElementById('start-tap-duration-btn');
 const tapSyncModal = document.getElementById('tap-sync-modal');
@@ -1025,6 +1033,257 @@ function computeDurations(entries, defaultLastDuration) {
     return { duration, text: entry.text };
   });
 }
+
+// --- AI로 자동 정렬 (실험적): 이미 정확한 가사(텍스트)를 음원의 타이밍에 맞춰
+// 정렬. 브라우저에서 Whisper(음성인식)를 돌려 대략적인 시간 정보를 얻은 뒤,
+// 그 결과를 "정답 가사"와 문자 단위로 정렬해서 타이밍만 가져오는 방식.
+// Whisper가 단어를 잘못 알아들어도 최종 텍스트는 사용자가 입력한 정확한
+// 가사를 그대로 쓰기 때문에 순수 받아쓰기보다 오탈자에 덜 취약함.
+
+function setAiAlignStatus(text, kind) {
+  if (!text) {
+    aiAlignStatusEl.hidden = true;
+    aiAlignStatusEl.textContent = '';
+    return;
+  }
+  aiAlignStatusEl.hidden = false;
+  aiAlignStatusEl.textContent = text;
+  aiAlignStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+let transformersPromise = null;
+function loadTransformersLibrary() {
+  if (window.Transformers) return Promise.resolve(window.Transformers);
+  if (transformersPromise) return transformersPromise;
+  transformersPromise = new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      transformersPromise = null;
+      reject(new Error('transformers-load-timeout'));
+    }, 20000);
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.textContent = `
+      import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/dist/transformers.min.js';
+      window.Transformers = { pipeline, env };
+      window.dispatchEvent(new Event('transformers-ready'));
+    `;
+    const onReady = () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('transformers-ready', onReady);
+      resolve(window.Transformers);
+    };
+    window.addEventListener('transformers-ready', onReady);
+    script.onerror = () => {
+      clearTimeout(timeoutId);
+      transformersPromise = null;
+      reject(new Error('transformers-load-error'));
+    };
+    document.head.appendChild(script);
+  });
+  return transformersPromise;
+}
+
+// 첨부된 오디오 파일을 Whisper가 기대하는 16kHz 모노 Float32Array로 변환
+async function decodeAudioTo16kMono(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  const probeCtx = new AudioContextClass();
+  const decoded = await probeCtx.decodeAudioData(arrayBuffer);
+  probeCtx.close();
+
+  const targetRate = 16000;
+  const offlineCtx = new OfflineAudioContext(1, Math.ceil(decoded.duration * targetRate), targetRate);
+
+  let monoBuffer = decoded;
+  if (decoded.numberOfChannels > 1) {
+    monoBuffer = offlineCtx.createBuffer(1, decoded.length, decoded.sampleRate);
+    const output = monoBuffer.getChannelData(0);
+    for (let ch = 0; ch < decoded.numberOfChannels; ch++) {
+      const data = decoded.getChannelData(ch);
+      for (let i = 0; i < data.length; i++) {
+        output[i] = (output[i] || 0) + data[i] / decoded.numberOfChannels;
+      }
+    }
+  }
+
+  const source = offlineCtx.createBufferSource();
+  source.buffer = monoBuffer;
+  source.connect(offlineCtx.destination);
+  source.start(0);
+  const rendered = await offlineCtx.startRendering();
+  return rendered.getChannelData(0);
+}
+
+// 두 문자 배열(a: 정답 가사, b: Whisper 인식 결과)을 전역 정렬(Needleman-Wunsch).
+// 반환값: a의 각 글자 인덱스가 b의 어느 인덱스에 대응하는지 (없으면 -1)
+function alignCharSequences(a, b) {
+  const n = a.length;
+  const m = b.length;
+  const MATCH = 2;
+  const MISMATCH = -1;
+  const GAP = -1;
+
+  const dp = new Array(n + 1);
+  for (let i = 0; i <= n; i++) dp[i] = new Int32Array(m + 1);
+  for (let i = 0; i <= n; i++) dp[i][0] = i * GAP;
+  for (let j = 0; j <= m; j++) dp[0][j] = j * GAP;
+
+  for (let i = 1; i <= n; i++) {
+    const ai = a[i - 1];
+    const rowPrev = dp[i - 1];
+    const row = dp[i];
+    for (let j = 1; j <= m; j++) {
+      const s = ai === b[j - 1] ? MATCH : MISMATCH;
+      const diag = rowPrev[j - 1] + s;
+      const up = rowPrev[j] + GAP;
+      const left = row[j - 1] + GAP;
+      row[j] = Math.max(diag, up, left);
+    }
+  }
+
+  const mapping = new Array(n).fill(-1);
+  let i = n, j = m;
+  while (i > 0 && j > 0) {
+    const s = a[i - 1] === b[j - 1] ? MATCH : MISMATCH;
+    if (dp[i][j] === dp[i - 1][j - 1] + s) {
+      mapping[i - 1] = j - 1;
+      i--; j--;
+    } else if (dp[i][j] === dp[i - 1][j] + GAP) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+  return mapping;
+}
+
+// 가사 줄 배열 -> 공백을 뺀 글자 배열 + 각 줄이 시작하는 글자 인덱스
+function buildStrippedWithLineStarts(lines) {
+  const chars = [];
+  const lineStarts = [];
+  for (const line of lines) {
+    lineStarts.push(chars.length);
+    for (const ch of line) {
+      if (!/\s/.test(ch)) chars.push(ch);
+    }
+  }
+  return { chars, lineStarts };
+}
+
+// Whisper의 구간별(chunk) 타임스탬프를 글자 단위로 선형 보간
+function buildWhisperCharTimeline(chunks) {
+  const chars = [];
+  const times = [];
+  for (const chunk of chunks) {
+    if (!chunk.timestamp || chunk.timestamp[0] == null) continue;
+    const start = chunk.timestamp[0];
+    const end = chunk.timestamp[1] != null ? chunk.timestamp[1] : start + 1;
+    const lineChars = (chunk.text || '').split('').filter((ch) => !/\s/.test(ch));
+    if (lineChars.length === 0) continue;
+    const duration = Math.max(end - start, 0.01);
+    lineChars.forEach((ch, idx) => {
+      chars.push(ch);
+      times.push(start + (duration * idx) / lineChars.length);
+    });
+  }
+  return { chars, times };
+}
+
+async function runAiAlignment() {
+  const lyricsLines = lyricsInputEl.value.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lyricsLines.length === 0) {
+    setAiAlignStatus('먼저 가사를 입력해야 AI 정렬을 쓸 수 있어요.', 'error');
+    return;
+  }
+
+  const song = saveSong();
+  if (!song) return;
+
+  const file = audioFiles[song.id];
+  if (!file) {
+    setAiAlignStatus('먼저 "음원 파일 선택"으로 음원을 첨부해야 AI 정렬을 쓸 수 있어요.', 'error');
+    return;
+  }
+
+  aiAlignBtn.disabled = true;
+  try {
+    setAiAlignStatus('AI 모델을 불러오는 중... (처음 한 번은 시간이 걸릴 수 있어요)');
+    const { pipeline } = await loadTransformersLibrary();
+
+    const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-base', {
+      progress_callback: (p) => {
+        if (p && p.status === 'progress' && typeof p.progress === 'number') {
+          setAiAlignStatus(`AI 모델 다운로드 중... ${Math.round(p.progress)}%`);
+        }
+      },
+    });
+
+    setAiAlignStatus('음원을 분석하는 중... (곡 길이에 따라 1~수 분 걸릴 수 있어요)');
+    const audioData = await decodeAudioTo16kMono(file);
+
+    const result = await transcriber(audioData, {
+      language: 'korean',
+      task: 'transcribe',
+      return_timestamps: true,
+      chunk_length_s: 30,
+      stride_length_s: 5,
+    });
+
+    const chunks = result.chunks || [];
+    if (chunks.length === 0) {
+      throw new Error('no-speech-detected');
+    }
+
+    setAiAlignStatus('가사와 정렬하는 중...');
+    const { chars: refChars, lineStarts } = buildStrippedWithLineStarts(lyricsLines);
+    const { chars: whisperChars, times: whisperTimes } = buildWhisperCharTimeline(chunks);
+
+    if (refChars.length === 0 || whisperChars.length === 0) {
+      throw new Error('empty-alignment-input');
+    }
+
+    const mapping = alignCharSequences(refChars, whisperChars);
+
+    // 각 줄 시작 글자의 매핑을 찾고, 없으면 가까운 다음/이전 유효 매핑으로 보완
+    function nearestMappedTime(charIndex) {
+      for (let d = 0; d < refChars.length; d++) {
+        const fwd = charIndex + d;
+        if (fwd < mapping.length && mapping[fwd] !== -1) return whisperTimes[mapping[fwd]];
+        const bwd = charIndex - d;
+        if (bwd >= 0 && mapping[bwd] !== -1) return whisperTimes[mapping[bwd]];
+      }
+      return 0;
+    }
+
+    const lineTimes = lineStarts.map((idx) => nearestMappedTime(Math.min(idx, refChars.length - 1)));
+
+    // 시간이 역행하지 않도록 보정 (정렬 잡음 방지)
+    for (let i = 1; i < lineTimes.length; i++) {
+      if (lineTimes[i] < lineTimes[i - 1] + 0.1) {
+        lineTimes[i] = lineTimes[i - 1] + 0.1;
+      }
+    }
+
+    const lrcText = lyricsLines.map((text, i) => `[${formatLrcTime(lineTimes[i])}]${text}`).join('\n');
+    lrcInputEl.value = lrcText;
+    setAiAlignStatus(`AI 정렬을 완료했어요 (${lyricsLines.length}줄). 실제 타이밍과 어긋나는 부분이 있을 수 있으니 확인 후 저장하세요.`, 'success');
+  } catch (err) {
+    console.error(err);
+    if (err && err.message === 'transformers-load-timeout') {
+      setAiAlignStatus('AI 모델 로딩이 너무 오래 걸려요. 인터넷 연결을 확인하고 다시 시도해주세요.', 'error');
+    } else if (err && err.message === 'transformers-load-error') {
+      setAiAlignStatus('AI 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인해주세요.', 'error');
+    } else if (err && err.message === 'no-speech-detected') {
+      setAiAlignStatus('음원에서 음성을 감지하지 못했어요. 다른 음원으로 시도해보세요.', 'error');
+    } else {
+      setAiAlignStatus('AI 정렬 중 오류가 발생했어요. 다시 시도해보시거나 탭으로 싱크 찍기를 이용해주세요.', 'error');
+    }
+  } finally {
+    aiAlignBtn.disabled = false;
+  }
+}
+
+aiAlignBtn.addEventListener('click', runAiAlignment);
 
 async function startTapSync(mode) {
   tapTargetMode = mode;

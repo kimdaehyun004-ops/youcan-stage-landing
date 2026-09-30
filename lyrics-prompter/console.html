@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <title>가사 프롬프터 - 콘솔</title>
 <style>
@@ -84,7 +85,7 @@ body {
 
 .editor { flex: 1; display: flex; flex-direction: column; padding: 20px 24px; min-width: 0; }
 
-.editor-header { display: flex; gap: 12px; margin-bottom: 12px; }
+.editor-header { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
 
 .title-input {
   flex: 1;
@@ -180,6 +181,8 @@ body {
   margin-bottom: 8px;
   font-size: 13px;
   color: #a8abb8;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .lrc-input {
@@ -256,6 +259,7 @@ body {
   border: 1px solid #2a2c34;
   border-radius: 6px;
   background: #16171c;
+  flex-wrap: wrap;
 }
 .stopwatch-label { font-size: 13px; color: #a8abb8; font-family: Consolas, 'SFMono-Regular', monospace; }
 
@@ -286,6 +290,36 @@ body {
 }
 
 .live-actions { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+
+@media (max-width: 860px) {
+  body { height: auto; min-height: 100vh; overflow: visible; }
+  .layout { flex-direction: column; height: auto; }
+
+  .sidebar {
+    width: 100%;
+    max-height: 40vh;
+    border-right: none;
+    border-bottom: 1px solid #2a2c34;
+  }
+
+  .editor { flex: none; padding: 16px; }
+
+  .title-input { flex: 1 1 100%; }
+  .artist-input { width: 100%; }
+  .editor-actions { width: 100%; flex-wrap: wrap; }
+
+  .lyrics-input { flex: none; min-height: 160px; }
+
+  .attach-audio-row,
+  .attach-audio-url-row,
+  .ai-align-row { flex-wrap: wrap; }
+  .audio-url-input { width: 100%; }
+
+  .prompter-bar { flex-direction: column; align-items: stretch; }
+  .prompter-controls { justify-content: flex-start; }
+
+  .modal-panel { padding: 16px; }
+}
 </style>
 </head>
 <body>

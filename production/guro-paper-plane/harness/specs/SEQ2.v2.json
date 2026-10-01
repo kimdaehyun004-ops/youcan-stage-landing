@@ -1,0 +1,63 @@
+{
+  "id": "SEQ2.v2",
+  "segment": "SEQ2",
+  "supersedes": "SEQ2.v1",
+  "mode": "video_extension",
+  "upstream": "SEQ1",
+  "duration": 10,
+  "visible": [
+    "corridor",
+    "field"
+  ],
+  "entry_state": "Seen from about one metre behind and slightly above, the airplane has just flown nose first through the open classroom doorway and is gliding into the bright sunlit corridor (glossy light-grey floor, sunlight stripes, tall windows on the window side).",
+  "beats": [
+    [
+      0,
+      2,
+      "The camera keeps following about one metre behind the airplane as it glides on along the corridor in the same direction it was flying when it came through the doorway, low over the glossy floor."
+    ],
+    [
+      2,
+      4,
+      "The camera tracks sideways alongside the airplane as it glides past the row of blue-grey lockers and enters a bright stripe of sunlight."
+    ],
+    [
+      4,
+      6,
+      "The camera rises toward the ceiling and looks down: stripes of sunlight on the glossy floor, the airplane's small shadow sliding across the stripes."
+    ],
+    [
+      6,
+      8,
+      "The camera keeps following from behind and slightly to the side as the airplane slowly curves toward the windows."
+    ],
+    [
+      8,
+      9,
+      "The airplane glides toward one open window; bright green trees and the school field glow outside."
+    ],
+    [
+      9,
+      10,
+      "The camera stays just behind the airplane as it passes through the open window frame into bright sunlight."
+    ]
+  ],
+  "exit_state": "The window frame edges are at the borders of the image and the airplane, seen from just behind, is flying out of the open corridor window over the sunlit school sports field.",
+  "audio": "diegetic sound only. Soft corridor reverb, a low fluorescent hum, a light wind whistle, paper flutter, distant gentle laughter from outside growing louder, the sound of open air as it passes the window.",
+  "change_request": {
+    "user_said": "멀쩡한데는 바꾸지말고 요청하는 곳만 제대로 바꿔야하는거지 / 교실 안에서 보이는 복도와 나간 뒤 복도 모습이 갑자기 바뀌면 안 됨",
+    "reason": "SEQ1 replaced by v3 -> SEQ2 v1 is stale (seam lumaCorr 0.09). Corridor + field refs attached so the corridor matches what SEQ1 v3 showed through the door (v3 end vs corridor ref lumaCorr 0.63) and the field seen through the window matches SEQ3. QA found a hard cut INSIDE SEQ2 v1 at 1.96s (scene 0.29) = beat 0 'banks left and camera pivots'. Beats 3-4 ('camera moves backward facing the airplane', 'swings quickly') are the same cut pattern (L13) and also show the plane head-on (front/back confusion E2), so they are softened to follow-from-behind. Beats 1, 2, 5 and audio are unchanged.",
+    "allowed_changes": [
+      "visible",
+      "entry_state",
+      "beats[0]",
+      "beats[3]",
+      "beats[4]"
+    ]
+  },
+  "status": "draft",
+  "_note": "Regenerate SEQ2 as an extension of the NEW SEQ1 (v3). Changed: beat 0 (v3 already ends in the corridor; old beat had the pivot that caused the 1.96s cut), beats 3-4 (cut-risk camera moves). Beats 1,2,5 + audio word-for-word from v1.",
+  "allow_terms": {
+    "whistle": "'a light wind whistle' = wind sound in the corridor, kept verbatim from approved SEQ2 v1 audio; not a referee whistle (D5 applies to SEQ3)"
+  }
+}

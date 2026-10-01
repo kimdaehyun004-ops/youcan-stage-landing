@@ -1,0 +1,25 @@
+{
+  "id": "SEQ3.v1",
+  "as_built": true,
+  "as_built_job": "4b05514d-7582-4a9e-99d6-bee6a2ae5796",
+  "_note": "Record of the hand-written SEQ3 request (extension of SEQ2 v1). User-approved content: S4 calm smiles (D4), S2 calm (D5).",
+  "segment": "SEQ3",
+  "supersedes": null,
+  "mode": "video_extension",
+  "upstream": "SEQ2",
+  "duration": 10,
+  "visible": ["field", "sky"],
+  "entry_state": "The window frame edges are at the borders of the image and the airplane, seen from just behind, is flying out of the open corridor window over the sunlit school sports field.",
+  "beats": [
+    [0, 2, "The camera follows the airplane out of the open window into bright open air above the field; the ivory school wall falls away behind."],
+    [2, 4, "The camera rises into a high drone view following the airplane; far below, students calmly play soccer and walk across the field."],
+    [4, 6, "The camera descends to mid-height and tracks sideways with the airplane as it crosses over a soccer goal and the centre circle."],
+    [6, 8, "The camera glides down to ground level among a small group of students. They slowly raise their heads and quietly watch the airplane pass overhead with warm, natural, gentle smiles, arms relaxed at their sides. No raised hands, no pointing, no shouting, no open-mouth cheering."],
+    [8, 9, "The camera tilts up to the airplane, close against the deep blue sky, paper texture visible."],
+    [9, 10, "The camera cranes up high as the airplane climbs toward the bright sun."]
+  ],
+  "exit_state": "The small airplane is rising into the deep blue sky with the sun glowing in the upper part of the frame.",
+  "audio": "diegetic sound only. Open-air wind, distant gentle laughter, the soft thud of a ball being kicked, footsteps on dirt, quiet soft laughter as the students watch, a rising breeze at the end. No whistle, no shouting.",
+  "extra_negatives": ["no raised hands", "no pointing", "no cheering crowd", "no deformed faces or hands", "no extra fingers", "no real-person likeness"],
+  "change_request": {"user_said": "SEQ3 운동장 연장 진행해줘", "allowed_changes": []}
+}

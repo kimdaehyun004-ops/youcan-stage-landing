@@ -1,0 +1,24 @@
+{
+  "id": "SEQ2.v1",
+  "as_built": true,
+  "as_built_job": "995c0626-6ecc-49e2-b083-55460f65ae23",
+  "_note": "Record of the hand-written SEQ2 request (extension of SEQ1 v1 5ae15ec0). Content was not criticised by the user -> keep beats 1..5 unchanged in later versions.",
+  "segment": "SEQ2",
+  "supersedes": null,
+  "mode": "video_extension",
+  "upstream": "SEQ1",
+  "duration": 10,
+  "visible": ["corridor"],
+  "entry_state": "The airplane, seen from behind in the lower centre, is flying toward the bright open classroom doorway with the sunlit corridor visible through the door.",
+  "beats": [
+    [0, 2, "The camera follows the airplane through the open classroom doorway into the corridor; the airplane banks gently left and the camera pivots with it to look down the corridor."],
+    [2, 4, "The camera tracks sideways alongside the airplane as it glides past the row of blue-grey lockers and enters a bright stripe of sunlight."],
+    [4, 6, "The camera rises toward the ceiling and looks down: stripes of sunlight on the glossy floor, the airplane's small shadow sliding across the stripes."],
+    [6, 8, "The camera drifts ahead and moves backward facing the airplane as it flies toward the lens; the airplane slowly tilts toward the windows."],
+    [8, 9, "The camera swings quickly with the airplane toward one open window; bright green trees and the school field glow outside."],
+    [9, 10, "The camera stays just behind the airplane as it passes through the open window frame into bright sunlight."]
+  ],
+  "exit_state": "The window frame edges are at the borders of the image and the airplane, seen from just behind, is flying out of the open corridor window over the sunlit school sports field.",
+  "audio": "diegetic sound only. Soft corridor reverb, a low fluorescent hum, a light wind whistle, paper flutter, distant gentle laughter from outside growing louder, the sound of open air as it passes the window.",
+  "change_request": {"user_said": "1080p로 확정하고 SEQ2 연장 진행해줘", "allowed_changes": []}
+}

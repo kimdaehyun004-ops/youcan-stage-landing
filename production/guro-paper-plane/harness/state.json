@@ -1,0 +1,48 @@
+{
+  "_comment": "Mutable production state. Only hfgate.py should write this file.",
+  "credits": {
+    "granted_total": 1600,
+    "balance": 396.5,
+    "balance_checked_at": "2026-10-01T23:30Z",
+    "reserve_min": 20
+  },
+  "segments": {
+    "SEQ1": {
+      "status": "candidate",
+      "current_job": "efdc5051-e0c9-4398-991e-133e78df588a",
+      "accepted_job": null,
+      "note": "v3: start_image only + plane/corridor refs. Scene-cut max 0.09 (<0.25). Ends inside corridor; end frame matches corridor ref (lumaCorr 0.63). Needs user visual OK.",
+      "history": [
+        {"job": "9e49a1e0-fdf6-486e-8750-55882e4e38b8", "what": "v1 480p draft (hand launch)", "cost": 42, "verdict": "superseded"},
+        {"job": "5ae15ec0-e703-46a3-946a-c851b7eb876b", "what": "v1 1080p (hand launch)", "cost": 168, "verdict": "rejected: hand launch (D3), plane front/back ambiguous (E2)"},
+        {"job": "ec98df22-74df-4d71-aa0d-3a8a2d72c44a", "what": "v2 wind + end_image", "cost": 168, "verdict": "rejected: hard cut at 11.92s caused by end_image (E4)"},
+        {"job": "efdc5051-e0c9-4398-991e-133e78df588a", "what": "v3 wind, start_image only", "cost": 168, "verdict": "candidate"}
+      ],
+      "derived": {
+        "30fps_interp": "29f59ec2-480c-47fa-9fe0-5cf728fe90b2",
+        "30fps_simple": "633feb83-e30c-4707-bf5c-7b686652f0ef"
+      }
+    },
+    "SEQ2": {
+      "status": "stale",
+      "current_job": "995c0626-6ecc-49e2-b083-55460f65ae23",
+      "accepted_job": null,
+      "note": "Extension of SEQ1 v1 (5ae15ec0). Upstream was replaced -> STALE. Measured: v3 end vs SEQ2 start lumaCorr 0.09 (v1 end vs SEQ2 start 0.84). SEQ2 corridor vs corridor ref lumaCorr 0.12 -> corridor drift.",
+      "history": [
+        {"job": "995c0626-6ecc-49e2-b083-55460f65ae23", "what": "ext of SEQ1 v1", "cost": 120, "verdict": "stale (upstream replaced)"}
+      ]
+    },
+    "SEQ3": {
+      "status": "stale",
+      "current_job": "4b05514d-7582-4a9e-99d6-bee6a2ae5796",
+      "accepted_job": null,
+      "note": "Extension of old SEQ2 -> STALE once SEQ2 is regenerated.",
+      "history": [
+        {"job": "4b05514d-7582-4a9e-99d6-bee6a2ae5796", "what": "ext of SEQ2 v1", "cost": 120, "verdict": "stale (upstream will be replaced)"}
+      ]
+    },
+    "SEQ4": {"status": "planned", "current_job": null, "accepted_job": null, "note": "", "history": []}
+  },
+  "approvals": {},
+  "ledger": []
+}

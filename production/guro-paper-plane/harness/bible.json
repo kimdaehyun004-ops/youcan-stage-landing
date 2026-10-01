@@ -1,0 +1,154 @@
+{
+  "_comment": "Single source of truth for every Higgsfield request. hfgate.py builds prompts ONLY from this file + a segment spec. Do not paste prompt text by hand.",
+  "project": "2026 제11회 구로 청소년축제 오프닝 · 종이비행기 원테이크",
+  "output": {
+    "model": "seedance_2_5",
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "native_fps": 24,
+    "delivery_fps": 30,
+    "generate_audio": true,
+    "declined_preset_id": "24bae836-2c4a-48e0-89b6-49fcc0b21612"
+  },
+  "pricing": {
+    "_source": "get_cost + transactions log 2026-10-01 (1080p 14s=168, 10s=120 -> 12 cr/s; 480p draft 14s=42)",
+    "seedance_2_5_1080p_per_sec": 12,
+    "seedance_2_5_480p_draft_per_sec": 3,
+    "gpt_image_2_5_2k_high": 2.75,
+    "gpt_image_2": 6.5
+  },
+  "assets": {
+    "plane_sheet": {
+      "id": "f0d9bb9a-6a14-4113-a4a5-9f0e11650b0d",
+      "kind": "image",
+      "what": "종이비행기 마스터 시트 (무지 흰 A4 다트형)"
+    },
+    "classroom_back": {
+      "id": "8100a255-7e03-4cfd-9a95-1c2004b9ac8d",
+      "kind": "image",
+      "what": "교실 A: 뒤에서 본 정면(칠판), 창문=왼쪽 벽"
+    },
+    "corridor": {
+      "id": "385baa23-f1fe-40a9-bb6e-ded4b169130f",
+      "kind": "image",
+      "what": "복도 C: 창문=오른쪽, 교실문+사물함=왼쪽, 바닥 빛 줄무늬"
+    },
+    "field_high": {
+      "id": "2d18a217-d660-4383-bd9d-1898d7f72490",
+      "kind": "image",
+      "what": "운동장 E: 2층 창문 높이 부감"
+    },
+    "field_low": {
+      "id": "b9aaf600-c906-4f2c-a693-713685c598cd",
+      "kind": "image",
+      "what": "운동장 F: 지면 로우앵글, 학교 건물 배경"
+    },
+    "seq1_start_frame": {
+      "id": "4bb16664-4f96-4b0f-a77b-18f17b376006",
+      "kind": "image",
+      "what": "SEQ1 시작 키프레임 (창가 책상 위 비대칭 다트 비행기, 기수=앞-오른쪽 문)"
+    }
+  },
+  "location_refs": {
+    "_rule": "A location that is VISIBLE anywhere in a segment (even through a door or window) must have its reference attached (lint L2).",
+    "classroom": [
+      "classroom_back"
+    ],
+    "corridor": [
+      "corridor"
+    ],
+    "field": [
+      "field_high",
+      "field_low"
+    ],
+    "sky": []
+  },
+  "locks": {
+    "STYLE": "ONE UNBROKEN CONTINUOUS SHOT from the first frame to the last frame: a single take with no cuts, no edits, no jump. Smooth steady gimbal camera moving continuously, photorealistic live action, natural colours, 16:9.",
+    "PLANE": "The same single plain white dart paper airplane as in the airplane reference sheet (blank white A4 paper, no print, no logo). It is clearly asymmetric: narrow sharp pointed nose at the front, wide straight squared-off tail at the back. It always flies NOSE FIRST on one continuous flight path: it never jumps, never teleports, never flips, never reverses, and only changes direction through slow gentle curves. Its size and shape never change.",
+    "LIGHT": "Sunny late morning, the same warm sunlight direction throughout, soft dust in the sunbeams, no flicker.",
+    "classroom": "The classroom matches the classroom reference: ivory walls, green chalkboard on the front wall, rows of light-wood desks with grey metal legs, large aluminium windows with white roller blinds along the LEFT wall, wood-grain floor, open sliding door at the FRONT-RIGHT corner leading to the corridor.",
+    "corridor": "The corridor matches the corridor reference photo exactly, both when glimpsed through the classroom door and when the airplane flies in it: glossy light-grey floor with bright sunlight stripes, tall aluminium windows on the window side facing the sports field, ivory wall with sliding classroom doors and blue-grey metal lockers on the classroom side, square LED ceiling panels.",
+    "field": "The sports field matches the field reference photos: light-brown compacted dirt field with white lines, white soccer goals, green trees around it, the ivory three-storey school building, clear blue sky.",
+    "sky": "Clear deep blue sky with a few soft clouds above the same school field."
+  },
+  "negatives_global": [
+    "no cuts",
+    "no hard cut",
+    "no scene change",
+    "no shot change",
+    "no jump cut",
+    "no time jump",
+    "no teleporting airplane",
+    "no sudden direction change",
+    "no airplane flying backwards or tail first",
+    "no symmetric double-pointed airplane",
+    "no airplane shape change",
+    "no extra airplanes",
+    "no text, subtitles, watermarks or logos",
+    "no print on the airplane",
+    "no flickering light",
+    "no shadow direction change",
+    "no change of location design",
+    "no music"
+  ],
+  "forbidden_positive_terms": {
+    "_rule": "Words that must NOT appear in the positive (non-negative) part of a prompt — each comes from a user decision. Use 'allow_terms' in a spec to override with a reason.",
+    "terms": {
+      "hand": "D3 SEQ1: 손으로 날리지 않음 (바람으로 이륙)",
+      "hands": "D3",
+      "launch": "D3",
+      "throw": "D3",
+      "firework": "D2 불꽃놀이 삭제",
+      "fireworks": "D2",
+      "cheer": "D4 SEQ3 S4: 환호 금지, 바라보며 웃기",
+      "cheering": "D4",
+      "raise their hands": "D4",
+      "whistle": "D5 SEQ3 S2: 호루라기 소리 금지",
+      "logo": "D1 비행기 문구/로고 없음 (부정문에서만 사용)",
+      "music": "D6 BGM 없음 (부정문에서만 사용)",
+      "pointing at": "D4 (사람이 손가락질 금지; 'nose pointing toward'는 허용)",
+      "pointing up": "D4"
+    }
+  },
+  "segment_order": [
+    "SEQ1",
+    "SEQ2",
+    "SEQ3",
+    "SEQ4"
+  ],
+  "segments": {
+    "SEQ1": {
+      "title": "교실, 접어 둔 꿈",
+      "visible": [
+        "classroom",
+        "corridor"
+      ],
+      "seconds": 14
+    },
+    "SEQ2": {
+      "title": "복도, 빛의 줄무늬",
+      "visible": [
+        "corridor",
+        "field"
+      ],
+      "seconds": 10,
+      "note": "field is seen through the corridor windows and at the exit; classroom is behind the camera"
+    },
+    "SEQ3": {
+      "title": "운동장, 함께 보는 하늘",
+      "visible": [
+        "field",
+        "sky"
+      ],
+      "seconds": 10
+    },
+    "SEQ4": {
+      "title": "힐링으로 착륙 (태양·화이트아웃·타이틀 공간)",
+      "visible": [
+        "sky"
+      ],
+      "seconds": 11
+    }
+  }
+}

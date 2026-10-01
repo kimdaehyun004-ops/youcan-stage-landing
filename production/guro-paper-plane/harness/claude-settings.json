@@ -1,0 +1,20 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*__(generate_video|generate_video_batch|generate_image|generate_image_batch|generate_audio|generate_audio_batch|generate_3d|upscale_video|upscale_image|outpaint_image|reframe|remove_background|execute_preset|motion_control|video_analysis_create|dubbing|voice_change|ads_studio_generate|shorts_studio_create|animation_actions|create_voice|balance)",
+        "hooks": [
+          {"type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/production/guro-paper-plane/harness/hfgate.py\" hook-pre", "timeout": 20}
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__.*__(generate_video|generate_video_batch|generate_image|generate_image_batch|generate_audio|generate_audio_batch|generate_3d|upscale_video|upscale_image|outpaint_image|reframe|remove_background|execute_preset|motion_control|video_analysis_create|dubbing|voice_change|ads_studio_generate|shorts_studio_create|animation_actions|create_voice)",
+        "hooks": [
+          {"type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/production/guro-paper-plane/harness/hfgate.py\" hook-post", "timeout": 20}
+        ]
+      }
+    ]
+  }
+}

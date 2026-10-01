@@ -1,0 +1,24 @@
+{
+  "id": "SEQ1.v3",
+  "as_built": true,
+  "as_built_job": "efdc5051-e0c9-4398-991e-133e78df588a",
+  "_note": "Record of the hand-written v3 request (before the harness existed). Used for exit_state / diff reference only — never approved through the gate.",
+  "segment": "SEQ1",
+  "supersedes": null,
+  "mode": "omni_reference",
+  "duration": 14,
+  "visible": ["classroom", "corridor"],
+  "start_image": "seq1_start_frame",
+  "end_image": null,
+  "entry_state": "Opening frame is the start image: empty classroom seen from the back, warm morning light, dust in the sunbeams, the airplane resting on a window-side desk with its nose pointing toward the open sliding door at the front-right of the room.",
+  "beats": [
+    [0, 4, "The camera glides slowly forward between the desk rows toward that desk."],
+    [4, 6, "The camera lowers to desk height and drifts close to the airplane from behind and to the side. The slightly open window beside it lets in a soft breeze; the white blind begins to sway."],
+    [6, 9, "A gentle gust blows in from the window behind the airplane. Loose papers flutter, the blind lifts, the airplane's tail rises a little and it slides forward nose first and lifts off on the breeze, rising above the desks while heading toward the front-right door. No people."],
+    [9, 12, "The camera keeps moving continuously, following about one metre behind and slightly above the airplane as it glides on the same heading over the rows of desks, drifting slightly on the air current, steadily approaching the open door."],
+    [12, 14, "Still the same continuous shot, the camera follows the airplane as it flies straight through the open doorway; the bright sunlit corridor with glossy floor and windows opens up beyond."]
+  ],
+  "exit_state": "Seen from about one metre behind and slightly above, the airplane has just flown nose first through the open classroom doorway and is gliding into the bright sunlit corridor (glossy light-grey floor, sunlight stripes, tall windows on the window side).",
+  "audio": "diegetic sound only. Quiet room tone, birdsong outside, faint distant playground sounds, the soft rattle of the blind, a breeze through the window, papers fluttering, a light paper rustle as the airplane lifts off, gentle air while gliding.",
+  "change_request": {"user_said": "다시 생성으로 해줬으면좋겠어 원테이크로 갈수있게", "allowed_changes": ["end_image", "extra_refs", "beats[*]"]}
+}

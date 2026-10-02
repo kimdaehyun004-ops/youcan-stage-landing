@@ -79,10 +79,10 @@
       "history": []
     },
     "ONE": {
-      "status": "generated",
+      "status": "final_1080p",
       "current_job": "e4518ab7-5340-4f9f-ac54-2beb0234dc80",
       "accepted_job": null,
-      "note": "draft ONE.d1 4f1fa966: QA cuts=0 (max scene 0.03), first frame vs start 0.76, 13s vs corridor ref 0.58, 21-25s vs field ref 0.70-0.82, end luma 250 (white). Awaiting user review. Finalize quote 60cr. | draft ONE.d2 08d4662a: QA cuts=0 (max 0.018), first vs start 0.76, 15s vs corridor 0.63, 21-25s vs field 0.58-0.82, end luma 249. Awaiting user review. | draft ONE.d3 31971434: cuts=0 (max 0.036 @20.46s), FIRST FRAME vs start image only 0.27 (d1/d2: 0.76) -> opening may differ from chosen start image; 14s vs corridor 0.63; corridor 13-14s resembles d1 (0.66/0.63) more than d2 (0.38/0.32); 21-24s vs field 0.85; luma 230 @29s.",
+      "note": "draft ONE.d1 4f1fa966: QA cuts=0 (max scene 0.03), first frame vs start 0.76, 13s vs corridor ref 0.58, 21-25s vs field ref 0.70-0.82, end luma 250 (white). Awaiting user review. Finalize quote 60cr. | draft ONE.d2 08d4662a: QA cuts=0 (max 0.018), first vs start 0.76, 15s vs corridor 0.63, 21-25s vs field 0.58-0.82, end luma 249. Awaiting user review. | draft ONE.d3 31971434: cuts=0 (max 0.036 @20.46s), FIRST FRAME vs start image only 0.27 (d1/d2: 0.76) -> opening may differ from chosen start image; 14s vs corridor 0.63; corridor 13-14s resembles d1 (0.66/0.63) more than d2 (0.38/0.32); 21-24s vs field 0.85; luma 230 @29s. | FINAL 1080p e4518ab7 (finalize of d3): 1920x1080 24fps 30.05s, cuts=0 (max 0.035), per-second corr vs draft 0.99-1.00 -> finalize = same video upscaled (verified).",
       "history": [
         {
           "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
@@ -106,7 +106,7 @@
           "job": "e4518ab7-5340-4f9f-ac54-2beb0234dc80",
           "spec": "ONE.f3",
           "cost": 60,
-          "verdict": "awaiting QA + user review"
+          "verdict": "finalized; QA pass"
         }
       ]
     }

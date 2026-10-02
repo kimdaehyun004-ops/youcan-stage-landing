@@ -1,0 +1,10 @@
+{
+  "id": "ONE.f2",
+  "segment": "ONE",
+  "mode": "finalize",
+  "draft_spec": "ONE.d2",
+  "change_request": {
+    "user_said": "(사용자가 '뽑아줘'라고 하면)",
+    "allowed_changes": []
+  }
+}

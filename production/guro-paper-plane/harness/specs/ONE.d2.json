@@ -1,0 +1,78 @@
+{
+  "id": "ONE.d2",
+  "segment": "ONE",
+  "supersedes": "ONE.d1",
+  "mode": "omni_reference",
+  "draft": true,
+  "duration": 30,
+  "visible": [
+    "classroom",
+    "corridor",
+    "field",
+    "sky"
+  ],
+  "start_image": "start_frame_v2",
+  "end_image": null,
+  "entry_state": "Opening frame is the start image: empty sunlit classroom seen from the back, the crisply folded white airplane resting on a window-side desk with its nose toward the wide-open sliding door at the front-right, the evenly lit corridor visible through that door.",
+  "beats": [
+    [
+      0,
+      3,
+      "The camera glides slowly forward between the desk rows toward the window-side desk where the airplane rests."
+    ],
+    [
+      3,
+      6,
+      "A breeze comes in through the open window; the airplane glides forward along the desktop as if sliding, then rides the breeze and rises smoothly, nose first, well above the desktops to about chest-to-eye height, never close to the floor. The classroom stays empty."
+    ],
+    [
+      6,
+      10,
+      "The camera follows about one metre behind and slightly above the airplane as it glides well above the desks at about chest-to-eye height, nose first, toward the open sliding door at the front-right; through the doorway the corridor already looks exactly like the corridor reference."
+    ],
+    [
+      10,
+      12,
+      "Still the same shot, the airplane and the camera pass smoothly through the doorway into that same corridor, which keeps the same look and the same exposure."
+    ],
+    [
+      12,
+      18,
+      "The airplane glides at about chest-to-eye height, well above the floor, straight along the one long corridor over the glossy floor and the sunlight stripes, the camera following steadily from behind; then it curves very gently toward an open window on the window side."
+    ],
+    [
+      18,
+      21,
+      "The airplane flies out through the open window into bright open air at third-floor height (the top floor of the three-storey school); the camera follows it through the window frame and the sunlit sports field opens up far below."
+    ],
+    [
+      21,
+      27,
+      "The airplane flies high in the sky above the field; far below, the camera catches a lively school field: a full soccer match with about 22 students in two teams running after the ball on the pitch, and around the pitch more students walking, chatting in small groups and resting at the edges of the field. Everyone stays small in the frame, at a distance where no face can be recognised, and the airplane stays high above them the whole time."
+    ],
+    [
+      27,
+      30,
+      "The camera slowly tilts up from the airplane toward the open blue sky and the sun; the frame fills with sky and light and gradually brightens toward white."
+    ]
+  ],
+  "exit_state": "The frame is almost entirely bright blue sky and sunlight, glowing toward white.",
+  "audio": "diegetic only: classroom room tone and birdsong, blind rattle and breeze, paper rustle at lift-off, soft corridor reverb, open-air wind, distant gentle laughter and a ball far below, a rising airy breeze as the light grows.",
+  "extra_negatives": [
+    "no people indoors",
+    "no close-up or recognisable faces",
+    "no raised hands or cheering",
+    "no airplane skimming the floor or flying low",
+    "no door closing",
+    "no second corridor",
+    "no soccer goals moving",
+    "no fireworks"
+  ],
+  "change_request": {
+    "user_said": "운동장에 학생들이 너무 없어 축구하는 아이들은 22명정도 축구를 하는 모습으로 연출 해주고 축구장 밖으로는 아이들이 걸어다니거나 모여있는 모습으로 조금더 풍성하게",
+    "reason": "Only the 21-27s field beat changes. Everything else (start image, refs, other beats, audio, negatives) is identical to ONE.d1, whose QA passed (no cuts, start/corridor/field matched).",
+    "allowed_changes": [
+      "beats[6]"
+    ]
+  }
+}

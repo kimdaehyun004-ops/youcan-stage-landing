@@ -1,0 +1,26 @@
+{
+  "id": "REF.corridor.v2",
+  "mode": "raw",
+  "segment": null,
+  "_note": "New corridor reference for the 3rd floor. Interior style follows the classroom reference so the door seen from inside the classroom and the corridor match.",
+  "change_request": {
+    "user_said": "복도 레퍼런스도 새로 하나 제작 / 새로만드는데 SEQ1~3 까지 이미지가 오류가 없게",
+    "allowed_changes": [
+      "corridor"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "8100a255-7e03-4cfd-9a95-1c2004b9ac8d",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "Photorealistic photograph of an empty, long Korean high school corridor on the THIRD (top) floor, in the same school as the classroom in the reference image (same ivory walls, light wood, aluminium window frames). One-point perspective from one end at eye level with a 20mm lens; the corridor is about 2.3 m wide and 30 m long with a 3 m ceiling. On the RIGHT, a continuous row of tall aluminium-frame windows looking down from third-floor height onto a sunlit dirt sports field with white lines and green trees; late-morning sunlight comes through these windows and casts bright stripes across the glossy light-grey floor. On the LEFT, a plain ivory wall with light-wood sliding classroom doors at regular intervals. Square LED ceiling panels down the middle. Evenly exposed, nothing blown out, clean, bright, quiet, realistic reflections, documentary look. No people, no readable text, no signs, no logos."
+  }
+}

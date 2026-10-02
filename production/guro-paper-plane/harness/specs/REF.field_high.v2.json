@@ -1,0 +1,30 @@
+{
+  "id": "REF.field_high.v2",
+  "mode": "raw",
+  "segment": null,
+  "_note": "Field view from a THIRD-floor corridor window (was 2nd floor). Made AFTER corridor v2 is chosen: medias[0] placeholder replaced by the chosen corridor id.",
+  "change_request": {
+    "user_said": "창문 밖으로 나가 3층 높이에서 운동장이 펼쳐집니다",
+    "allowed_changes": [
+      "height"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "PENDING-corridor-v2",
+        "role": "image_references"
+      },
+      {
+        "value": "b9aaf600-c906-4f2c-a693-713685c598cd",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "Photorealistic location reference photograph of the sports field of the same Korean high school as in the reference images (same ivory three-storey building, aluminium windows, same late-morning sunlight). Elevated wide view taken from just outside a third-floor corridor window (about 9 m high), looking out over the playground: a large compacted light-brown dirt field with crisp white lines, a centre circle and two white soccer goals, a row of lush green trees around the field and pale apartment blocks on the horizon under a clear blue sky with a few soft clouds. The edge of the ivory building wall appears at the very left of frame. Strong clean sunlight, crisp shadows. Empty field, no people. Documentary photo look, 24mm lens, natural colours. No readable text, no signs, no logos."
+  }
+}

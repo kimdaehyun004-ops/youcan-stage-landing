@@ -1,0 +1,35 @@
+{
+  "id": "KF.v5",
+  "mode": "raw",
+  "segment": null,
+  "_note": "Same as KF.v4 but with the NEW corridor reference (so the corridor seen through the door = corridor v2) and window light consistent with the sun being on the field side.",
+  "change_request": {
+    "user_said": "새로만드는데 SEQ1~3 까지 이미지가 오류가 없게",
+    "allowed_changes": [
+      "corridor ref",
+      "window light"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "8100a255-7e03-4cfd-9a95-1c2004b9ac8d",
+        "role": "image_references"
+      },
+      {
+        "value": "f0d9bb9a-6a14-4113-a4a5-9f0e11650b0d",
+        "role": "image_references"
+      },
+      {
+        "value": "PENDING-corridor-v2",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "Photorealistic cinematic film still, 16:9. The same empty Korean high school classroom as in the first reference image, seen from the back of the room at eye level with a 24mm lens: green chalkboard on the front wall, rows of light-wood desks facing it, large windows along the LEFT wall, one window slightly open with the white roller blind gently lifted, soft bright late-morning daylight with a little dust in the air. On a window-side desk in the third row, in the left-middle of the frame, rests ONE plain white paper airplane identical to the second reference image: a classic dart crisply and completely folded from a blank A4 sheet (no print, no logo) - long sharp pointed nose, two flat swept-back triangular wings that are identical and symmetric, sharp straight creases, standing neatly upright on its narrow keel, no loose flaps, not crumpled, not half-folded. Its nose points toward the front-right of the room, where an open sliding classroom door shows the evenly lit corridor from the third reference image (glossy light-grey floor, sunlight stripes, light-wood sliding doors, tall windows), not blown-out white. Calm, quiet, documentary realism, natural colours. No people, no text, no logos."
+  }
+}

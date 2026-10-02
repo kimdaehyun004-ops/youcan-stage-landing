@@ -55,6 +55,16 @@
       "id": "PENDING-KF.v4",
       "kind": "image",
       "what": "ONE 시작 키프레임 (완전히 접힌 다트형, 복도 레퍼런스 포함) — KF.v4 결과 중 사용자 선택본으로 교체"
+    },
+    "kf_v4_a": {
+      "id": "a004a510-0d6d-400f-88be-4bd4c8a54210",
+      "kind": "image",
+      "what": "KF.v4 후보 1"
+    },
+    "kf_v4_b": {
+      "id": "9e781d34-06a7-4dae-b2e9-c8a8f7e5dd90",
+      "kind": "image",
+      "what": "KF.v4 후보 2"
     }
   },
   "location_refs": {

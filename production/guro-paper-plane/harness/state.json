@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 396.5,
+    "balance": 391.0,
     "balance_checked_at": "2026-10-01T23:30Z",
     "reserve_min": 20
   },
@@ -86,7 +86,27 @@
       "history": []
     }
   },
-  "approvals": {},
-  "ledger": [],
+  "approvals": {
+    "KF.v4": {
+      "hash": "d796d7340dd79464",
+      "cost": 5.5,
+      "segment": null,
+      "status": "spent",
+      "warnings": [],
+      "at": "2026-10-02T13:23Z",
+      "user_quote": "차라리 내가 요청한 부분으로 해서 새후보를 제작하고 진행하는거는 어때??",
+      "confirmed_at": "2026-10-02T13:23Z",
+      "submitted_at": "2026-10-02T13:23Z",
+      "job": "a004a510-0d6d-400f-88be-4bd4c8a54210"
+    }
+  },
+  "ledger": [
+    {
+      "at": "2026-10-02T13:23Z",
+      "spec": "KF.v4",
+      "job": "a004a510-0d6d-400f-88be-4bd4c8a54210",
+      "cost": 5.5
+    }
+  ],
   "drafts": {}
 }

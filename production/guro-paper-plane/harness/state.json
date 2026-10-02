@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 284.5,
+    "balance": 194.5,
     "balance_checked_at": "2026-10-01T23:30Z",
     "reserve_min": 20
   },
@@ -80,13 +80,19 @@
     },
     "ONE": {
       "status": "generated",
-      "current_job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
+      "current_job": "08d4662a-19b9-490c-aab1-78f9bcd57c10",
       "accepted_job": null,
       "note": "draft ONE.d1 4f1fa966: QA cuts=0 (max scene 0.03), first frame vs start 0.76, 13s vs corridor ref 0.58, 21-25s vs field ref 0.70-0.82, end luma 250 (white). Awaiting user review. Finalize quote 60cr.",
       "history": [
         {
           "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
           "spec": "ONE.d1",
+          "cost": 90.0,
+          "verdict": "awaiting QA + user review"
+        },
+        {
+          "job": "08d4662a-19b9-490c-aab1-78f9bcd57c10",
+          "spec": "ONE.d2",
           "cost": 90.0,
           "verdict": "awaiting QA + user review"
         }
@@ -155,6 +161,20 @@
       "confirmed_at": "2026-10-02T13:47Z",
       "submitted_at": "2026-10-02T13:47Z",
       "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f"
+    },
+    "ONE.d2": {
+      "hash": "7ad0ffd61ea8957b",
+      "cost": 90.0,
+      "segment": "ONE",
+      "status": "spent",
+      "warnings": [
+        "L10 prompt is 4476 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-02T13:58Z",
+      "user_quote": "2차 시안 작업 진행해줘",
+      "confirmed_at": "2026-10-02T13:58Z",
+      "submitted_at": "2026-10-02T13:58Z",
+      "job": "08d4662a-19b9-490c-aab1-78f9bcd57c10"
     }
   },
   "ledger": [
@@ -187,6 +207,12 @@
       "spec": "ONE.d1",
       "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
       "cost": 90.0
+    },
+    {
+      "at": "2026-10-02T13:58Z",
+      "spec": "ONE.d2",
+      "job": "08d4662a-19b9-490c-aab1-78f9bcd57c10",
+      "cost": 90.0
     }
   ],
   "drafts": {
@@ -194,6 +220,11 @@
       "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
       "status": "awaiting_user_review",
       "at": "2026-10-02T13:47Z"
+    },
+    "ONE.d2": {
+      "job": "08d4662a-19b9-490c-aab1-78f9bcd57c10",
+      "status": "awaiting_user_review",
+      "at": "2026-10-02T13:58Z"
     }
   }
 }

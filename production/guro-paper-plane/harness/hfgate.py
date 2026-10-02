@@ -90,7 +90,8 @@ def build(sid, bible=None, state=None):
         _, dparams, dprompt = build(spec["draft_spec"], bible, state)
         d = state.get("drafts", {}).get(spec["draft_spec"], {})
         params = {"model": out["model"], "draft_job_id": d.get("job") or "<DRAFT-NOT-GENERATED>",
-                  "resolution": "1080p", "prompt": dprompt}
+                  "resolution": "1080p", "prompt": dprompt,
+                  "declined_preset_id": out["declined_preset_id"]}  # get_cost verified: still 60cr (E18)
         spec = dict(spec, _draft_duration=dparams["duration"], segment=spec.get("segment"))
         return spec, params, dprompt
 
@@ -178,8 +179,8 @@ def lint(sid, verbose=True):
             E.append(f"F1 draft {spec['draft_spec']} has not been generated")
         elif d.get("status") != "user_ok":
             E.append(f"F1 draft {spec['draft_spec']} not approved by the user (status {d.get('status')}) — run draft-ok after the user confirms it")
-        if set(params) != {"model", "draft_job_id", "resolution", "prompt"}:
-            E.append("F2 finalize must send only model/draft_job_id/resolution/prompt (extra keys turned it into a new 168cr generation, E15)")
+        if set(params) != {"model", "draft_job_id", "resolution", "prompt", "declined_preset_id"}:
+            E.append("F2 finalize must send only model/draft_job_id/resolution/prompt/declined_preset_id (extra keys turned it into a new 168cr generation, E15)")
     if spec["mode"] not in ("raw", "finalize"):
         seg = spec["segment"]
         bseg = bible["segments"][seg]
@@ -500,8 +501,15 @@ def hook_post():
     state = load(STATE)
     h = sha(ti)
     resp = json.dumps(ev.get("tool_response", ""), ensure_ascii=False)
-    m = re.search(r'job_id\W+(' + UUID + ')', resp) or re.search(UUID, resp)
-    job = m.group(1) if m and m.groups() else (m.group(0) if m else None)
+    m = re.search(r'"id\W+(' + UUID + r')\W+type\W+(video|image|audio)', resp) or re.search(r'job_id\W+(' + UUID + ')', resp)
+    job = m.group(1) if m else None
+    if job is None or "preset_recommendation" in resp:
+        # nothing was submitted (e.g. preset pop-up, error): give the approval back, charge nothing (E18)
+        for sid, ap in state["approvals"].items():
+            if ap["hash"] == h and ap["status"] == "submitted":
+                ap.update(status="confirmed", note="previous call submitted nothing: " + resp[:120])
+                save(STATE, state)
+        sys.exit(0)
     for sid, ap in state["approvals"].items():
         if ap["hash"] == h and ap["status"] == "submitted":
             ap.update(status="spent", job=job)

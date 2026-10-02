@@ -23,12 +23,12 @@
     [
       3,
       6,
-      "A soft breeze comes in through the open window and lifts the white blind; the airplane slides forward nose first and lifts off smoothly on the breeze, rising to about adult head height above the desks. The classroom stays empty."
+      "A breeze comes in through the open window; the airplane glides forward along the desktop as if sliding, then rides the breeze and rises smoothly, nose first, up to eye level. The classroom stays empty."
     ],
     [
       6,
       10,
-      "The camera follows about one metre behind and slightly above the airplane as it glides at head height over the desks, nose first, toward the open sliding door at the front-right; through the doorway the corridor already looks exactly like the corridor reference."
+      "The camera follows about one metre behind and slightly above the airplane as it glides at eye level over the desks, nose first, toward the open sliding door at the front-right; through the doorway the corridor already looks exactly like the corridor reference."
     ],
     [
       10,
@@ -38,17 +38,17 @@
     [
       12,
       18,
-      "The airplane glides at head height straight along the one long corridor over the glossy floor and the sunlight stripes, the camera following steadily from behind; then it curves very gently toward an open window on the window side."
+      "The airplane glides at eye level straight along the one long corridor over the glossy floor and the sunlight stripes, the camera following steadily from behind; then it curves very gently toward an open window on the window side."
     ],
     [
       18,
       21,
-      "The airplane flies out through the open window into bright open air at second-floor height; the camera follows it through the window frame and the sunlit sports field opens up below."
+      "The airplane flies out through the open window into bright open air at fourth-floor height; the camera follows it through the window frame and the sunlit sports field opens up far below."
     ],
     [
       21,
       27,
-      "The airplane glides high above the field, several metres above small groups of students in navy and white PE uniforms who walk and play far below; the camera follows from behind and above the airplane, so the students stay small and are seen from above with no recognisable faces, and the airplane stays well above their heads the whole time."
+      "The airplane flies high in the sky above the field; far below, the camera catches the students small in the frame, some playing soccer and some resting on the field, all at a distance where no face can be recognised; the airplane stays high above them the whole time."
     ],
     [
       27,
@@ -67,7 +67,7 @@
     "no fireworks"
   ],
   "change_request": {
-    "user_said": "SEQ1~SEQ3를 하나의 카메라가 종이비행기만 비추는 원테이크로 / 종이비행기 완전히 접힌 상태로 바람에 뜨기 / 복도는 하나의 장소로만 / 종이비행기가 낮게 날지 않기, 아이들 위로 / 학생 얼굴은 잘 안 보이게 / 마지막에 카메라 구도만 바뀌며 하늘을 향하고 밝아지는 엔딩 / 초안 먼저 컨펌 후 1080p",
+    "user_said": "SEQ1~SEQ3를 하나의 카메라가 종이비행기만 비추는 원테이크로 / 종이비행기 완전히 접힌 상태로 바람에 뜨기 / 복도는 하나의 장소로만 / 종이비행기가 낮게 날지 않기, 아이들 위로 / 학생 얼굴은 잘 안 보이게 / 마지막에 카메라 구도만 바뀌며 하늘을 향하고 밝아지는 엔딩 / 초안 먼저 컨펌 후 1080p / 2026-10-02 수정: 책상 위에서 미끄러지듯 바람을 타고 눈높이까지 / 4층 높이에서 운동장 / 하늘에서 날며 아래 학생들 작게, 축구하거나 쉬는 모습, 얼굴 알아볼 수 없는 거리",
     "allowed_changes": []
   }
 }

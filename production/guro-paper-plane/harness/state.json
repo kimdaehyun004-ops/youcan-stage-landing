@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 374.5,
+    "balance": 284.5,
     "balance_checked_at": "2026-10-01T23:30Z",
     "reserve_min": 20
   },
@@ -79,11 +79,18 @@
       "history": []
     },
     "ONE": {
-      "status": "planned",
-      "current_job": null,
+      "status": "generated",
+      "current_job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
       "accepted_job": null,
       "note": "draft 480p first, user confirms, finalize 1080p on request",
-      "history": []
+      "history": [
+        {
+          "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
+          "spec": "ONE.d1",
+          "cost": 90.0,
+          "verdict": "awaiting QA + user review"
+        }
+      ]
     }
   },
   "approvals": {
@@ -134,6 +141,20 @@
       "confirmed_at": "2026-10-02T13:31Z",
       "submitted_at": "2026-10-02T13:31Z",
       "job": "561467a5-79ba-4d28-b305-ddb68237e6d5"
+    },
+    "ONE.d1": {
+      "hash": "c1db832149ffd29d",
+      "cost": 90.0,
+      "segment": "ONE",
+      "status": "spent",
+      "warnings": [
+        "L10 prompt is 4301 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-02T13:47Z",
+      "user_quote": "운동장은 같은거 같아 문제 없는거 같으니까 초안 30초짜리 작업해서 보여줘",
+      "confirmed_at": "2026-10-02T13:47Z",
+      "submitted_at": "2026-10-02T13:47Z",
+      "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f"
     }
   },
   "ledger": [
@@ -160,7 +181,19 @@
       "spec": "KF.v5",
       "job": "561467a5-79ba-4d28-b305-ddb68237e6d5",
       "cost": 5.5
+    },
+    {
+      "at": "2026-10-02T13:47Z",
+      "spec": "ONE.d1",
+      "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
+      "cost": 90.0
     }
   ],
-  "drafts": {}
+  "drafts": {
+    "ONE.d1": {
+      "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
+      "status": "awaiting_user_review",
+      "at": "2026-10-02T13:47Z"
+    }
+  }
 }

@@ -151,7 +151,7 @@ def cost_of(params, bible, spec=None):
     p = bible["pricing"]
     m = params.get("model", "")
     if params.get("draft_job_id"):
-        return round(p["seedance_2_5_finalize_per_sec"] * float((spec or {}).get("_draft_duration", 30)), 1)
+        return p.get("seedance_2_5_finalize_flat", 60)
     if m.startswith("seedance"):
         rate = p["seedance_2_5_480p_draft_per_sec"] if params.get("draft") else p["seedance_2_5_1080p_per_sec"]
         return rate * float(params.get("duration", 0))

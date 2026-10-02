@@ -17,8 +17,9 @@
     "gpt_image_2_5_2k_high": 2.75,
     "gpt_image_2": 6.5,
     "seedance_2_5_finalize_per_sec": 4.2857,
-    "_finalize_source": "get_cost 2026-10-02: {model,draft_job_id,resolution:1080p,prompt} on a 14s draft = 60cr. Adding mode/duration/etc made it a NEW generation (168cr) - E15. 26s/30s finalize price is extrapolated (unverified until a draft exists).",
-    "_draft_source": "get_cost 2026-10-02: 480p draft 26s = 78 (3/s); 1080p 26s = 312; 720p 26s = 182"
+    "_finalize_source": "get_cost: finalize {model,draft_job_id,resolution,prompt} = 60cr for a 14s draft AND for a 30s draft (2026-10-02) -> flat 60, not per second. Extra keys => new generation (168+) - E15.",
+    "_draft_source": "get_cost 2026-10-02: 480p draft 26s = 78 (3/s); 1080p 26s = 312; 720p 26s = 182",
+    "seedance_2_5_finalize_flat": 60
   },
   "assets": {
     "plane_sheet": {

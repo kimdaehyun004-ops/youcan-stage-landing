@@ -82,7 +82,7 @@
       "status": "generated",
       "current_job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",
       "accepted_job": null,
-      "note": "draft 480p first, user confirms, finalize 1080p on request",
+      "note": "draft ONE.d1 4f1fa966: QA cuts=0 (max scene 0.03), first frame vs start 0.76, 13s vs corridor ref 0.58, 21-25s vs field ref 0.70-0.82, end luma 250 (white). Awaiting user review. Finalize quote 60cr.",
       "history": [
         {
           "job": "4f1fa966-df10-49f9-bbf6-c34033eef12f",

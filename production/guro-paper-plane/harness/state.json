@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 194.5,
+    "balance": 104.5,
     "balance_checked_at": "2026-10-01T23:30Z",
     "reserve_min": 20
   },
@@ -80,7 +80,7 @@
     },
     "ONE": {
       "status": "generated",
-      "current_job": "08d4662a-19b9-490c-aab1-78f9bcd57c10",
+      "current_job": "31971434-84de-4b4f-9f92-d537de9f9487",
       "accepted_job": null,
       "note": "draft ONE.d1 4f1fa966: QA cuts=0 (max scene 0.03), first frame vs start 0.76, 13s vs corridor ref 0.58, 21-25s vs field ref 0.70-0.82, end luma 250 (white). Awaiting user review. Finalize quote 60cr. | draft ONE.d2 08d4662a: QA cuts=0 (max 0.018), first vs start 0.76, 15s vs corridor 0.63, 21-25s vs field 0.58-0.82, end luma 249. Awaiting user review.",
       "history": [
@@ -93,6 +93,12 @@
         {
           "job": "08d4662a-19b9-490c-aab1-78f9bcd57c10",
           "spec": "ONE.d2",
+          "cost": 90.0,
+          "verdict": "awaiting QA + user review"
+        },
+        {
+          "job": "31971434-84de-4b4f-9f92-d537de9f9487",
+          "spec": "ONE.d3",
           "cost": 90.0,
           "verdict": "awaiting QA + user review"
         }
@@ -175,6 +181,20 @@
       "confirmed_at": "2026-10-02T13:58Z",
       "submitted_at": "2026-10-02T13:58Z",
       "job": "08d4662a-19b9-490c-aab1-78f9bcd57c10"
+    },
+    "ONE.d3": {
+      "hash": "d37e66bdfd50dc3c",
+      "cost": 90.0,
+      "segment": "ONE",
+      "status": "spent",
+      "warnings": [
+        "L10 prompt is 4608 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-02T14:24Z",
+      "user_quote": "B로 진행해줘 원테크로 진행할수 있게 잘해줘",
+      "confirmed_at": "2026-10-02T14:24Z",
+      "submitted_at": "2026-10-02T14:24Z",
+      "job": "31971434-84de-4b4f-9f92-d537de9f9487"
     }
   },
   "ledger": [
@@ -213,6 +233,12 @@
       "spec": "ONE.d2",
       "job": "08d4662a-19b9-490c-aab1-78f9bcd57c10",
       "cost": 90.0
+    },
+    {
+      "at": "2026-10-02T14:24Z",
+      "spec": "ONE.d3",
+      "job": "31971434-84de-4b4f-9f92-d537de9f9487",
+      "cost": 90.0
     }
   ],
   "drafts": {
@@ -225,6 +251,11 @@
       "job": "08d4662a-19b9-490c-aab1-78f9bcd57c10",
       "status": "awaiting_user_review",
       "at": "2026-10-02T13:58Z"
+    },
+    "ONE.d3": {
+      "job": "31971434-84de-4b4f-9f92-d537de9f9487",
+      "status": "awaiting_user_review",
+      "at": "2026-10-02T14:24Z"
     }
   }
 }

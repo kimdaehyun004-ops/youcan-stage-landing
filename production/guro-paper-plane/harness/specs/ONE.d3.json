@@ -1,0 +1,81 @@
+{
+  "id": "ONE.d3",
+  "segment": "ONE",
+  "supersedes": "ONE.d2",
+  "mode": "omni_reference",
+  "draft": true,
+  "duration": 30,
+  "visible": [
+    "classroom",
+    "corridor",
+    "field",
+    "sky"
+  ],
+  "start_image": "start_frame_v2",
+  "end_image": null,
+  "entry_state": "Opening frame is the start image: empty sunlit classroom seen from the back, the crisply folded white airplane resting on a window-side desk with its nose toward the wide-open sliding door at the front-right, the evenly lit corridor visible through that door.",
+  "beats": [
+    [
+      0,
+      3,
+      "The camera glides slowly forward between the desk rows toward the window-side desk where the airplane rests."
+    ],
+    [
+      3,
+      6,
+      "A breeze comes in through the open window; the airplane glides forward along the desktop as if sliding, then rides the breeze and rises smoothly, nose first, well above the desktops to about chest-to-eye height, never close to the floor. The classroom stays empty."
+    ],
+    [
+      6,
+      10,
+      "The camera follows about one metre behind and slightly above the airplane as it glides well above the desks at about chest-to-eye height, nose first, toward the open sliding door at the front-right; through the doorway the corridor already looks exactly like the corridor reference."
+    ],
+    [
+      10,
+      12,
+      "Still the same shot, the airplane and the camera pass smoothly through the doorway into that same corridor, which keeps the same look and the same exposure."
+    ],
+    [
+      12,
+      18,
+      "The airplane glides at about chest-to-eye height, well above the floor, along the corridor with the row of tall side windows on its RIGHT, the camera following steadily from behind; after a few metres it curves very gently to the RIGHT toward one open side window in that row, not toward the window at the far end of the corridor."
+    ],
+    [
+      18,
+      21,
+      "The airplane flies out sideways through that open side window on the right into bright open air at third-floor height (the top floor of the three-storey school); the camera follows it through the window frame and the sunlit sports field opens up far below."
+    ],
+    [
+      21,
+      27,
+      "The airplane flies high in the sky above the field; far below, the camera catches a lively school field: a full soccer match with about 22 students in two teams running after the ball on the pitch, and around the pitch more students walking, chatting in small groups and resting at the edges of the field. Everyone stays small in the frame, at a distance where no face can be recognised, and the airplane stays high above them the whole time."
+    ],
+    [
+      27,
+      30,
+      "The camera slowly tilts up from the airplane toward the open blue sky and the sun; the frame fills with sky and light and gradually brightens toward white."
+    ]
+  ],
+  "exit_state": "The frame is almost entirely bright blue sky and sunlight, glowing toward white.",
+  "audio": "diegetic only: classroom room tone and birdsong, blind rattle and breeze, paper rustle at lift-off, soft corridor reverb, open-air wind, distant gentle laughter and a ball far below, a rising airy breeze as the light grows.",
+  "extra_negatives": [
+    "no people indoors",
+    "no close-up or recognisable faces",
+    "no raised hands or cheering",
+    "no airplane skimming the floor or flying low",
+    "no door closing",
+    "no second corridor",
+    "no soccer goals moving",
+    "no fireworks",
+    "no flying to the far end of the corridor"
+  ],
+  "change_request": {
+    "user_said": "1차시안에서는 복도에서 우측 창문으로 나가서 운동장을 보여줬는데 2차에서는 창문 끝까지 날라가는거로 바뀐거 같아... 운동장에 있는사람들 연출이 풍성해서 좋고 비행기 동선도 마음에 들어. 복도 부분만 다시 잘 해서 수정",
+    "reason": "d2 flew to the window at the END of the corridor; d1 exited through a RIGHT side window (user preference). Only the corridor beat and the window-exit beat change; field beat (22 players + students around) and everything else stay word-for-word from d2.",
+    "allowed_changes": [
+      "beats[4]",
+      "beats[5]",
+      "extra_negatives"
+    ]
+  }
+}

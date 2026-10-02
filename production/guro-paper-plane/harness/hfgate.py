@@ -18,6 +18,7 @@ Usage:
   hfgate.py accept  <segment> <job-id> --quote "<user's words>"
   hfgate.py reject  <segment> <job-id> --reason "..."
   hfgate.py qa-cmd  <spec-id> <result-url> [--upstream-url URL]
+  hfgate.py draft-ok <draft-spec> --quote "<user's words>"   # user approved the 480p draft
   hfgate.py balance <credits>
   hfgate.py hook-pre | hook-post       # called by Claude Code hooks (stdin JSON)
 """
@@ -85,6 +86,13 @@ def build(sid, bible=None, state=None):
 
     if mode == "raw":  # verbatim params (images, utilities); still linted + approved
         return spec, dict(spec["params"]), spec.get("prompt_note", "")
+    if mode == "finalize":  # 1080p finalize of an approved 480p draft: ONLY these 4 keys (E15)
+        _, dparams, dprompt = build(spec["draft_spec"], bible, state)
+        d = state.get("drafts", {}).get(spec["draft_spec"], {})
+        params = {"model": out["model"], "draft_job_id": d.get("job") or "<DRAFT-NOT-GENERATED>",
+                  "resolution": "1080p", "prompt": dprompt}
+        spec = dict(spec, _draft_duration=dparams["duration"], segment=spec.get("segment"))
+        return spec, params, dprompt
 
     medias = []
     if mode == "video_extension":
@@ -129,6 +137,9 @@ def build(sid, bible=None, state=None):
         params["extension_mode"] = "forward"
     else:
         params["aspect_ratio"] = out["aspect_ratio"]
+    if spec.get("draft"):
+        params["resolution"] = "480p"
+        params["draft"] = True
     return spec, params, prompt
 
 
@@ -136,14 +147,16 @@ def tool_input(params):
     return {"params": params}
 
 
-def cost_of(params, bible):
+def cost_of(params, bible, spec=None):
     p = bible["pricing"]
     m = params.get("model", "")
+    if params.get("draft_job_id"):
+        return round(p["seedance_2_5_finalize_per_sec"] * float((spec or {}).get("_draft_duration", 30)), 1)
     if m.startswith("seedance"):
         rate = p["seedance_2_5_480p_draft_per_sec"] if params.get("draft") else p["seedance_2_5_1080p_per_sec"]
         return rate * float(params.get("duration", 0))
     if m == "gpt_image_2_5":
-        return p["gpt_image_2_5_2k_high"]
+        return p["gpt_image_2_5_2k_high"] * int(params.get("count", 1))
     if m == "gpt_image_2":
         return p["gpt_image_2"]
     return float(params.get("_declared_cost", 9999))
@@ -157,8 +170,17 @@ def lint(sid, verbose=True):
     known_ids = {v["id"] for v in bible["assets"].values()}
     for s in state["segments"].values():
         known_ids |= {h["job"] for h in s["history"]}
+    known_ids |= {d.get("job") for d in state.get("drafts", {}).values()}
 
-    if spec["mode"] != "raw":
+    if spec["mode"] == "finalize":
+        d = state.get("drafts", {}).get(spec["draft_spec"])
+        if not d or not d.get("job"):
+            E.append(f"F1 draft {spec['draft_spec']} has not been generated")
+        elif d.get("status") != "user_ok":
+            E.append(f"F1 draft {spec['draft_spec']} not approved by the user (status {d.get('status')}) — run draft-ok after the user confirms it")
+        if set(params) != {"model", "draft_job_id", "resolution", "prompt"}:
+            E.append("F2 finalize must send only model/draft_job_id/resolution/prompt (extra keys turned it into a new 168cr generation, E15)")
+    if spec["mode"] not in ("raw", "finalize"):
         seg = spec["segment"]
         bseg = bible["segments"][seg]
         out = bible["output"]
@@ -209,7 +231,7 @@ def lint(sid, verbose=True):
         if spec["duration"] != bseg["seconds"]:
             W.append(f"L6 duration {spec['duration']}s differs from plan {bseg['seconds']}s (check credit plan)")
         # L7 fixed output params
-        if params["resolution"] != out["resolution"] or params["model"] != out["model"]:
+        if (params["resolution"] != ("480p" if spec.get("draft") else out["resolution"])) or params["model"] != out["model"]:
             E.append("L7 model/resolution differ from bible.output")
         if not params.get("declined_preset_id"):
             E.append("L7 declined_preset_id missing (preset popup would block)")
@@ -253,10 +275,12 @@ def lint(sid, verbose=True):
             W.append(f"L10 {len(params['medias'])} medias attached")
     # L11 media ids known
     for m in params.get("medias", []):
-        if m["value"] not in known_ids:
+        if m["value"].startswith("PENDING") or m["value"].startswith("<"):
+            E.append(f"L11 media placeholder {m['value']} not yet replaced by a real, user-chosen asset")
+        elif m["value"] not in known_ids:
             E.append(f"L11 unknown media id {m['value']} (typo or not registered in bible/state)")
     # L12 budget
-    c = cost_of(params, bible)
+    c = cost_of(params, bible, spec)
     bal = state["credits"]["balance"]
     plan = remaining_plan_cost(state, bible, exclude=spec.get("segment"))
     if c > bal - state["credits"]["reserve_min"]:
@@ -299,7 +323,9 @@ def remaining_plan_cost(state, bible, exclude=None):
             continue
         s = state["segments"][seg]
         if s["status"] in ("stale", "planned"):
-            total += bible["segments"][seg]["seconds"] * bible["pricing"]["seedance_2_5_1080p_per_sec"]
+            sec = bible["segments"][seg]["seconds"]
+            pr = bible["pricing"]
+            total += sec * (pr["seedance_2_5_480p_draft_per_sec"] + pr["seedance_2_5_finalize_per_sec"])
     return total
 
 
@@ -481,6 +507,8 @@ def hook_post():
             ap.update(status="spent", job=job)
             state["credits"]["balance"] = round(state["credits"]["balance"] - ap["cost"], 2)
             seg = ap.get("segment")
+            if ti.get("params", {}).get("draft"):
+                state.setdefault("drafts", {})[sid] = {"job": job, "status": "awaiting_user_review", "at": now()}
             if seg and seg in state["segments"]:
                 s = state["segments"][seg]
                 s["status"], s["current_job"] = "generated", job
@@ -518,6 +546,14 @@ def main():
         cmd_reject(a[1], a[2], opt("--reason") or "")
     elif c == "qa-cmd":
         cmd_qa(a[1], a[2], opt("--upstream-url"))
+    elif c == "draft-ok":
+        st = load(STATE)
+        d = st.setdefault("drafts", {}).get(a[1])
+        if not d or not opt("--quote"):
+            sys.exit("unknown draft or missing --quote")
+        d.update(status="user_ok", user_quote=opt("--quote"), ok_at=now())
+        save(STATE, st)
+        print(f"{a[1]} draft approved by user")
     elif c == "balance":
         st = load(STATE)
         st["credits"].update(balance=float(a[1]), balance_checked_at=now())

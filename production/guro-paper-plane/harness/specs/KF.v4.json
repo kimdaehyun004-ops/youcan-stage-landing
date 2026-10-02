@@ -1,0 +1,35 @@
+{
+  "id": "KF.v4",
+  "mode": "raw",
+  "segment": null,
+  "_note": "New start keyframe. Fixes: plane looked half-folded in 4bb16664 (E16: the 'wide squared-off tail' wording produced a malformed fold) and the corridor glimpsed through the door was invented (E6: no corridor ref).",
+  "change_request": {
+    "user_said": "seq1 영상의 종이비행기가 덜 접혀있는듯한 모습 말고 완전 잘 접혀있는 상태에서 바람에 뜨고",
+    "allowed_changes": [
+      "plane fold",
+      "corridor ref"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "8100a255-7e03-4cfd-9a95-1c2004b9ac8d",
+        "role": "image_references"
+      },
+      {
+        "value": "f0d9bb9a-6a14-4113-a4a5-9f0e11650b0d",
+        "role": "image_references"
+      },
+      {
+        "value": "385baa23-f1fe-40a9-bb6e-ded4b169130f",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "Photorealistic cinematic film still, 16:9. The same empty Korean high school classroom as in the first reference image, seen from the back of the room at eye level with a 24mm lens: green chalkboard on the front wall, rows of light-wood desks facing it, large windows along the LEFT wall, one window slightly open with the white roller blind gently lifted, warm morning sunlight with soft dust in the beams. On a window-side desk in the third row, in the left-middle of the frame, rests ONE plain white paper airplane identical to the second reference image: a classic dart crisply and completely folded from a blank A4 sheet (no print, no logo) - long sharp pointed nose, two flat swept-back triangular wings that are identical and symmetric, sharp straight creases, standing neatly upright on its narrow keel, no loose flaps, not crumpled, not half-folded. Its nose points toward the front-right of the room, where an open sliding classroom door shows the evenly lit corridor from the third reference image (glossy light-grey floor, sunlight stripes, tall windows), not blown-out white. Calm, quiet, documentary realism, natural colours. No people, no text, no logos."
+  }
+}

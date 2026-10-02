@@ -1,0 +1,73 @@
+{
+  "id": "ONE.d1",
+  "segment": "ONE",
+  "supersedes": null,
+  "mode": "omni_reference",
+  "draft": true,
+  "duration": 30,
+  "visible": [
+    "classroom",
+    "corridor",
+    "field",
+    "sky"
+  ],
+  "start_image": "start_frame_v2",
+  "end_image": null,
+  "entry_state": "Opening frame is the start image: empty sunlit classroom seen from the back, the crisply folded white airplane resting on a window-side desk with its nose toward the open sliding door at the front-right, the evenly lit corridor visible through that door.",
+  "beats": [
+    [
+      0,
+      3,
+      "The camera glides slowly forward between the desk rows toward the window-side desk where the airplane rests."
+    ],
+    [
+      3,
+      6,
+      "A soft breeze comes in through the open window and lifts the white blind; the airplane slides forward nose first and lifts off smoothly on the breeze, rising to about adult head height above the desks. The classroom stays empty."
+    ],
+    [
+      6,
+      10,
+      "The camera follows about one metre behind and slightly above the airplane as it glides at head height over the desks, nose first, toward the open sliding door at the front-right; through the doorway the corridor already looks exactly like the corridor reference."
+    ],
+    [
+      10,
+      12,
+      "Still the same shot, the airplane and the camera pass smoothly through the doorway into that same corridor, which keeps the same look and the same exposure."
+    ],
+    [
+      12,
+      18,
+      "The airplane glides at head height straight along the one long corridor over the glossy floor and the sunlight stripes, the camera following steadily from behind; then it curves very gently toward an open window on the window side."
+    ],
+    [
+      18,
+      21,
+      "The airplane flies out through the open window into bright open air at second-floor height; the camera follows it through the window frame and the sunlit sports field opens up below."
+    ],
+    [
+      21,
+      27,
+      "The airplane glides high above the field, several metres above small groups of students in navy and white PE uniforms who walk and play far below; the camera follows from behind and above the airplane, so the students stay small and are seen from above with no recognisable faces, and the airplane stays well above their heads the whole time."
+    ],
+    [
+      27,
+      30,
+      "The camera slowly tilts up from the airplane toward the open blue sky and the sun; the frame fills with sky and light and gradually brightens toward white."
+    ]
+  ],
+  "exit_state": "The frame is almost entirely bright blue sky and sunlight, glowing toward white.",
+  "audio": "diegetic only: classroom room tone and birdsong, blind rattle and breeze, paper rustle at lift-off, soft corridor reverb, open-air wind, distant gentle laughter and a ball far below, a rising airy breeze as the light grows.",
+  "extra_negatives": [
+    "no people indoors",
+    "no close-up or recognisable faces",
+    "no raised hands or cheering",
+    "no airplane flying low",
+    "no second corridor",
+    "no fireworks"
+  ],
+  "change_request": {
+    "user_said": "SEQ1~SEQ3를 하나의 카메라가 종이비행기만 비추는 원테이크로 / 종이비행기 완전히 접힌 상태로 바람에 뜨기 / 복도는 하나의 장소로만 / 종이비행기가 낮게 날지 않기, 아이들 위로 / 학생 얼굴은 잘 안 보이게 / 마지막에 카메라 구도만 바뀌며 하늘을 향하고 밝아지는 엔딩 / 초안 먼저 컨펌 후 1080p",
+    "allowed_changes": []
+  }
+}

@@ -15,7 +15,10 @@
     "seedance_2_5_1080p_per_sec": 12,
     "seedance_2_5_480p_draft_per_sec": 3,
     "gpt_image_2_5_2k_high": 2.75,
-    "gpt_image_2": 6.5
+    "gpt_image_2": 6.5,
+    "seedance_2_5_finalize_per_sec": 4.2857,
+    "_finalize_source": "get_cost 2026-10-02: {model,draft_job_id,resolution:1080p,prompt} on a 14s draft = 60cr. Adding mode/duration/etc made it a NEW generation (168cr) - E15. 26s/30s finalize price is extrapolated (unverified until a draft exists).",
+    "_draft_source": "get_cost 2026-10-02: 480p draft 26s = 78 (3/s); 1080p 26s = 312; 720p 26s = 182"
   },
   "assets": {
     "plane_sheet": {
@@ -47,6 +50,11 @@
       "id": "4bb16664-4f96-4b0f-a77b-18f17b376006",
       "kind": "image",
       "what": "SEQ1 시작 키프레임 (창가 책상 위 비대칭 다트 비행기, 기수=앞-오른쪽 문)"
+    },
+    "start_frame_v2": {
+      "id": "PENDING-KF.v4",
+      "kind": "image",
+      "what": "ONE 시작 키프레임 (완전히 접힌 다트형, 복도 레퍼런스 포함) — KF.v4 결과 중 사용자 선택본으로 교체"
     }
   },
   "location_refs": {
@@ -64,31 +72,22 @@
     "sky": []
   },
   "locks": {
-    "STYLE": "ONE UNBROKEN CONTINUOUS SHOT from the first frame to the last frame: a single take with no cuts, no edits, no jump. Smooth steady gimbal camera moving continuously, photorealistic live action, natural colours, 16:9.",
-    "PLANE": "The same single plain white dart paper airplane as in the airplane reference sheet (blank white A4 paper, no print, no logo). It is clearly asymmetric: narrow sharp pointed nose at the front, wide straight squared-off tail at the back. It always flies NOSE FIRST on one continuous flight path: it never jumps, never teleports, never flips, never reverses, and only changes direction through slow gentle curves. Its size and shape never change.",
-    "LIGHT": "Sunny late morning, the same warm sunlight direction throughout, soft dust in the sunbeams, no flicker.",
-    "classroom": "The classroom matches the classroom reference: ivory walls, green chalkboard on the front wall, rows of light-wood desks with grey metal legs, large aluminium windows with white roller blinds along the LEFT wall, wood-grain floor, open sliding door at the FRONT-RIGHT corner leading to the corridor.",
-    "corridor": "The corridor matches the corridor reference photo exactly, both when glimpsed through the classroom door and when the airplane flies in it: glossy light-grey floor with bright sunlight stripes, tall aluminium windows on the window side facing the sports field, ivory wall with sliding classroom doors and blue-grey metal lockers on the classroom side, square LED ceiling panels.",
-    "field": "The sports field matches the field reference photos: light-brown compacted dirt field with white lines, white soccer goals, green trees around it, the ivory three-storey school building, clear blue sky.",
-    "sky": "Clear deep blue sky with a few soft clouds above the same school field."
+    "STYLE": "ONE UNBROKEN CONTINUOUS SHOT, first frame to last: a single take with no cuts. One smooth gimbal camera keeps the airplane in view. Photorealistic live action, 16:9.",
+    "PLANE": "The airplane is the plain white dart from the airplane reference: crisply, completely folded from blank A4 (no print, no logo), long sharp nose, two flat identical swept-back wings, sharp creases, neat keel, never crumpled or half-folded. It flies nose first on one smooth continuous path, never jumps, flips or reverses, turns only in slow gentle curves, and never changes shape or size.",
+    "LIGHT": "Sunny late morning, same warm sunlight direction throughout, no flicker.",
+    "classroom": "Classroom = classroom reference: ivory walls, green chalkboard in front, light-wood desks, windows with white blinds on the LEFT wall, open sliding door at the FRONT-RIGHT.",
+    "corridor": "Corridor = corridor reference, ONE single straight corridor whose design and exposure never change, the same through the door and inside: glossy light-grey floor with sunlight stripes, tall windows facing the sports field on one side, ivory wall with doors on the other, evenly lit, never blown-out white.",
+    "field": "Field = field references: light-brown dirt field with white lines, white soccer goals, green trees, ivory school building, clear blue sky. Students are always small, seen from high above or behind, no recognisable faces.",
+    "sky": "Clear deep blue sky above the same school."
   },
   "negatives_global": [
-    "no cuts",
-    "no hard cut",
-    "no scene change",
-    "no shot change",
-    "no jump cut",
-    "no time jump",
-    "no teleporting airplane",
-    "no sudden direction change",
-    "no airplane flying backwards or tail first",
-    "no symmetric double-pointed airplane",
+    "no cuts or scene changes",
+    "no jump in time",
+    "no teleporting, reversing or tail-first airplane",
     "no airplane shape change",
     "no extra airplanes",
     "no text, subtitles, watermarks or logos",
-    "no print on the airplane",
-    "no flickering light",
-    "no shadow direction change",
+    "no flicker",
     "no change of location design",
     "no music"
   ],
@@ -112,10 +111,7 @@
     }
   },
   "segment_order": [
-    "SEQ1",
-    "SEQ2",
-    "SEQ3",
-    "SEQ4"
+    "ONE"
   ],
   "segments": {
     "SEQ1": {
@@ -149,6 +145,23 @@
         "sky"
       ],
       "seconds": 11
+    },
+    "ONE": {
+      "title": "원테이크 전체: 교실 → 복도 → 창밖 운동장 → 하늘",
+      "visible": [
+        "classroom",
+        "corridor",
+        "field",
+        "sky"
+      ],
+      "seconds": 30,
+      "note": "single generation, no extensions (2026-10-02 user: SEQ1~SEQ3를 하나의 카메라로 쭉 이어서)"
     }
-  }
+  },
+  "segment_order_legacy": [
+    "SEQ1",
+    "SEQ2",
+    "SEQ3",
+    "SEQ4"
+  ]
 }

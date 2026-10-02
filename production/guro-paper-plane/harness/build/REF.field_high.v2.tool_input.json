@@ -1,14 +1,4 @@
 {
-  "id": "REF.field_high.v2",
-  "mode": "raw",
-  "segment": null,
-  "_note": "Field view from a THIRD-floor corridor window (was 2nd floor). Made AFTER corridor v2 is chosen: medias[0] placeholder replaced by the chosen corridor id.",
-  "change_request": {
-    "user_said": "창문 밖으로 나가 3층 높이에서 운동장이 펼쳐집니다",
-    "allowed_changes": [
-      "height"
-    ]
-  },
   "params": {
     "model": "gpt_image_2_5",
     "aspect_ratio": "16:9",

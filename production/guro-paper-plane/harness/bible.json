@@ -32,9 +32,9 @@
       "what": "교실 A: 뒤에서 본 정면(칠판), 창문=왼쪽 벽"
     },
     "corridor": {
-      "id": "385baa23-f1fe-40a9-bb6e-ded4b169130f",
+      "id": "451670b0-f45c-48e0-84d1-4a575bef0f71",
       "kind": "image",
-      "what": "복도 C: 창문=오른쪽, 교실문+사물함=왼쪽, 바닥 빛 줄무늬"
+      "what": "복도 v2 (3층, 창문 오른쪽, 나무 미닫이문, 사물함 없음) — 2026-10-02 사용자 선택 후보 1"
     },
     "field_high": {
       "id": "2d18a217-d660-4383-bd9d-1898d7f72490",
@@ -75,6 +75,31 @@
       "id": "f270d580-0de6-400a-b1fa-e9a6fe12cc9b",
       "kind": "image",
       "what": "REF.corridor.v2 후보 2 (3층, 나무 미닫이문)"
+    },
+    "corridor_v1_legacy": {
+      "id": "385baa23-f1fe-40a9-bb6e-ded4b169130f",
+      "kind": "image",
+      "what": "복도 C: 창문=오른쪽, 교실문+사물함=왼쪽, 바닥 빛 줄무늬"
+    },
+    "field_high_v2_a": {
+      "id": "f48df04d-eb10-4805-b6a6-77c1cfba08a5",
+      "kind": "image",
+      "what": "3층 시점 운동장 후보 1"
+    },
+    "field_high_v2_b": {
+      "id": "cc72cb64-a91f-4a44-9d7a-7398f07cb45d",
+      "kind": "image",
+      "what": "3층 시점 운동장 후보 2"
+    },
+    "kf_v5_a": {
+      "id": "561467a5-79ba-4d28-b305-ddb68237e6d5",
+      "kind": "image",
+      "what": "KF.v5 시작 이미지 후보 1"
+    },
+    "kf_v5_b": {
+      "id": "2ac8a118-631b-4b68-8a91-b6c9f6ff29dc",
+      "kind": "image",
+      "what": "KF.v5 시작 이미지 후보 2"
     }
   },
   "location_refs": {

@@ -1,15 +1,4 @@
 {
-  "id": "KF.v5",
-  "mode": "raw",
-  "segment": null,
-  "_note": "Same as KF.v4 but with the NEW corridor reference (so the corridor seen through the door = corridor v2) and window light consistent with the sun being on the field side.",
-  "change_request": {
-    "user_said": "새로만드는데 SEQ1~3 까지 이미지가 오류가 없게",
-    "allowed_changes": [
-      "corridor ref",
-      "window light"
-    ]
-  },
   "params": {
     "model": "gpt_image_2_5",
     "aspect_ratio": "16:9",

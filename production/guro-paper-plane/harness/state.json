@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 385.5,
+    "balance": 374.5,
     "balance_checked_at": "2026-10-01T23:30Z",
     "reserve_min": 20
   },
@@ -110,6 +110,30 @@
       "confirmed_at": "2026-10-02T13:29Z",
       "submitted_at": "2026-10-02T13:29Z",
       "job": "451670b0-f45c-48e0-84d1-4a575bef0f71"
+    },
+    "REF.field_high.v2": {
+      "hash": "bafa87916e1347ca",
+      "cost": 5.5,
+      "segment": null,
+      "status": "spent",
+      "warnings": [],
+      "at": "2026-10-02T13:31Z",
+      "user_quote": "후보 1로 진행해줘 2단계 진행해줘",
+      "confirmed_at": "2026-10-02T13:31Z",
+      "submitted_at": "2026-10-02T13:31Z",
+      "job": "f48df04d-eb10-4805-b6a6-77c1cfba08a5"
+    },
+    "KF.v5": {
+      "hash": "8a62a155921bdb49",
+      "cost": 5.5,
+      "segment": null,
+      "status": "spent",
+      "warnings": [],
+      "at": "2026-10-02T13:31Z",
+      "user_quote": "후보 1로 진행해줘 2단계 진행해줘",
+      "confirmed_at": "2026-10-02T13:31Z",
+      "submitted_at": "2026-10-02T13:31Z",
+      "job": "561467a5-79ba-4d28-b305-ddb68237e6d5"
     }
   },
   "ledger": [
@@ -123,6 +147,18 @@
       "at": "2026-10-02T13:29Z",
       "spec": "REF.corridor.v2",
       "job": "451670b0-f45c-48e0-84d1-4a575bef0f71",
+      "cost": 5.5
+    },
+    {
+      "at": "2026-10-02T13:31Z",
+      "spec": "REF.field_high.v2",
+      "job": "f48df04d-eb10-4805-b6a6-77c1cfba08a5",
+      "cost": 5.5
+    },
+    {
+      "at": "2026-10-02T13:31Z",
+      "spec": "KF.v5",
+      "job": "561467a5-79ba-4d28-b305-ddb68237e6d5",
       "cost": 5.5
     }
   ],

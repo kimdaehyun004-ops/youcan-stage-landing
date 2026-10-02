@@ -109,25 +109,23 @@
   },
   "location_refs": {
     "_rule": "A location that is VISIBLE anywhere in a segment (even through a door or window) must have its reference attached (lint L2).",
-    "classroom": [
-      "classroom_back"
-    ],
+    "classroom": [],
     "corridor": [
       "corridor"
     ],
     "field": [
-      "field_high",
-      "field_low"
+      "field_high"
     ],
-    "sky": []
+    "sky": [],
+    "_why_2026_10_02": "classroom_back removed: it shows the front-right door CLOSED while the start image shows it OPEN (user found the conflict). The start image (made from classroom_back) now carries the classroom. field_low removed: its soccer goal sits in front of the school entrance, while field_high (the view the airplane actually sees) has the goals elsewhere (user found the conflict); field_low's ground-level view never appears in ONE."
   },
   "locks": {
     "STYLE": "ONE UNBROKEN CONTINUOUS SHOT, first frame to last: a single take with no cuts. One smooth gimbal camera keeps the airplane in view. Photorealistic live action, 16:9.",
     "PLANE": "The airplane is the plain white dart from the airplane reference: crisply, completely folded from blank A4 (no print, no logo), long sharp nose, two flat identical swept-back wings, sharp creases, neat keel, never crumpled or half-folded. It flies nose first on one smooth continuous path, never jumps, flips or reverses, turns only in slow gentle curves, and never changes shape or size.",
     "LIGHT": "Sunny late morning, same warm sunlight direction throughout, no flicker.",
-    "classroom": "Classroom = classroom reference: ivory walls, green chalkboard in front, light-wood desks, windows with white blinds on the LEFT wall, open sliding door at the FRONT-RIGHT.",
+    "classroom": "Classroom = the classroom in the start image: ivory walls, green chalkboard in front, light-wood desks, windows with white blinds on the LEFT wall; the sliding door at the FRONT-RIGHT is wide open from the first frame to the moment the airplane leaves.",
     "corridor": "Corridor = corridor reference, ONE single straight corridor whose design and exposure never change, the same through the door and inside: glossy light-grey floor with sunlight stripes, tall windows facing the sports field on one side, ivory wall with doors on the other, evenly lit, never blown-out white.",
-    "field": "Field = field references: light-brown dirt field with white lines, white soccer goals, green trees, ivory school building, clear blue sky. Students are always small, seen from high above or behind, no recognisable faces.",
+    "field": "Field = the field reference: the same dirt field, white lines, soccer goals in the same positions, green trees, ivory school building, clear blue sky. Students are always small, seen from high above or behind, no recognisable faces.",
     "sky": "Clear deep blue sky above the same school."
   },
   "negatives_global": [

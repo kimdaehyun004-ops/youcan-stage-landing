@@ -13,7 +13,7 @@
   ],
   "start_image": "start_frame_v2",
   "end_image": null,
-  "entry_state": "Opening frame is the start image: empty sunlit classroom seen from the back, the crisply folded white airplane resting on a window-side desk with its nose toward the open sliding door at the front-right, the evenly lit corridor visible through that door.",
+  "entry_state": "Opening frame is the start image: empty sunlit classroom seen from the back, the crisply folded white airplane resting on a window-side desk with its nose toward the wide-open sliding door at the front-right, the evenly lit corridor visible through that door.",
   "beats": [
     [
       0,
@@ -23,12 +23,12 @@
     [
       3,
       6,
-      "A breeze comes in through the open window; the airplane glides forward along the desktop as if sliding, then rides the breeze and rises smoothly, nose first, up to eye level. The classroom stays empty."
+      "A breeze comes in through the open window; the airplane glides forward along the desktop as if sliding, then rides the breeze and rises smoothly, nose first, well above the desktops to about chest-to-eye height, never close to the floor. The classroom stays empty."
     ],
     [
       6,
       10,
-      "The camera follows about one metre behind and slightly above the airplane as it glides at eye level over the desks, nose first, toward the open sliding door at the front-right; through the doorway the corridor already looks exactly like the corridor reference."
+      "The camera follows about one metre behind and slightly above the airplane as it glides well above the desks at about chest-to-eye height, nose first, toward the open sliding door at the front-right; through the doorway the corridor already looks exactly like the corridor reference."
     ],
     [
       10,
@@ -38,7 +38,7 @@
     [
       12,
       18,
-      "The airplane glides at eye level straight along the one long corridor over the glossy floor and the sunlight stripes, the camera following steadily from behind; then it curves very gently toward an open window on the window side."
+      "The airplane glides at about chest-to-eye height, well above the floor, straight along the one long corridor over the glossy floor and the sunlight stripes, the camera following steadily from behind; then it curves very gently toward an open window on the window side."
     ],
     [
       18,
@@ -62,12 +62,14 @@
     "no people indoors",
     "no close-up or recognisable faces",
     "no raised hands or cheering",
-    "no airplane flying low",
+    "no airplane skimming the floor or flying low",
+    "no door closing",
     "no second corridor",
+    "no soccer goals moving",
     "no fireworks"
   ],
   "change_request": {
-    "user_said": "SEQ1~SEQ3를 하나의 카메라가 종이비행기만 비추는 원테이크로 / 종이비행기 완전히 접힌 상태로 바람에 뜨기 / 복도는 하나의 장소로만 / 종이비행기가 낮게 날지 않기, 아이들 위로 / 학생 얼굴은 잘 안 보이게 / 마지막에 카메라 구도만 바뀌며 하늘을 향하고 밝아지는 엔딩 / 초안 먼저 컨펌 후 1080p / 2026-10-02 수정: 책상 위에서 미끄러지듯 바람을 타고 눈높이까지 / 4층 높이에서 운동장 / 하늘에서 날며 아래 학생들 작게, 축구하거나 쉬는 모습, 얼굴 알아볼 수 없는 거리 / 3층으로 변경",
+    "user_said": "SEQ1~SEQ3를 하나의 카메라가 종이비행기만 비추는 원테이크로 / 종이비행기 완전히 접힌 상태로 바람에 뜨기 / 복도는 하나의 장소로만 / 종이비행기가 낮게 날지 않기, 아이들 위로 / 학생 얼굴은 잘 안 보이게 / 마지막에 카메라 구도만 바뀌며 하늘을 향하고 밝아지는 엔딩 / 초안 먼저 컨펌 후 1080p / 2026-10-02 수정: 책상 위에서 미끄러지듯 바람을 타고 눈높이까지 / 4층 높이에서 운동장 / 하늘에서 날며 아래 학생들 작게, 축구하거나 쉬는 모습, 얼굴 알아볼 수 없는 거리 / 3층으로 변경 / 4·5번 골대 위치 다름 확인 / 1·2번 문 열림·닫힘 체크 / 꼭 눈높이 아니어도 되지만 바닥에 붙어서 날면 안 됨",
     "allowed_changes": []
   }
 }

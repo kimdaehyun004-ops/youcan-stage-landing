@@ -108,7 +108,12 @@
           "cost": 60,
           "verdict": "finalized; QA pass"
         }
-      ]
+      ],
+      "derived": {
+        "noBGM_1080p": "b7044435-f550-4074-adb3-2fa92ceceae9",
+        "music_stem_only": "577c5066-f3d4-42b6-9eff-384c2e10809f",
+        "noBGM_method": "free: MVSEP-CDX23 cinematic demixing (dialog/effects/music, --high_quality, CPU) in Higgsfield sandbox; noBGM = dialog+effects. Music stem RMS: 0-5s -71dB, 5-25s ~-38dB, 25-30s -68dB; effects -44..-32dB."
+      }
     }
   },
   "approvals": {

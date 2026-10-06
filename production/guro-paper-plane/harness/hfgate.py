@@ -88,6 +88,11 @@ def build(sid, bible=None, state=None):
         return spec, dict(spec["params"]), spec.get("prompt_note", "")
     if mode == "finalize":  # 1080p finalize of an approved 480p draft: ONLY these 4 keys (E15)
         _, dparams, dprompt = build(spec["draft_spec"], bible, state)
+        # use the prompt that was actually sent with the draft (bible locks may have changed since; E32)
+        sent = os.path.join(HERE, "build", spec["draft_spec"] + ".tool_input.json")
+        if os.path.exists(sent):
+            sp = json.load(open(sent))["params"]
+            dprompt, dparams = sp.get("prompt", dprompt), dict(dparams, duration=sp.get("duration", dparams.get("duration")))
         d = state.get("drafts", {}).get(spec["draft_spec"], {})
         params = {"model": out["model"], "draft_job_id": d.get("job") or "<DRAFT-NOT-GENERATED>",
                   "resolution": "1080p", "prompt": dprompt,

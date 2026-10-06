@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 526.0,
+    "balance": 460.0,
     "balance_checked_at": "2026-10-06T06:28Z",
     "reserve_min": 20
   },
@@ -233,13 +233,19 @@
     },
     "FIELD4": {
       "status": "generated",
-      "current_job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",
+      "current_job": "4ff0ca21-ce36-454f-9d0d-5cc66b711d73",
       "accepted_job": null,
       "note": "FIELD4.d1 09eea68c (480p 22s ext of BRIDGE2): seam 0.994 MAD 4.5; no dissolve; single near goal; white end. ISSUES: 3.6-5.4s flies over the TOP of the arch at the near-right corner (arch seen twice); 9.5-10.5 bean bags next to the parasol tables at the truck lot (school side); 11.0-12.3 paved lot with white tents next to the arch road but NO trucks (trucks vanish); 13.9-14.2 passes over the arch crossbar rather than through the middle.",
       "history": [
         {
           "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",
           "spec": "FIELD4.d1",
+          "cost": 66.0,
+          "verdict": "awaiting QA + user review"
+        },
+        {
+          "job": "4ff0ca21-ce36-454f-9d0d-5cc66b711d73",
+          "spec": "FIELD4.d2",
           "cost": 66.0,
           "verdict": "awaiting QA + user review"
         }
@@ -569,6 +575,21 @@
       "confirmed_at": "2026-10-06T06:21Z",
       "submitted_at": "2026-10-06T06:21Z",
       "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff"
+    },
+    "FIELD4.d2": {
+      "hash": "dd9dfb3fee517b5a",
+      "cost": 66.0,
+      "segment": "FIELD4",
+      "status": "spent",
+      "warnings": [
+        "L4 upstream BRIDGE2 status is 'candidate', not 'accepted' (E7: downstream built on a clip that later changed)",
+        "L10 prompt is 6733 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T06:38Z",
+      "user_quote": "B로 진행해줘 푸드트럭과 빈백 근처에 있는 일반트럭도 잘 체크해서 만들어주고 학교도 문제 없이 보여야해",
+      "confirmed_at": "2026-10-06T06:38Z",
+      "submitted_at": "2026-10-06T06:38Z",
+      "job": "4ff0ca21-ce36-454f-9d0d-5cc66b711d73"
     }
   },
   "ledger": [
@@ -709,6 +730,12 @@
       "spec": "FIELD4.d1",
       "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",
       "cost": 66.0
+    },
+    {
+      "at": "2026-10-06T06:38Z",
+      "spec": "FIELD4.d2",
+      "job": "4ff0ca21-ce36-454f-9d0d-5cc66b711d73",
+      "cost": 66.0
     }
   ],
   "drafts": {
@@ -773,6 +800,11 @@
       "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",
       "status": "awaiting_user_review",
       "at": "2026-10-06T06:21Z"
+    },
+    "FIELD4.d2": {
+      "job": "4ff0ca21-ce36-454f-9d0d-5cc66b711d73",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T06:38Z"
     }
   }
 }

@@ -156,13 +156,23 @@
       "id": "97c9777f-f584-4d77-83c2-1f5c831331ac",
       "kind": "video",
       "what": "확정본 무BGM(b7044435) 0~11.0초 잘라낸 것 — FIELD2 이어 만들기 기준 영상"
+    },
+    "corridor_v3": {
+      "id": "4d4cfc82-75fc-4d9d-bbeb-fd2d603c5815",
+      "kind": "image",
+      "what": "복도 v3: v2와 같은 복도, 창밖만 잔디 행사장 (E22) — 후보 A 선택 (아치·푸드트럭·무대 보임)"
+    },
+    "corridor_v3_b": {
+      "id": "7f8cfbd6-d1e3-450a-9d8f-040f49b08dd0",
+      "kind": "image",
+      "what": "복도 v3 후보 B"
     }
   },
   "location_refs": {
     "_rule": "A location that is VISIBLE anywhere in a segment (even through a door or window) must have its reference attached (lint L2).",
     "classroom": [],
     "corridor": [
-      "corridor"
+      "corridor_v3"
     ],
     "field": [
       "field_high"
@@ -182,7 +192,7 @@
     "corridor": "Corridor = corridor reference, ONE single straight corridor whose design and exposure never change, the same through the door and inside: glossy light-grey floor with sunlight stripes, tall windows facing the sports field on one side, ivory wall with doors on the other, evenly lit, never blown-out white.",
     "field": "Field = the field reference: the same dirt field, white lines, soccer goals in the same positions, green trees, ivory school building, clear blue sky. Students are always small, seen from high above or behind, no recognisable faces.",
     "sky": "Clear deep blue sky above the same school.",
-    "venue": "Festival ground = the two festival references, identical layout: a natural green GRASS soccer pitch with striped mowing and white lines inside a red running track; at the FAR end the festival stage with a white truss roof and white tents on both sides; four blocks of black chairs in front of the stage; a small black sound booth in the centre circle; long rows of white booth tents along both sides of the track; the green inflatable air arch standing at the track gate on the NEAR curve, not on the grass; outside the track, nearest the school, the paved lot with six colourful food trucks, white tents and yellow parasol tables; a bus and trucks on the road; red, green and orange bean bags on the lawn to the right; green trees and apartment blocks behind. Festival mood: students browse the booth tents, gather in the chair blocks and queue at the food trucks; always small, seen from above or behind, no recognisable faces."
+    "venue": "Festival ground = the two festival references, identical layout: a natural green GRASS soccer pitch with striped mowing and white lines inside a red running track; at the FAR end the festival stage with a white truss roof and white tents on both sides; four blocks of black chairs in front of the stage; a small black sound booth in the centre circle; long rows of white booth tents along both sides of the track; the green inflatable air arch standing at the track gate on the NEAR curve, not on the grass; outside the track, nearest the school, the paved lot with six colourful food trucks, white tents and yellow parasol tables; a bus and trucks on the road; red, green and orange bean bags on the lawn to the right; green trees and apartment blocks behind. The festival is busy and joyful: hundreds of students fill the ground, browsing and chatting at the booth tents, queuing and eating at the food trucks and parasol tables, lounging and laughing on the bean bags, posing for photos at the air arch, sitting together in the chair blocks and walking around in small groups; always small, seen from above or behind, no recognisable faces."
   },
   "negatives_global": [
     "no cuts or scene changes",
@@ -216,7 +226,8 @@
   },
   "segment_order": [
     "TRIM11",
-    "FIELD2"
+    "FIELD2",
+    "FIELD3"
   ],
   "segments": {
     "SEQ1": {
@@ -271,13 +282,20 @@
       "seconds": 11
     },
     "FIELD2": {
-      "title": "복도 → 오른쪽 창문 → 축제 행사장 한 바퀴 → 푸드트럭 → 빈백 → 에어 아치 → 객석 → 무대 위 상승 → 하양",
+      "title": "1부: 복도 → 오른쪽 창문 → 2층 높이로 하강 → 행사장 한 바퀴 → 학교 쪽으로 돌아옴",
       "visible": [
         "corridor",
+        "venue"
+      ],
+      "seconds": 22
+    },
+    "FIELD3": {
+      "title": "2부: 푸드트럭 → 빈백 → 에어 아치 → 객석 → 무대 위 상승 → 하양",
+      "visible": [
         "venue",
         "sky"
       ],
-      "seconds": 30
+      "seconds": 20
     }
   },
   "segment_order_legacy": [

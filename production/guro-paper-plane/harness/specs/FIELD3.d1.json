@@ -1,0 +1,64 @@
+{
+  "id": "FIELD3.d1",
+  "segment": "FIELD3",
+  "mode": "video_extension",
+  "upstream": "FIELD2",
+  "allow_candidate_upstream": true,
+  "draft": true,
+  "duration": 20,
+  "untimed_beats": true,
+  "visible": [
+    "venue",
+    "sky"
+  ],
+  "entry_state": "Seen from about two metres behind and slightly above, the airplane glides a few metres above head height along the road toward the busy food-truck lot with its colourful trucks and yellow parasol tables, the green air arch on the right of frame.",
+  "beats": [
+    [
+      0,
+      4,
+      "Continuing the reference video without any cut, the airplane glides a few metres above head height over the busy food-truck lot: students queuing at the colourful trucks and eating at the yellow parasol tables, seen from above and behind. It never climbs high."
+    ],
+    [
+      4,
+      7,
+      "It curves gently to the right and glides along the road and over the lawn with red, green and orange bean bags, where groups of students lounge, chat and laugh."
+    ],
+    [
+      7,
+      11,
+      "It turns smoothly toward the green inflatable air arch at the track gate, where students pose for photos, and flies straight through the middle of the arch; the camera passes through right behind it."
+    ],
+    [
+      11,
+      15,
+      "Inside the track it glides low across the grass pitch, past the sound booth, just above the heads of the many students sitting together in the black chair blocks, heading straight for the stage."
+    ],
+    [
+      15,
+      20,
+      "Only now does it rise: the airplane climbs smoothly over the white truss roof of the stage and keeps climbing straight up into the deep blue sky; the camera tilts up following it, the frame fills with sky and sunlight and glows to pure white."
+    ]
+  ],
+  "exit_state": "The frame is entirely bright white light.",
+  "audio": "diegetic only: lively festival ambience (many voices chatting, gentle laughter, food-truck sizzle, footsteps), paper flutter, a rising airy breeze as the light grows.",
+  "extra_negatives": [
+    "no dirt field",
+    "no soccer match",
+    "no high aerial drone view before the stage",
+    "no close-up or recognisable faces",
+    "no raised hands or cheering",
+    "no airplane skimming the ground",
+    "no change of the festival layout",
+    "no air arch on the grass",
+    "no fireworks",
+    "no stage performance"
+  ],
+  "change_request": {
+    "user_said": "원테이크로 진행 ... 이동경로 다시 검토 ... 사람들 더 풍성하게 즐기는 모습",
+    "reason": "Part 2 of the split path (storyboard F4-F8).",
+    "allowed_changes": [
+      "all"
+    ]
+  },
+  "status": "draft"
+}

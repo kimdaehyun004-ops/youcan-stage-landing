@@ -1,0 +1,20 @@
+{
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "451670b0-f45c-48e0-84d1-4a575bef0f71",
+        "role": "image_references"
+      },
+      {
+        "value": "dbb438e1-09c1-4427-a4fe-20a3c6272a0b",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "The EXACT same corridor as reference image 1: identical camera position, lens, perspective, walls, wooden sliding doors on the left, aluminium windows on the right, glossy light-grey floor with sunlight stripes, ceiling panels and exposure. Change ONLY the view through the windows on the right: from third-floor height they now look down onto the festival ground of reference image 2 - a green GRASS pitch inside a red running track, rows of white booth tents, colourful food trucks with yellow parasol tables, green trees and apartment blocks behind. No dirt field anywhere. Evenly exposed, nothing blown out, photorealistic. No people in the corridor, no readable text, no signs, no logos."
+  }
+}

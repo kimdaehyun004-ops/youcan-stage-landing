@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 938.0,
+    "balance": 866.5,
     "balance_checked_at": "2026-10-06T03:06Z",
     "reserve_min": 20
   },
@@ -124,7 +124,7 @@
     },
     "FIELD2": {
       "status": "generated",
-      "current_job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
+      "current_job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
       "accepted_job": null,
       "note": "draft FIELD2.d2 b2649913 (480p 30s): seam vs trim last frame corr 0.935 MAD 6.1; cuts 0 (max scene 0.179 @22.1s); end luma 253 (white). ISSUES: (1) ext 1-4.5s corridor windows show the OLD DIRT FIELD (corridor ref 451670b0 prompt itself says 'dirt sports field', E22); (2) after the window the plane flies at drone height (much higher than 2F), no loop around the stage end; food trucks/beanbags passed from mid height; arch pass, chairs, stage rise, white OK; layout matches venue_a (arch at gate, 4 chair blocks). Preview 0-41s: 1301828a.",
       "history": [
@@ -133,11 +133,24 @@
           "spec": "FIELD2.d2",
           "cost": 90.0,
           "verdict": "awaiting QA + user review"
+        },
+        {
+          "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
+          "spec": "FIELD2.d3",
+          "cost": 66.0,
+          "verdict": "awaiting QA + user review"
         }
       ],
       "derived": {
         "preview_full_480p": "1301828a-3361-40e5-9bfa-de8f0043069d"
       }
+    },
+    "FIELD3": {
+      "status": "planned",
+      "current_job": null,
+      "accepted_job": null,
+      "note": "",
+      "history": []
     }
   },
   "approvals": {
@@ -304,6 +317,33 @@
       "confirmed_at": "2026-10-06T03:13Z",
       "submitted_at": "2026-10-06T03:13Z",
       "job": "b2649913-cf44-443f-bc6d-40e8f5c74808"
+    },
+    "REF.corridor.v3": {
+      "hash": "95932ec22a37e971",
+      "cost": 5.5,
+      "segment": null,
+      "status": "spent",
+      "warnings": [],
+      "at": "2026-10-06T03:24Z",
+      "user_quote": "원테이크로 진행이 되어야하고 지금 문제점들 다 검토해서 교실에서 부터 날라가는 연출을 쭉 이어서 진행해줘 ... 시안부터 작업해줘",
+      "confirmed_at": "2026-10-06T03:24Z",
+      "submitted_at": "2026-10-06T03:24Z",
+      "job": "4d4cfc82-75fc-4d9d-bbeb-fd2d603c5815"
+    },
+    "FIELD2.d3": {
+      "hash": "a072aca2ddcf054b",
+      "cost": 66.0,
+      "segment": "FIELD2",
+      "status": "spent",
+      "warnings": [
+        "L8 no upstream spec on file — entry_state could not be cross-checked; verify against the upstream last frame",
+        "L10 prompt is 5759 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T03:26Z",
+      "user_quote": "원테이크로 진행이 되어야하고 ... 이동경로 부분을 다시 검토 해서 진행해줘 BGM은 제외하고 ... 시안부터 작업해줘 사람들 더 풍성하게",
+      "confirmed_at": "2026-10-06T03:26Z",
+      "submitted_at": "2026-10-06T03:27Z",
+      "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d"
     }
   },
   "ledger": [
@@ -378,6 +418,18 @@
       "spec": "FIELD2.d2",
       "job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
       "cost": 90.0
+    },
+    {
+      "at": "2026-10-06T03:24Z",
+      "spec": "REF.corridor.v3",
+      "job": "4d4cfc82-75fc-4d9d-bbeb-fd2d603c5815",
+      "cost": 5.5
+    },
+    {
+      "at": "2026-10-06T03:27Z",
+      "spec": "FIELD2.d3",
+      "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
+      "cost": 66.0
     }
   ],
   "drafts": {
@@ -402,6 +454,11 @@
       "job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
       "status": "awaiting_user_review",
       "at": "2026-10-06T03:13Z"
+    },
+    "FIELD2.d3": {
+      "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T03:27Z"
     }
   }
 }

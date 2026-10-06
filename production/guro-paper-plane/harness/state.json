@@ -3,7 +3,7 @@
   "credits": {
     "granted_total": 1600,
     "balance": 340.0,
-    "balance_checked_at": "2026-10-06T06:48Z",
+    "balance_checked_at": "2026-10-06T07:44Z",
     "reserve_min": 20
   },
   "segments": {
@@ -126,7 +126,7 @@
       "status": "generated",
       "current_job": "9fc9cbcc-d637-48dc-aaec-46b702f22440",
       "accepted_job": null,
-      "note": "draft FIELD2.d2 b2649913 (480p 30s): seam vs trim last frame corr 0.935 MAD 6.1; cuts 0 (max scene 0.179 @22.1s); end luma 253 (white). ISSUES: (1) ext 1-4.5s corridor windows show the OLD DIRT FIELD (corridor ref 451670b0 prompt itself says 'dirt sports field', E22); (2) after the window the plane flies at drone height (much higher than 2F), no loop around the stage end; food trucks/beanbags passed from mid height; arch pass, chairs, stage rise, white OK; layout matches venue_a (arch at gate, 4 chair blocks). Preview 0-41s: 1301828a. | draft FIELD2.d3r 467e7344 (480p 22s): seam corr 0.949 MAD 5.4; cuts 0 (max 0.215 @19.8s = fast continuous turn, checked at 4fps); corridor windows now show the grass festival (E22 fixed). PATH: exits right window OK, but flies HIGH (whole venue in view) for ~7s, no lap around the stage end - it crosses the near half of the pitch descending, then ends low among rich crowds near arch/bean bags/food trucks. Likely cause (inference): both venue refs are high aerial views. Preview 0-33s: 2123ca32. | FIELD2.d4 20a923fb: seam 0.938; LOW flight at 2F height along LEFT booth row toward stage OK, crosses in front of chair blocks; HIDDEN CUT at 18.17s (teleport to near-end track) -> trimmed to 0-18.17s = cae67aea (min consecutive corr after trim 0.831; window pass at 7.0s verified continuous frame by frame). Preview 0-29.2s: befc157d.",
+      "note": "draft FIELD2.d2 b2649913 (480p 30s): seam vs trim last frame corr 0.935 MAD 6.1; cuts 0 (max scene 0.179 @22.1s); end luma 253 (white). ISSUES: (1) ext 1-4.5s corridor windows show the OLD DIRT FIELD (corridor ref 451670b0 prompt itself says 'dirt sports field', E22); (2) after the window the plane flies at drone height (much higher than 2F), no loop around the stage end; food trucks/beanbags passed from mid height; arch pass, chairs, stage rise, white OK; layout matches venue_a (arch at gate, 4 chair blocks). Preview 0-41s: 1301828a. | draft FIELD2.d3r 467e7344 (480p 22s): seam corr 0.949 MAD 5.4; cuts 0 (max 0.215 @19.8s = fast continuous turn, checked at 4fps); corridor windows now show the grass festival (E22 fixed). PATH: exits right window OK, but flies HIGH (whole venue in view) for ~7s, no lap around the stage end - it crosses the near half of the pitch descending, then ends low among rich crowds near arch/bean bags/food trucks. Likely cause (inference): both venue refs are high aerial views. Preview 0-33s: 2123ca32. | FIELD2.d4 20a923fb: seam 0.938; LOW flight at 2F height along LEFT booth row toward stage OK, crosses in front of chair blocks; HIDDEN CUT at 18.17s (teleport to near-end track) -> trimmed to 0-18.17s = cae67aea (min consecutive corr after trim 0.831; window pass at 7.0s verified continuous frame by frame). Preview 0-29.2s: befc157d. | FINAL 1080p 9fc9cbcc (finalize of 20a923fb, 60cr): 1920x1080 24fps 528 frames; per-0.5s corr vs draft min 0.947 mean 0.984; same hidden cut at 18.17 -> use frames 0-435.",
       "history": [
         {
           "job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
@@ -167,7 +167,8 @@
       ],
       "derived": {
         "preview_full_480p": "1301828a-3361-40e5-9bfa-de8f0043069d"
-      }
+      },
+      "finalized": "9fc9cbcc-d637-48dc-aaec-46b702f22440"
     },
     "FIELD3": {
       "status": "generated",
@@ -213,7 +214,8 @@
           -41
         ],
         "full_draft_v2_noBGM_480p_whitefade": "5bc95689-e741-4651-b9dc-b7baef3d179b"
-      }
+      },
+      "finalized": "09bd4b59-53d8-484e-9abd-b4f7f47d77ce"
     },
     "BRIDGE": {
       "status": "rejected_qa",

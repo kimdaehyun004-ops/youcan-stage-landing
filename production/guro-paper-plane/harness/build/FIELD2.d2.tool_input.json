@@ -1,0 +1,35 @@
+{
+  "params": {
+    "model": "seedance_2_5",
+    "mode": "video_extension",
+    "duration": 30,
+    "resolution": "480p",
+    "generate_audio": true,
+    "declined_preset_id": "24bae836-2c4a-48e0-89b6-49fcc0b21612",
+    "medias": [
+      {
+        "value": "97c9777f-f584-4d77-83c2-1f5c831331ac",
+        "role": "video_references"
+      },
+      {
+        "value": "f0d9bb9a-6a14-4113-a4a5-9f0e11650b0d",
+        "role": "image_references"
+      },
+      {
+        "value": "451670b0-f45c-48e0-84d1-4a575bef0f71",
+        "role": "image_references"
+      },
+      {
+        "value": "aeaa85a4-288c-4f22-b8f5-51c83e8378c3",
+        "role": "image_references"
+      },
+      {
+        "value": "dbb438e1-09c1-4427-a4fe-20a3c6272a0b",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "ONE UNBROKEN CONTINUOUS SHOT, first frame to last: a single take with no cuts. One smooth gimbal camera keeps the airplane in view. Photorealistic live action, 16:9.\nThe airplane is the plain white dart from the airplane reference: crisply, completely folded from blank A4 (no print, no logo), long sharp nose, two flat identical swept-back wings, sharp creases, neat keel, never crumpled or half-folded. It flies nose first on one smooth continuous path, never jumps, flips or reverses, turns only in slow gentle curves, and never changes shape or size.\nSunny late morning, same warm sunlight direction throughout, no flicker.\nCorridor = corridor reference, ONE single straight corridor whose design and exposure never change, the same through the door and inside: glossy light-grey floor with sunlight stripes, tall windows facing the sports field on one side, ivory wall with doors on the other, evenly lit, never blown-out white.\nFestival ground = the two festival references, identical layout: a natural green GRASS soccer pitch with striped mowing and white lines inside a red running track; at the FAR end the festival stage with a white truss roof and white tents on both sides; four blocks of black chairs in front of the stage; a small black sound booth in the centre circle; long rows of white booth tents along both sides of the track; the green inflatable air arch standing at the track gate on the NEAR curve, not on the grass; outside the track, nearest the school, the paved lot with six colourful food trucks, white tents and yellow parasol tables; a bus and trucks on the road; red, green and orange bean bags on the lawn to the right; green trees and apartment blocks behind. Festival mood: students browse the booth tents, gather in the chair blocks and queue at the food trucks; always small, seen from above or behind, no recognisable faces.\nClear deep blue sky above the same school.\nContinue the reference video seamlessly from its very last frame as the SAME continuous shot: the first frame keeps the same camera position, the same airplane position and heading, the same location and the same light as the last frame of the reference video.\nSTART STATE: Seen from about two metres behind at chest height, the crisply folded white airplane glides nose first down the middle of the long sunlit corridor: glossy light-grey floor with sunlight stripes, ivory wall with wooden doors on the LEFT, a row of tall windows on the RIGHT showing green treetops.\nThe whole flight below is ONE unbroken take in this exact order, with natural, unhurried pacing and no fixed timing; each stage flows smoothly into the next with no cut:\n1. Continuing the reference video without any cut, the camera keeps following steadily from behind as the airplane glides on along the corridor at chest-to-eye height, well above the floor; through the tall windows on the right, below the treetops, the green grass festival ground comes into view.\n2. The airplane curves very gently to the RIGHT toward one open side window in that row, not toward the window at the far end of the corridor, and flies out sideways through it into bright open air at third-floor height; the camera follows it through the window frame.\n3. The festival ground opens up below exactly like the third-floor festival reference: the food-truck lot directly below, the green air arch at the track gate, the grass pitch and the stage at the far end. Riding the breeze, the airplane glides smoothly and gradually down from third-floor height to second-floor height (about six metres), never dropping suddenly; the camera descends with it from behind.\n4. At second-floor height the airplane flies along the LEFT side of the red track toward the far-end stage; a wide view of the whole festival: rows of white booth tents with students browsing, the chair blocks and the stage.\n5. The airplane follows a slow gentle curve around the stage-end of the track and flies back down the RIGHT side of the track, gradually descending to just above head height; the camera keeps following from behind.\n6. Just above head height the airplane glides over the colourful food trucks and the short queues of students in front of them, seen from above and behind.\n7. It glides on over the lawn with red, green and orange bean bags where students sit and rest.\n8. The airplane flies straight through the middle of the green inflatable air arch at the track gate; the camera passes through the arch right behind it.\n9. It glides across the grass pitch just above the heads of students seated in the black chair blocks, heading straight for the stage.\n10. The airplane rises smoothly over the white truss roof of the stage and climbs straight up into the deep blue sky; the camera tilts up following it, the frame fills with sky and sunlight and glows to pure white.\nFINAL FRAME: The frame is entirely bright white light.\nAudio: diegetic only: soft corridor reverb, open-air wind as it leaves the window, a lively festival ambience below (distant chatter, gentle laughter, food-truck sizzle), paper flutter, a rising airy breeze as the light grows.\nNegative: no cuts or scene changes, no jump in time, no teleporting, reversing or tail-first airplane, no airplane shape change, no extra airplanes, no text, subtitles, watermarks or logos, no flicker, no change of location design, no music, no dirt field, no soccer match, no people indoors, no close-up or recognisable faces, no raised hands or cheering, no airplane skimming the ground, no flying to the far end of the corridor, no change of the festival layout, no air arch on the grass, no fireworks, no stage performance.",
+    "extension_mode": "forward",
+    "draft": true
+  }
+}

@@ -123,8 +123,14 @@ def build(sid, bible=None, state=None):
                      "the first frame keeps the same camera position, the same airplane position and heading, "
                      "the same location and the same light as the last frame of the reference video.")
     parts.append("START STATE: " + spec["entry_state"])
-    for t0, t1, txt in spec["beats"]:
-        parts.append(f"{t0:g}-{t1:g}s: {txt}")
+    if spec.get("untimed_beats"):  # user 2026-10-06: no fixed seconds, ordered flow with natural pacing
+        parts.append("The whole flight below is ONE unbroken take in this exact order, with natural, unhurried pacing "
+                     "and no fixed timing; each stage flows smoothly into the next with no cut:")
+        for i, (_, _, txt) in enumerate(spec["beats"], 1):
+            parts.append(f"{i}. {txt}")
+    else:
+        for t0, t1, txt in spec["beats"]:
+            parts.append(f"{t0:g}-{t1:g}s: {txt}")
     parts.append("FINAL FRAME: " + spec["exit_state"])
     parts.append("Audio: " + spec["audio"])
     negs = bible["negatives_global"] + spec.get("extra_negatives", [])

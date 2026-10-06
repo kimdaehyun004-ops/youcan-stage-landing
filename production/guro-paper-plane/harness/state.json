@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 1028.0,
+    "balance": 938.0,
     "balance_checked_at": "2026-10-06T03:06Z",
     "reserve_min": 20
   },
@@ -123,11 +123,18 @@
       "history": []
     },
     "FIELD2": {
-      "status": "planned",
-      "current_job": null,
+      "status": "generated",
+      "current_job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
       "accepted_job": null,
       "note": "",
-      "history": []
+      "history": [
+        {
+          "job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
+          "spec": "FIELD2.d2",
+          "cost": 90.0,
+          "verdict": "awaiting QA + user review"
+        }
+      ]
     }
   },
   "approvals": {
@@ -279,6 +286,21 @@
         "L10 prompt is 5449 chars (long prompts dilute instructions)"
       ],
       "at": "2026-10-06T03:11Z"
+    },
+    "FIELD2.d2": {
+      "hash": "c74842b6bfa81f9e",
+      "cost": 90.0,
+      "segment": "FIELD2",
+      "status": "spent",
+      "warnings": [
+        "L8 no upstream spec on file — entry_state could not be cross-checked; verify against the upstream last frame",
+        "L10 prompt is 5625 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T03:13Z",
+      "user_quote": "30초 라는 시간은 제외시키고 진행해줘 원테이크로 가야하는 조건을 꼭 실행해줘 영상이 전체 자연스럽게 가야하고",
+      "confirmed_at": "2026-10-06T03:13Z",
+      "submitted_at": "2026-10-06T03:13Z",
+      "job": "b2649913-cf44-443f-bc6d-40e8f5c74808"
     }
   },
   "ledger": [
@@ -347,6 +369,12 @@
       "spec": "REF.venue_3F.v2",
       "job": "c599ae38-3777-4a78-90e9-2139083723cf",
       "cost": 5.5
+    },
+    {
+      "at": "2026-10-06T03:13Z",
+      "spec": "FIELD2.d2",
+      "job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
+      "cost": 90.0
     }
   ],
   "drafts": {
@@ -366,6 +394,11 @@
       "at": "2026-10-02T14:24Z",
       "user_quote": "3차로 확정 지어줘",
       "ok_at": "2026-10-02T14:35Z"
+    },
+    "FIELD2.d2": {
+      "job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T03:13Z"
     }
   }
 }

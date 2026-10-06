@@ -106,6 +106,16 @@
       "id": "2d18a217-d660-4383-bd9d-1898d7f72490",
       "kind": "image",
       "what": "운동장 E: 2층 창문 높이 부감"
+    },
+    "sketch_top": {
+      "id": "1bb66a52-380f-4dff-bcaf-f5b48dca1f39",
+      "kind": "image",
+      "what": "사용자 스케치업 1 (탑뷰, 1520x865) — 아래쪽=푸드트럭=학교쪽, 위쪽=무대"
+    },
+    "sketch_render": {
+      "id": "eb616d66-300c-438e-92ec-a09694e05d03",
+      "kind": "image",
+      "what": "사용자 스케치업 2 렌더 (1920x1080) 투명배경→흰배경 평탄화본. 원본 38f04e49"
     }
   },
   "location_refs": {

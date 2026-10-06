@@ -1,0 +1,30 @@
+{
+  "id": "REF.venue_3F.v2",
+  "mode": "raw",
+  "segment": null,
+  "_note": "v1 used only the SketchUp images -> layout differed from chosen overview venue_a (E20). v2 uses venue_a as the master reference: same place, only the camera position changes.",
+  "change_request": {
+    "user_said": "행사장 전경 후보 1번인데 3층 창밖도 행사장 전경이랑 똑같아야 하는데 달라졌어",
+    "allowed_changes": [
+      "field"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "aeaa85a4-288c-4f22-b8f5-51c83e8378c3",
+        "role": "image_references"
+      },
+      {
+        "value": "1bb66a52-380f-4dff-bcaf-f5b48dca1f39",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "The EXACT same place as reference image 1 (aerial photo of the festival ground): keep every object in identical position, number, size and colour; only the camera moves. Reference image 2 is the top-view layout. New camera: just outside a third-floor corridor window of the school (about 9 m high), the school stands just beyond the bottom-left paved food-truck lot of reference image 1, looking up the long axis of the pitch toward the far-end stage. Edge of the ivory school wall and window frame at the very left of frame. Must match reference image 1 exactly: nearest to the camera the paved lot with the six food trucks in the same order (white, teal, red, yellow, blue, orange), white tents at both ends and the grid of yellow parasol tables; the road loop; on the road to the right the same four vehicles (dark truck, white bus, white box truck, dark truck); red, green and orange bean bags on the lawn to the right; the green inflatable air arch standing at the track gate on the NEAR curve, between the road and the red track, NOT on the grass pitch; the grass pitch with striped mowing, white lines and a goal at the near end; the small black sound booth in the centre circle; FOUR blocks of black chairs in front of the stage (a small block, two large blocks, a small block); the stage with a white truss roof at the far end, white tents on both sides; long rows of white booth tents along both sides of the track and small tent clusters on both near curves; grey stepped terraces around the far curve; green trees around and apartment blocks behind. Clear late-morning sun, same light as reference image 1. Photorealistic. No readable text, no signs, no logos. A few small people walking, faces not recognisable."
+  }
+}

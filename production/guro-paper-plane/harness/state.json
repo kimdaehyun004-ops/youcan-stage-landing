@@ -2,8 +2,8 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 706.0,
-    "balance_checked_at": "2026-10-06T04:38Z",
+    "balance": 628.0,
+    "balance_checked_at": "2026-10-06T05:55Z",
     "reserve_min": 20
   },
   "segments": {
@@ -165,13 +165,19 @@
     },
     "FIELD3": {
       "status": "generated",
-      "current_job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
+      "current_job": "b2a207cd-eda8-419f-959b-34730f929c33",
       "accepted_job": null,
-      "note": "FIELD3.d2 89b8b2a1 (480p 26s): seam vs FIELD2 trim end corr 0.885 MAD 15.5; low consecutive-corr points 11.17/14.17/18.9-19.0/23.17 all checked frame by frame = continuous (19.0 = flying through the green arch fills the frame). PATH OK: finishes far-end curve past terraces -> back along RIGHT booth row -> food trucks (6, parasols) -> bean bags -> through the arch -> across pitch past sound booth and chair blocks -> over stage roof -> sky -> sun glow (end luma 244.5, near white). Crowds rich. Full draft = TRIM11 0-11 + FIELD2 trim 0-18.17 + FIELD3 0-26 = 55.2s.",
+      "note": "FIELD3.d2 89b8b2a1 (480p 26s): seam vs FIELD2 trim end corr 0.885 MAD 15.5; low consecutive-corr points 11.17/14.17/18.9-19.0/23.17 all checked frame by frame = continuous (19.0 = flying through the green arch fills the frame). PATH OK: finishes far-end curve past terraces -> back along RIGHT booth row -> food trucks (6, parasols) -> bean bags -> through the arch -> across pitch past sound booth and chair blocks -> over stage roof -> sky -> sun glow (end luma 244.5, near white). Crowds rich. Full draft = TRIM11 0-11 + FIELD2 trim 0-18.17 + FIELD3 0-26 = 55.2s. | FIELD3.d3 b2a207cd (480p 26s, venue_v2): seam 0.881 MAD 15.8; min consecutive corr 0.537 (24.8 = rise into white). FIXED: no 180-degree look-back, trucks seen once (row of 6, flown along), arch approached along the bus road, ending reaches white without purple (end luma 246). STILL WRONG: (a) 2.1-2.8s (overall ~31.3-32.0) DISSOLVE/morph - terraces fade into the right booth row (ghost tents) = hidden transition; (b) 12.7-15.0s (overall ~41.9-44.2) bean bags again on the SCHOOL side of the bus road (vehicles between bean bags and track); (c) 18.7-19.5s (overall ~47.9-48.7) two goals again.",
       "history": [
         {
           "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
           "spec": "FIELD3.d2",
+          "cost": 78.0,
+          "verdict": "awaiting QA + user review"
+        },
+        {
+          "job": "b2a207cd-eda8-419f-959b-34730f929c33",
+          "spec": "FIELD3.d3",
           "cost": 78.0,
           "verdict": "awaiting QA + user review"
         }
@@ -463,12 +469,16 @@
       "hash": "7d6fcd80b80b1fbd",
       "cost": 78.0,
       "segment": "FIELD3",
-      "status": "awaiting_user",
+      "status": "spent",
       "warnings": [
         "L4 upstream FIELD2 status is 'generated', not 'accepted' (E7: downstream built on a clip that later changed)",
         "L10 prompt is 5737 chars (long prompts dilute instructions)"
       ],
-      "at": "2026-10-06T05:28Z"
+      "at": "2026-10-06T05:28Z",
+      "user_quote": "후보B로해서 진행",
+      "confirmed_at": "2026-10-06T05:30Z",
+      "submitted_at": "2026-10-06T05:31Z",
+      "job": "b2a207cd-eda8-419f-959b-34730f929c33"
     }
   },
   "ledger": [
@@ -585,6 +595,12 @@
       "spec": "REF.venue.v2",
       "job": "bd619a97-9b3c-4d89-820e-3296ba42861e",
       "cost": 5.5
+    },
+    {
+      "at": "2026-10-06T05:31Z",
+      "spec": "FIELD3.d3",
+      "job": "b2a207cd-eda8-419f-959b-34730f929c33",
+      "cost": 78.0
     }
   ],
   "drafts": {
@@ -629,6 +645,11 @@
       "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
       "status": "awaiting_user_review",
       "at": "2026-10-06T04:28Z"
+    },
+    "FIELD3.d3": {
+      "job": "b2a207cd-eda8-419f-959b-34730f929c33",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T05:31Z"
     }
   }
 }

@@ -2,8 +2,8 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 628.0,
-    "balance_checked_at": "2026-10-06T05:55Z",
+    "balance": 616.0,
+    "balance_checked_at": "2026-10-06T06:12Z",
     "reserve_min": 20
   },
   "segments": {
@@ -204,11 +204,18 @@
       }
     },
     "BRIDGE": {
-      "status": "planned",
-      "current_job": null,
+      "status": "rejected_qa",
+      "current_job": "f8053a63-2342-47eb-b847-a871d378b45c",
       "accepted_job": null,
-      "note": "",
-      "history": []
+      "note": "BRIDGE.d1 f8053a63 (4s, start+end image): HARD CUT at 1.38s (consecutive corr 0.32): far-right terraces -> near end with the arch beside the right booth row (wrong place). seam1 0.827, end vs p2 frame77 0.81. Rejected by QA (E29 = E4 repeated).",
+      "history": [
+        {
+          "job": "f8053a63-2342-47eb-b847-a871d378b45c",
+          "spec": "BRIDGE.d1",
+          "cost": 12.0,
+          "verdict": "awaiting QA + user review"
+        }
+      ]
     }
   },
   "approvals": {
@@ -492,11 +499,15 @@
       "hash": "ac808427f80709ff",
       "cost": 12.0,
       "segment": "BRIDGE",
-      "status": "awaiting_user",
+      "status": "spent",
       "warnings": [
         "L10 prompt is 3511 chars (long prompts dilute instructions)"
       ],
-      "at": "2026-10-06T06:07Z"
+      "at": "2026-10-06T06:07Z",
+      "user_quote": "진행해줘",
+      "confirmed_at": "2026-10-06T06:08Z",
+      "submitted_at": "2026-10-06T06:09Z",
+      "job": "f8053a63-2342-47eb-b847-a871d378b45c"
     }
   },
   "ledger": [
@@ -619,6 +630,12 @@
       "spec": "FIELD3.d3",
       "job": "b2a207cd-eda8-419f-959b-34730f929c33",
       "cost": 78.0
+    },
+    {
+      "at": "2026-10-06T06:09Z",
+      "spec": "BRIDGE.d1",
+      "job": "f8053a63-2342-47eb-b847-a871d378b45c",
+      "cost": 12.0
     }
   ],
   "drafts": {
@@ -668,6 +685,11 @@
       "job": "b2a207cd-eda8-419f-959b-34730f929c33",
       "status": "awaiting_user_review",
       "at": "2026-10-06T05:31Z"
+    },
+    "BRIDGE.d1": {
+      "job": "f8053a63-2342-47eb-b847-a871d378b45c",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T06:09Z"
     }
   }
 }

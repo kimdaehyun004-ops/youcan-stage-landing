@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 866.5,
+    "balance": 795.0,
     "balance_checked_at": "2026-10-06T03:32Z",
     "reserve_min": 20
   },
@@ -124,7 +124,7 @@
     },
     "FIELD2": {
       "status": "generated",
-      "current_job": "467e7344-7cf4-4b6e-b343-5c346ac89855",
+      "current_job": "20a923fb-edbe-45db-93aa-7541a1e82dc8",
       "accepted_job": null,
       "note": "draft FIELD2.d2 b2649913 (480p 30s): seam vs trim last frame corr 0.935 MAD 6.1; cuts 0 (max scene 0.179 @22.1s); end luma 253 (white). ISSUES: (1) ext 1-4.5s corridor windows show the OLD DIRT FIELD (corridor ref 451670b0 prompt itself says 'dirt sports field', E22); (2) after the window the plane flies at drone height (much higher than 2F), no loop around the stage end; food trucks/beanbags passed from mid height; arch pass, chairs, stage rise, white OK; layout matches venue_a (arch at gate, 4 chair blocks). Preview 0-41s: 1301828a. | draft FIELD2.d3r 467e7344 (480p 22s): seam corr 0.949 MAD 5.4; cuts 0 (max 0.215 @19.8s = fast continuous turn, checked at 4fps); corridor windows now show the grass festival (E22 fixed). PATH: exits right window OK, but flies HIGH (whole venue in view) for ~7s, no lap around the stage end - it crosses the near half of the pitch descending, then ends low among rich crowds near arch/bean bags/food trucks. Likely cause (inference): both venue refs are high aerial views. Preview 0-33s: 2123ca32.",
       "history": [
@@ -143,6 +143,12 @@
         {
           "job": "467e7344-7cf4-4b6e-b343-5c346ac89855",
           "spec": "FIELD2.d3r",
+          "cost": 66.0,
+          "verdict": "awaiting QA + user review"
+        },
+        {
+          "job": "20a923fb-edbe-45db-93aa-7541a1e82dc8",
+          "spec": "FIELD2.d4",
           "cost": 66.0,
           "verdict": "awaiting QA + user review"
         }
@@ -366,6 +372,33 @@
       "confirmed_at": "2026-10-06T03:32Z",
       "submitted_at": "2026-10-06T03:32Z",
       "job": "467e7344-7cf4-4b6e-b343-5c346ac89855"
+    },
+    "REF.venue_low.v1": {
+      "hash": "e094e8e959caf1f7",
+      "cost": 5.5,
+      "segment": null,
+      "status": "spent",
+      "warnings": [],
+      "at": "2026-10-06T03:49Z",
+      "user_quote": "B로 진행해줘",
+      "confirmed_at": "2026-10-06T03:49Z",
+      "submitted_at": "2026-10-06T03:49Z",
+      "job": "99d631a1-6cb4-4519-b1f9-124c29f23da1"
+    },
+    "FIELD2.d4": {
+      "hash": "5cc1ba0fc0d3b965",
+      "cost": 66.0,
+      "segment": "FIELD2",
+      "status": "spent",
+      "warnings": [
+        "L8 no upstream spec on file — entry_state could not be cross-checked; verify against the upstream last frame",
+        "L10 prompt is 5982 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T03:52Z",
+      "user_quote": "B로 진행해줘",
+      "confirmed_at": "2026-10-06T03:52Z",
+      "submitted_at": "2026-10-06T03:52Z",
+      "job": "20a923fb-edbe-45db-93aa-7541a1e82dc8"
     }
   },
   "ledger": [
@@ -458,6 +491,18 @@
       "spec": "FIELD2.d3r",
       "job": "467e7344-7cf4-4b6e-b343-5c346ac89855",
       "cost": 66.0
+    },
+    {
+      "at": "2026-10-06T03:49Z",
+      "spec": "REF.venue_low.v1",
+      "job": "99d631a1-6cb4-4519-b1f9-124c29f23da1",
+      "cost": 5.5
+    },
+    {
+      "at": "2026-10-06T03:52Z",
+      "spec": "FIELD2.d4",
+      "job": "20a923fb-edbe-45db-93aa-7541a1e82dc8",
+      "cost": 66.0
     }
   ],
   "drafts": {
@@ -492,6 +537,11 @@
       "job": "467e7344-7cf4-4b6e-b343-5c346ac89855",
       "status": "awaiting_user_review",
       "at": "2026-10-06T03:32Z"
+    },
+    "FIELD2.d4": {
+      "job": "20a923fb-edbe-45db-93aa-7541a1e82dc8",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T03:52Z"
     }
   }
 }

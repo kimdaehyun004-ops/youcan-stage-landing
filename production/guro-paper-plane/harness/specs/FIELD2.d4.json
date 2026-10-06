@@ -1,0 +1,74 @@
+{
+  "id": "FIELD2.d4",
+  "segment": "FIELD2",
+  "supersedes": "FIELD2.d3",
+  "mode": "video_extension",
+  "upstream": "TRIM11",
+  "draft": true,
+  "duration": 22,
+  "untimed_beats": true,
+  "visible": [
+    "corridor",
+    "venue"
+  ],
+  "entry_state": "Seen from about two metres behind at chest height, the crisply folded white airplane glides nose first down the middle of the long sunlit corridor: glossy light-grey floor with sunlight stripes, ivory wall with wooden doors on the LEFT, a row of tall windows on the RIGHT.",
+  "beats": [
+    [
+      0,
+      3,
+      "Continuing the reference video without any cut, the camera keeps following steadily from behind as the airplane glides on along the corridor at chest-to-eye height; through the tall windows on the right the green grass festival ground is visible below, exactly as in the corridor reference."
+    ],
+    [
+      3,
+      6,
+      "The airplane curves very gently to the RIGHT toward one open side window in that row, not toward the window at the far end of the corridor, and flies out sideways through it into bright open air at third-floor height; the camera follows it through the window frame."
+    ],
+    [
+      6,
+      10,
+      "The festival ground opens up just below, with the same layout as the festival references: the busy food-truck lot right underneath, the green air arch at the track gate, the grass pitch and the stage at the far end. Riding the breeze, the airplane glides smoothly and gradually DOWN to second-floor height, about six metres above the ground, just above the tops of the booth tents; never a sudden drop. After leaving the window the airplane only glides DOWNWARD and never climbs again until the very end over the stage; it never flies higher than the third-floor window it came out of. The camera stays close, about two metres behind the airplane, and never pulls up into a high aerial or drone view. From here on the height and the look of the view match the low festival reference: camera about six metres up, horizon high in the frame, the rows of booth tents close below."
+    ],
+    [
+      10,
+      14,
+      "At that low second-floor height the airplane flies one lap around the festival ground: first along the LEFT long side of the red track, over the row of white booth tents crowded with students, toward the stage at the far end, exactly the view of the low festival reference."
+    ],
+    [
+      14,
+      18,
+      "It curves slowly around the far end, passing in front of the grey terraces and beside the stage, then flies back along the RIGHT long side of the track over the other row of booth tents toward the school, gradually descending a little more."
+    ],
+    [
+      18,
+      22,
+      "Back at the near end it curves gently around the near-right corner of the track and heads LEFT along the road toward the food-truck lot, now just a few metres above the students' heads."
+    ]
+  ],
+  "exit_state": "Seen from about two metres behind and slightly above, the airplane glides a few metres above head height along the road toward the busy food-truck lot with its colourful trucks and yellow parasol tables, the green air arch on the right of frame.",
+  "audio": "diegetic only: soft corridor reverb, open-air wind as it leaves the window, a lively festival ambience below (many voices chatting, gentle laughter, footsteps), paper flutter.",
+  "extra_negatives": [
+    "no dirt field",
+    "no soccer match",
+    "no high aerial drone view",
+    "no airplane climbing after the window",
+    "no people indoors",
+    "no close-up or recognisable faces",
+    "no raised hands or cheering",
+    "no airplane skimming the ground",
+    "no flying to the far end of the corridor",
+    "no change of the festival layout",
+    "no air arch on the grass",
+    "no fireworks",
+    "no stage performance"
+  ],
+  "change_request": {
+    "user_said": "B로 진행해줘",
+    "reason": "E24: d3r flew high and skipped the lap. New low (2F) venue ref replaces the high 3F view ref; beats 2-3 point to it. Everything else word-for-word from d3.",
+    "allowed_changes": [
+      "beats[2]",
+      "beats[3]",
+      "venue refs"
+    ]
+  },
+  "status": "draft"
+}

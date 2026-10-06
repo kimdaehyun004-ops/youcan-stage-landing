@@ -166,6 +166,16 @@
       "id": "7f8cfbd6-d1e3-450a-9d8f-040f49b08dd0",
       "kind": "image",
       "what": "복도 v3 후보 B"
+    },
+    "venue_low": {
+      "id": "99d631a1-6cb4-4519-b1f9-124c29f23da1",
+      "kind": "image",
+      "what": "행사장 2층 높이(약 6m) 시점: 트랙 왼쪽 위에서 무대 방향 — REF.venue_low.v1 후보 A (E24)"
+    },
+    "venue_low_b": {
+      "id": "727f7a5c-5709-4e14-9b82-617b44b2ae20",
+      "kind": "image",
+      "what": "REF.venue_low.v1 후보 B"
     }
   },
   "location_refs": {
@@ -180,9 +190,10 @@
     "sky": [],
     "_why_2026_10_02": "classroom_back removed: it shows the front-right door CLOSED while the start image shows it OPEN (user found the conflict). The start image (made from classroom_back) now carries the classroom. field_low removed: its soccer goal sits in front of the school entrance, while field_high (the view the airplane actually sees) has the goals elsewhere (user found the conflict); field_low's ground-level view never appears in ONE.",
     "venue": [
-      "venue_a",
-      "venue3f"
-    ]
+      "venue_low",
+      "venue_a"
+    ],
+    "_why_2026_10_06": "venue3f dropped from video refs: high aerial look pulled the flight too high (E24). corridor_v3 already shows the 3F window view; venue_a kept as the layout master; venue_low sets the flight height."
   },
   "locks": {
     "STYLE": "ONE UNBROKEN CONTINUOUS SHOT, first frame to last: a single take with no cuts. One smooth gimbal camera keeps the airplane in view. Photorealistic live action, 16:9.",

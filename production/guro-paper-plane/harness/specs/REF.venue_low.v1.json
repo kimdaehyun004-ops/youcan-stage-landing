@@ -1,0 +1,30 @@
+{
+  "id": "REF.venue_low.v1",
+  "mode": "raw",
+  "segment": null,
+  "_note": "E24: both venue refs are high aerial views -> video flies too high. This ref shows the flight height (2nd floor, ~6 m) on the lap.",
+  "change_request": {
+    "user_said": "B로 진행해줘 (2층 높이 시점 행사장 기준 이미지 → 1부 재생성 → 2부)",
+    "allowed_changes": [
+      "new ref"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "aeaa85a4-288c-4f22-b8f5-51c83e8378c3",
+        "role": "image_references"
+      },
+      {
+        "value": "dbb438e1-09c1-4427-a4fe-20a3c6272a0b",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "The SAME festival ground as reference image 1 (identical layout, objects and colours), now photographed from LOW: a camera only about six metres above the ground (second-floor height, just above the tops of the white booth tents), flying above the LEFT side of the red running track and looking forward along the track toward the festival stage with the white truss roof at the far end. Close below on the left, the long row of white peak-roof booth tents crowded with students browsing and chatting; on the right the green striped grass pitch with white lines, the small black sound booth and the four blocks of black chairs in front of the stage, many students sitting there; grey terraces around the far curve, green trees and apartment blocks behind. The horizon is high in the frame, the stage is seen from the side at a low angle, NOT a high aerial view. Busy, joyful school festival, hundreds of students, all small and seen from above or behind, no recognisable faces. Clear late-morning sun, same light as reference image 1. Photorealistic. No readable text, no signs, no logos."
+  }
+}

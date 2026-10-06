@@ -264,7 +264,7 @@
     "TRIM11",
     "FIELD2",
     "BRIDGE2",
-    "FIELD3"
+    "FIELD4"
   ],
   "segments": {
     "SEQ1": {
@@ -347,6 +347,14 @@
         "venue"
       ],
       "seconds": 8
+    },
+    "FIELD4": {
+      "title": "BRIDGE2 끝에서 이어 만들기: 오른쪽 부스 줄 끝 → 푸드트럭 → 빈백 → 아치 → 골대 위 → 객석 → 무대 → 하양",
+      "visible": [
+        "venue",
+        "sky"
+      ],
+      "seconds": 22
     }
   },
   "segment_order_legacy": [

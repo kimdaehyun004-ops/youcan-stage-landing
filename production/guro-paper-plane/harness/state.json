@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 592.0,
+    "balance": 526.0,
     "balance_checked_at": "2026-10-06T06:19Z",
     "reserve_min": 20
   },
@@ -218,7 +218,7 @@
       ]
     },
     "BRIDGE2": {
-      "status": "generated",
+      "status": "candidate",
       "current_job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342",
       "accepted_job": null,
       "note": "BRIDGE2.d1 7fd1ebe6 (480p 8s ext of cae67aea): seam 0.923 MAD 13.8; no cuts (lowest consecutive 0.655 = curve pan); path far-right terraces -> right booth row toward school, arch+school far. Splice into FIELD3.d3: best pair b7.29s/p2 5.71s corr only 0.450 (different height/angle) -> not spliced (would read as a dissolve). Awaiting user choice (new remainder from bridge end vs crossfade vs keep v2).",
@@ -227,6 +227,20 @@
           "job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342",
           "spec": "BRIDGE2.d1",
           "cost": 24.0,
+          "verdict": "awaiting QA + user review"
+        }
+      ]
+    },
+    "FIELD4": {
+      "status": "generated",
+      "current_job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",
+      "accepted_job": null,
+      "note": "",
+      "history": [
+        {
+          "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",
+          "spec": "FIELD4.d1",
+          "cost": 66.0,
           "verdict": "awaiting QA + user review"
         }
       ]
@@ -537,6 +551,21 @@
       "confirmed_at": "2026-10-06T06:15Z",
       "submitted_at": "2026-10-06T06:15Z",
       "job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342"
+    },
+    "FIELD4.d1": {
+      "hash": "b7bf7aacb022e449",
+      "cost": 66.0,
+      "segment": "FIELD4",
+      "status": "spent",
+      "warnings": [
+        "L4 upstream BRIDGE2 status is 'candidate', not 'accepted' (E7: downstream built on a clip that later changed)",
+        "L10 prompt is 5692 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T06:21Z",
+      "user_quote": "A로 진행",
+      "confirmed_at": "2026-10-06T06:21Z",
+      "submitted_at": "2026-10-06T06:21Z",
+      "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff"
     }
   },
   "ledger": [
@@ -671,6 +700,12 @@
       "spec": "BRIDGE2.d1",
       "job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342",
       "cost": 24.0
+    },
+    {
+      "at": "2026-10-06T06:21Z",
+      "spec": "FIELD4.d1",
+      "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",
+      "cost": 66.0
     }
   ],
   "drafts": {
@@ -730,6 +765,11 @@
       "job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342",
       "status": "awaiting_user_review",
       "at": "2026-10-06T06:15Z"
+    },
+    "FIELD4.d1": {
+      "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T06:21Z"
     }
   }
 }

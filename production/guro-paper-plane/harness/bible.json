@@ -176,6 +176,11 @@
       "id": "727f7a5c-5709-4e14-9b82-617b44b2ae20",
       "kind": "image",
       "what": "REF.venue_low.v1 후보 B"
+    },
+    "field2_d4_trim": {
+      "id": "cae67aea-3665-4477-b6a8-6f1f00726205",
+      "kind": "video",
+      "what": "FIELD2.d4(20a923fb) 0~18.17초(436프레임) — 18.17초 숨은 컷 앞에서 자름 (E25)"
     }
   },
   "location_refs": {
@@ -306,7 +311,7 @@
         "venue",
         "sky"
       ],
-      "seconds": 20
+      "seconds": 26
     }
   },
   "segment_order_legacy": [

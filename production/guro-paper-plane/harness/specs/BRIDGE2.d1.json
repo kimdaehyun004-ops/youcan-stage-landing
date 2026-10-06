@@ -1,0 +1,44 @@
+{
+  "id": "BRIDGE2.d1",
+  "segment": "BRIDGE2",
+  "mode": "video_extension",
+  "upstream": "FIELD2",
+  "allow_candidate_upstream": true,
+  "draft": true,
+  "duration": 8,
+  "untimed_beats": true,
+  "visible": [
+    "venue"
+  ],
+  "entry_state": "About five metres up at the far end of the grass pitch, seen from just behind, the white airplane glides to the right over the crowded black chair blocks in front of the stage, toward the row of white booth tents on the right long side of the red track.",
+  "beats": [
+    [
+      0,
+      4,
+      "Continuing the reference video without any cut, at the same low height, the airplane finishes its slow curve to the right around the far end of the track, passing the white booth tents at the far-right corner with the grey terraces behind them. The camera stays about two metres behind it."
+    ],
+    [
+      4,
+      8,
+      "It straightens out and glides along the RIGHT long side of the red track, beside and slightly above the long row of white booth tents full of students browsing and chatting, heading toward the school end, the grass pitch on its left."
+    ]
+  ],
+  "exit_state": "Seen from just behind and slightly above, the airplane glides along the right long side of the red track beside the row of white booth tents full of students, heading toward the school end.",
+  "audio": "diegetic only: lively festival ambience (many voices chatting, gentle laughter, footsteps), paper flutter, light breeze.",
+  "extra_negatives": [
+    "no dissolve or crossfade",
+    "no transparent or ghosted objects",
+    "no jumping to another place",
+    "no close-up or recognisable faces",
+    "no change of the festival layout",
+    "no high aerial drone view"
+  ],
+  "change_request": {
+    "user_said": "A로 진행해줘",
+    "reason": "E29: replace FIELD3.d3 0-3.25s (dissolve) with a forward extension from part 1 and splice into FIELD3.d3 at the best-matching right-booth-row frame.",
+    "allowed_changes": [
+      "all (new segment)"
+    ]
+  },
+  "status": "draft"
+}

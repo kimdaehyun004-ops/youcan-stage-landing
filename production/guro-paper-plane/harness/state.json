@@ -2,8 +2,8 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 616.0,
-    "balance_checked_at": "2026-10-06T06:12Z",
+    "balance": 592.0,
+    "balance_checked_at": "2026-10-06T06:19Z",
     "reserve_min": 20
   },
   "segments": {
@@ -213,6 +213,20 @@
           "job": "f8053a63-2342-47eb-b847-a871d378b45c",
           "spec": "BRIDGE.d1",
           "cost": 12.0,
+          "verdict": "awaiting QA + user review"
+        }
+      ]
+    },
+    "BRIDGE2": {
+      "status": "generated",
+      "current_job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342",
+      "accepted_job": null,
+      "note": "BRIDGE2.d1 7fd1ebe6 (480p 8s ext of cae67aea): seam 0.923 MAD 13.8; no cuts (lowest consecutive 0.655 = curve pan); path far-right terraces -> right booth row toward school, arch+school far. Splice into FIELD3.d3: best pair b7.29s/p2 5.71s corr only 0.450 (different height/angle) -> not spliced (would read as a dissolve). Awaiting user choice (new remainder from bridge end vs crossfade vs keep v2).",
+      "history": [
+        {
+          "job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342",
+          "spec": "BRIDGE2.d1",
+          "cost": 24.0,
           "verdict": "awaiting QA + user review"
         }
       ]
@@ -508,6 +522,21 @@
       "confirmed_at": "2026-10-06T06:08Z",
       "submitted_at": "2026-10-06T06:09Z",
       "job": "f8053a63-2342-47eb-b847-a871d378b45c"
+    },
+    "BRIDGE2.d1": {
+      "hash": "dc8d5089d4fc4635",
+      "cost": 24.0,
+      "segment": "BRIDGE2",
+      "status": "spent",
+      "warnings": [
+        "L4 upstream FIELD2 status is 'generated', not 'accepted' (E7: downstream built on a clip that later changed)",
+        "L10 prompt is 4204 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T06:15Z",
+      "user_quote": "A로 진행해줘",
+      "confirmed_at": "2026-10-06T06:15Z",
+      "submitted_at": "2026-10-06T06:15Z",
+      "job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342"
     }
   },
   "ledger": [
@@ -636,6 +665,12 @@
       "spec": "BRIDGE.d1",
       "job": "f8053a63-2342-47eb-b847-a871d378b45c",
       "cost": 12.0
+    },
+    {
+      "at": "2026-10-06T06:15Z",
+      "spec": "BRIDGE2.d1",
+      "job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342",
+      "cost": 24.0
     }
   ],
   "drafts": {
@@ -690,6 +725,11 @@
       "job": "f8053a63-2342-47eb-b847-a871d378b45c",
       "status": "awaiting_user_review",
       "at": "2026-10-06T06:09Z"
+    },
+    "BRIDGE2.d1": {
+      "job": "7fd1ebe6-1a69-4043-b29a-b1bd7b579342",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T06:15Z"
     }
   }
 }

@@ -263,6 +263,7 @@
   "segment_order": [
     "TRIM11",
     "FIELD2",
+    "BRIDGE2",
     "FIELD3"
   ],
   "segments": {
@@ -339,6 +340,13 @@
         "venue"
       ],
       "seconds": 4
+    },
+    "BRIDGE2": {
+      "title": "디졸브 대체: 1부 끝에서 이어 만들기 8초 (먼 쪽 오른 곡선 → 오른쪽 부스 줄)",
+      "visible": [
+        "venue"
+      ],
+      "seconds": 8
     }
   },
   "segment_order_legacy": [

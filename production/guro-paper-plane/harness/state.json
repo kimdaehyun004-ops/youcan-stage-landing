@@ -175,7 +175,26 @@
           "cost": 78.0,
           "verdict": "awaiting QA + user review"
         }
-      ]
+      ],
+      "derived": {
+        "full_draft_noBGM_480p": "67927f18-c5bb-487a-9654-b592fdc86668",
+        "full_draft_music_stem": "11946f1c-99de-4640-9fef-c201a328de68",
+        "assembly": "TRIM11(97c9777f 0-11s) + FIELD2 trim(cae67aea 0-18.17s) + FIELD3(89b8b2a1 0-26s), 854x480 24fps, 55.17s; noBGM = CDX23 dialog+effects",
+        "music_rms_db_per_5s": [
+          -78,
+          -72,
+          -55,
+          -61,
+          -44,
+          -32,
+          -29,
+          -29,
+          -36,
+          -30,
+          -29,
+          -41
+        ]
+      }
     }
   },
   "approvals": {

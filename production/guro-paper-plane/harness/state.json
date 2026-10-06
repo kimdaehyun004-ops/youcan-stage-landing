@@ -2,8 +2,8 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 795.0,
-    "balance_checked_at": "2026-10-06T03:32Z",
+    "balance": 711.5,
+    "balance_checked_at": "2026-10-06T04:38Z",
     "reserve_min": 20
   },
   "segments": {
@@ -164,11 +164,18 @@
       }
     },
     "FIELD3": {
-      "status": "planned",
-      "current_job": null,
+      "status": "generated",
+      "current_job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
       "accepted_job": null,
-      "note": "",
-      "history": []
+      "note": "FIELD3.d2 89b8b2a1 (480p 26s): seam vs FIELD2 trim end corr 0.885 MAD 15.5; low consecutive-corr points 11.17/14.17/18.9-19.0/23.17 all checked frame by frame = continuous (19.0 = flying through the green arch fills the frame). PATH OK: finishes far-end curve past terraces -> back along RIGHT booth row -> food trucks (6, parasols) -> bean bags -> through the arch -> across pitch past sound booth and chair blocks -> over stage roof -> sky -> sun glow (end luma 244.5, near white). Crowds rich. Full draft = TRIM11 0-11 + FIELD2 trim 0-18.17 + FIELD3 0-26 = 55.2s.",
+      "history": [
+        {
+          "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
+          "spec": "FIELD3.d2",
+          "cost": 78.0,
+          "verdict": "awaiting QA + user review"
+        }
+      ]
     }
   },
   "approvals": {
@@ -410,12 +417,16 @@
       "hash": "eb769d9ada4ddf34",
       "cost": 78.0,
       "segment": "FIELD3",
-      "status": "awaiting_user",
+      "status": "spent",
       "warnings": [
         "L4 upstream FIELD2 status is 'generated', not 'accepted' (E7: downstream built on a clip that later changed)",
         "L10 prompt is 4625 chars (long prompts dilute instructions)"
       ],
-      "at": "2026-10-06T04:05Z"
+      "at": "2026-10-06T04:05Z",
+      "user_quote": "2부 계획 진행해줘",
+      "confirmed_at": "2026-10-06T04:28Z",
+      "submitted_at": "2026-10-06T04:28Z",
+      "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de"
     }
   },
   "ledger": [
@@ -520,6 +531,12 @@
       "spec": "FIELD2.d4",
       "job": "20a923fb-edbe-45db-93aa-7541a1e82dc8",
       "cost": 66.0
+    },
+    {
+      "at": "2026-10-06T04:28Z",
+      "spec": "FIELD3.d2",
+      "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
+      "cost": 78.0
     }
   ],
   "drafts": {
@@ -559,6 +576,11 @@
       "job": "20a923fb-edbe-45db-93aa-7541a1e82dc8",
       "status": "awaiting_user_review",
       "at": "2026-10-06T03:52Z"
+    },
+    "FIELD3.d2": {
+      "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T04:28Z"
     }
   }
 }

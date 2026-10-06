@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 33.5,
+    "balance": 28.0,
     "balance_checked_at": "2026-10-02T14:37Z",
     "reserve_min": 20
   },
@@ -247,9 +247,13 @@
       "hash": "7dae948037f5f670",
       "cost": 5.5,
       "segment": null,
-      "status": "awaiting_user",
+      "status": "spent",
       "warnings": [],
-      "at": "2026-10-06T02:14Z"
+      "at": "2026-10-06T02:14Z",
+      "user_quote": "진행해줘!",
+      "confirmed_at": "2026-10-06T02:18Z",
+      "submitted_at": "2026-10-06T02:18Z",
+      "job": "c599ae38-3777-4a78-90e9-2139083723cf"
     }
   },
   "ledger": [
@@ -311,6 +315,12 @@
       "at": "2026-10-06T01:26Z",
       "spec": "REF.venue_3F.v1",
       "job": "d1a37bba-0c29-4654-ade3-640a1cef3e5a",
+      "cost": 5.5
+    },
+    {
+      "at": "2026-10-06T02:18Z",
+      "spec": "REF.venue_3F.v2",
+      "job": "c599ae38-3777-4a78-90e9-2139083723cf",
       "cost": 5.5
     }
   ],

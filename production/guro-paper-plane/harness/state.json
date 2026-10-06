@@ -174,7 +174,7 @@
       "status": "generated",
       "current_job": "09bd4b59-53d8-484e-9abd-b4f7f47d77ce",
       "accepted_job": null,
-      "note": "FIELD3.d2 89b8b2a1 (480p 26s): seam vs FIELD2 trim end corr 0.885 MAD 15.5; low consecutive-corr points 11.17/14.17/18.9-19.0/23.17 all checked frame by frame = continuous (19.0 = flying through the green arch fills the frame). PATH OK: finishes far-end curve past terraces -> back along RIGHT booth row -> food trucks (6, parasols) -> bean bags -> through the arch -> across pitch past sound booth and chair blocks -> over stage roof -> sky -> sun glow (end luma 244.5, near white). Crowds rich. Full draft = TRIM11 0-11 + FIELD2 trim 0-18.17 + FIELD3 0-26 = 55.2s. | FIELD3.d3 b2a207cd (480p 26s, venue_v2): seam 0.881 MAD 15.8; min consecutive corr 0.537 (24.8 = rise into white). FIXED: no 180-degree look-back, trucks seen once (row of 6, flown along), arch approached along the bus road, ending reaches white without purple (end luma 246). STILL WRONG: (a) 2.1-2.8s (overall ~31.3-32.0) DISSOLVE/morph - terraces fade into the right booth row (ghost tents) = hidden transition; (b) 12.7-15.0s (overall ~41.9-44.2) bean bags again on the SCHOOL side of the bus road (vehicles between bean bags and track); (c) 18.7-19.5s (overall ~47.9-48.7) two goals again.",
+      "note": "FIELD3.d2 89b8b2a1 (480p 26s): seam vs FIELD2 trim end corr 0.885 MAD 15.5; low consecutive-corr points 11.17/14.17/18.9-19.0/23.17 all checked frame by frame = continuous (19.0 = flying through the green arch fills the frame). PATH OK: finishes far-end curve past terraces -> back along RIGHT booth row -> food trucks (6, parasols) -> bean bags -> through the arch -> across pitch past sound booth and chair blocks -> over stage roof -> sky -> sun glow (end luma 244.5, near white). Crowds rich. Full draft = TRIM11 0-11 + FIELD2 trim 0-18.17 + FIELD3 0-26 = 55.2s. | FIELD3.d3 b2a207cd (480p 26s, venue_v2): seam 0.881 MAD 15.8; min consecutive corr 0.537 (24.8 = rise into white). FIXED: no 180-degree look-back, trucks seen once (row of 6, flown along), arch approached along the bus road, ending reaches white without purple (end luma 246). STILL WRONG: (a) 2.1-2.8s (overall ~31.3-32.0) DISSOLVE/morph - terraces fade into the right booth row (ghost tents) = hidden transition; (b) 12.7-15.0s (overall ~41.9-44.2) bean bags again on the SCHOOL side of the bus road (vehicles between bean bags and track); (c) 18.7-19.5s (overall ~47.9-48.7) two goals again. | FINAL 1080p 09bd4b59 (finalize of b2a207cd, 60cr): per-0.5s corr vs draft min 0.954 mean 0.979.",
       "history": [
         {
           "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
@@ -860,5 +860,20 @@
       "status": "awaiting_user_review",
       "at": "2026-10-06T06:38Z"
     }
+  },
+  "deliverable_festival_v2": {
+    "final_1080p_noBGM": "b5dc711d-b007-4c44-b50d-4c2e4ba28f2f",
+    "assembly": "noBGM 0-11s (97c9777f, from e4518ab7 final) + FIELD2 final 9fc9cbcc frames 0-435 (0-18.17s) + FIELD3 final 09bd4b59 0-26s; 1920x1080 24fps 55.17s; CDX23 dialog+effects; last 1s fade to white (last frame luma 255).",
+    "seams": {
+      "11.0s": 0.941,
+      "29.17s": 0.874
+    },
+    "user_quote": "우리 전체 시안 5bc95689 이거로 1080p 그냥 작업해줘",
+    "known_issues": [
+      "~31.3-32s dissolve (kept by user choice)",
+      "bean bags on school side of the bus road",
+      "two near goals",
+      "food-truck lot not seen again on the arch approach"
+    ]
   }
 }

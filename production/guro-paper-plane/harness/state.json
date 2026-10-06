@@ -2,8 +2,8 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 28.0,
-    "balance_checked_at": "2026-10-02T14:37Z",
+    "balance": 1028.0,
+    "balance_checked_at": "2026-10-06T03:06Z",
     "reserve_min": 20
   },
   "segments": {
@@ -114,6 +114,20 @@
         "music_stem_only": "577c5066-f3d4-42b6-9eff-384c2e10809f",
         "noBGM_method": "free: MVSEP-CDX23 cinematic demixing (dialog/effects/music, --high_quality, CPU) in Higgsfield sandbox; noBGM = dialog+effects. Music stem RMS: 0-5s -71dB, 5-25s ~-38dB, 25-30s -68dB; effects -44..-32dB."
       }
+    },
+    "TRIM11": {
+      "status": "accepted",
+      "current_job": "97c9777f-f584-4d77-83c2-1f5c831331ac",
+      "accepted_job": "97c9777f-f584-4d77-83c2-1f5c831331ac",
+      "note": "noBGM final b7044435 trimmed to 0-11.0s (re-encoded crf16, 1920x1080 24fps). Last frame: corridor, windows show only trees/sky. Old dirt field visible through windows from ~12.5s, so cut here (E21).",
+      "history": []
+    },
+    "FIELD2": {
+      "status": "planned",
+      "current_job": null,
+      "accepted_job": null,
+      "note": "",
+      "history": []
     }
   },
   "approvals": {
@@ -254,6 +268,17 @@
       "confirmed_at": "2026-10-06T02:18Z",
       "submitted_at": "2026-10-06T02:18Z",
       "job": "c599ae38-3777-4a78-90e9-2139083723cf"
+    },
+    "FIELD2.d1": {
+      "hash": "29780657457088a4",
+      "cost": 90.0,
+      "segment": "FIELD2",
+      "status": "awaiting_user",
+      "warnings": [
+        "L8 no upstream spec on file — entry_state could not be cross-checked; verify against the upstream last frame",
+        "L10 prompt is 5449 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T03:11Z"
     }
   },
   "ledger": [

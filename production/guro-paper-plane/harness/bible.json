@@ -146,6 +146,16 @@
       "id": "dbb438e1-09c1-4427-a4fe-20a3c6272a0b",
       "kind": "image",
       "what": "3층 창밖 v2 후보 2 (전경 1 기준으로 재생성)"
+    },
+    "venue3f": {
+      "id": "dbb438e1-09c1-4427-a4fe-20a3c6272a0b",
+      "kind": "image",
+      "what": "3층 창밖 시점 확정 (v2 후보 2, 2026-10-06 사용자: 창밖은 V2 후보로)"
+    },
+    "one_trim11": {
+      "id": "97c9777f-f584-4d77-83c2-1f5c831331ac",
+      "kind": "video",
+      "what": "확정본 무BGM(b7044435) 0~11.0초 잘라낸 것 — FIELD2 이어 만들기 기준 영상"
     }
   },
   "location_refs": {
@@ -158,7 +168,11 @@
       "field_high"
     ],
     "sky": [],
-    "_why_2026_10_02": "classroom_back removed: it shows the front-right door CLOSED while the start image shows it OPEN (user found the conflict). The start image (made from classroom_back) now carries the classroom. field_low removed: its soccer goal sits in front of the school entrance, while field_high (the view the airplane actually sees) has the goals elsewhere (user found the conflict); field_low's ground-level view never appears in ONE."
+    "_why_2026_10_02": "classroom_back removed: it shows the front-right door CLOSED while the start image shows it OPEN (user found the conflict). The start image (made from classroom_back) now carries the classroom. field_low removed: its soccer goal sits in front of the school entrance, while field_high (the view the airplane actually sees) has the goals elsewhere (user found the conflict); field_low's ground-level view never appears in ONE.",
+    "venue": [
+      "venue_a",
+      "venue3f"
+    ]
   },
   "locks": {
     "STYLE": "ONE UNBROKEN CONTINUOUS SHOT, first frame to last: a single take with no cuts. One smooth gimbal camera keeps the airplane in view. Photorealistic live action, 16:9.",
@@ -167,7 +181,8 @@
     "classroom": "Classroom = the classroom in the start image: ivory walls, green chalkboard in front, light-wood desks, windows with white blinds on the LEFT wall; the sliding door at the FRONT-RIGHT is wide open from the first frame to the moment the airplane leaves.",
     "corridor": "Corridor = corridor reference, ONE single straight corridor whose design and exposure never change, the same through the door and inside: glossy light-grey floor with sunlight stripes, tall windows facing the sports field on one side, ivory wall with doors on the other, evenly lit, never blown-out white.",
     "field": "Field = the field reference: the same dirt field, white lines, soccer goals in the same positions, green trees, ivory school building, clear blue sky. Students are always small, seen from high above or behind, no recognisable faces.",
-    "sky": "Clear deep blue sky above the same school."
+    "sky": "Clear deep blue sky above the same school.",
+    "venue": "Festival ground = the two festival references, identical layout: a natural green GRASS soccer pitch with striped mowing and white lines inside a red running track; at the FAR end the festival stage with a white truss roof and white tents on both sides; four blocks of black chairs in front of the stage; a small black sound booth in the centre circle; long rows of white booth tents along both sides of the track; the green inflatable air arch standing at the track gate on the NEAR curve, not on the grass; outside the track, nearest the school, the paved lot with six colourful food trucks, white tents and yellow parasol tables; a bus and trucks on the road; red, green and orange bean bags on the lawn to the right; green trees and apartment blocks behind. Festival mood: students browse the booth tents, gather in the chair blocks and queue at the food trucks; always small, seen from above or behind, no recognisable faces."
   },
   "negatives_global": [
     "no cuts or scene changes",
@@ -200,7 +215,8 @@
     }
   },
   "segment_order": [
-    "ONE"
+    "TRIM11",
+    "FIELD2"
   ],
   "segments": {
     "SEQ1": {
@@ -245,6 +261,23 @@
       ],
       "seconds": 30,
       "note": "single generation, no extensions (2026-10-02 user: SEQ1~SEQ3를 하나의 카메라로 쭉 이어서)"
+    },
+    "TRIM11": {
+      "title": "확정본 무BGM 0~11초 (교실 → 복도 진입, 창밖에 흙 운동장 안 보임)",
+      "visible": [
+        "classroom",
+        "corridor"
+      ],
+      "seconds": 11
+    },
+    "FIELD2": {
+      "title": "복도 → 오른쪽 창문 → 축제 행사장 한 바퀴 → 푸드트럭 → 빈백 → 에어 아치 → 객석 → 무대 위 상승 → 하양",
+      "visible": [
+        "corridor",
+        "venue",
+        "sky"
+      ],
+      "seconds": 30
     }
   },
   "segment_order_legacy": [

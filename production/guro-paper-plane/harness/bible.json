@@ -116,6 +116,26 @@
       "id": "eb616d66-300c-438e-92ec-a09694e05d03",
       "kind": "image",
       "what": "사용자 스케치업 2 렌더 (1920x1080) 투명배경→흰배경 평탄화본. 원본 38f04e49"
+    },
+    "venue_a": {
+      "id": "aeaa85a4-288c-4f22-b8f5-51c83e8378c3",
+      "kind": "image",
+      "what": "행사장 전경 후보 1"
+    },
+    "venue_b": {
+      "id": "0c83a311-5c35-40d7-ac7b-457492d3e346",
+      "kind": "image",
+      "what": "행사장 전경 후보 2"
+    },
+    "venue3f_a": {
+      "id": "d1a37bba-0c29-4654-ade3-640a1cef3e5a",
+      "kind": "image",
+      "what": "3층 창밖 시점 후보 1"
+    },
+    "venue3f_b": {
+      "id": "0e0f41a5-7847-4871-a332-1afdb0592cf4",
+      "kind": "image",
+      "what": "3층 창밖 시점 후보 2"
     }
   },
   "location_refs": {

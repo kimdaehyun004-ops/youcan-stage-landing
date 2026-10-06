@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 44.5,
+    "balance": 33.5,
     "balance_checked_at": "2026-10-02T14:37Z",
     "reserve_min": 20
   },
@@ -218,6 +218,30 @@
       "confirmed_at": "2026-10-02T14:36Z",
       "submitted_at": "2026-10-02T14:36Z",
       "job": "e4518ab7-5340-4f9f-ac54-2beb0234dc80"
+    },
+    "REF.venue.v1": {
+      "hash": "aec833824c91752a",
+      "cost": 5.5,
+      "segment": null,
+      "status": "spent",
+      "warnings": [],
+      "at": "2026-10-06T01:25Z",
+      "user_quote": "레퍼런스 후보4장 먼저 만들어줘",
+      "confirmed_at": "2026-10-06T01:25Z",
+      "submitted_at": "2026-10-06T01:26Z",
+      "job": "aeaa85a4-288c-4f22-b8f5-51c83e8378c3"
+    },
+    "REF.venue_3F.v1": {
+      "hash": "270fed76eab15fe5",
+      "cost": 5.5,
+      "segment": null,
+      "status": "spent",
+      "warnings": [],
+      "at": "2026-10-06T01:25Z",
+      "user_quote": "레퍼런스 후보4장 먼저 만들어줘",
+      "confirmed_at": "2026-10-06T01:25Z",
+      "submitted_at": "2026-10-06T01:26Z",
+      "job": "d1a37bba-0c29-4654-ade3-640a1cef3e5a"
     }
   },
   "ledger": [
@@ -268,6 +292,18 @@
       "spec": "ONE.f3",
       "job": "e4518ab7-5340-4f9f-ac54-2beb0234dc80",
       "cost": 60
+    },
+    {
+      "at": "2026-10-06T01:26Z",
+      "spec": "REF.venue.v1",
+      "job": "aeaa85a4-288c-4f22-b8f5-51c83e8378c3",
+      "cost": 5.5
+    },
+    {
+      "at": "2026-10-06T01:26Z",
+      "spec": "REF.venue_3F.v1",
+      "job": "d1a37bba-0c29-4654-ade3-640a1cef3e5a",
+      "cost": 5.5
     }
   ],
   "drafts": {

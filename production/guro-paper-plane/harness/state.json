@@ -2,7 +2,7 @@
   "_comment": "Mutable production state. Only hfgate.py should write this file.",
   "credits": {
     "granted_total": 1600,
-    "balance": 711.5,
+    "balance": 706.0,
     "balance_checked_at": "2026-10-06T04:38Z",
     "reserve_min": 20
   },
@@ -446,6 +446,29 @@
       "confirmed_at": "2026-10-06T04:28Z",
       "submitted_at": "2026-10-06T04:28Z",
       "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de"
+    },
+    "REF.venue.v2": {
+      "hash": "a6624a5f32fa8aef",
+      "cost": 5.5,
+      "segment": null,
+      "status": "spent",
+      "warnings": [],
+      "at": "2026-10-06T05:26Z",
+      "user_quote": "A 방법으로 수정해줘",
+      "confirmed_at": "2026-10-06T05:26Z",
+      "submitted_at": "2026-10-06T05:26Z",
+      "job": "bd619a97-9b3c-4d89-820e-3296ba42861e"
+    },
+    "FIELD3.d3": {
+      "hash": "7d6fcd80b80b1fbd",
+      "cost": 78.0,
+      "segment": "FIELD3",
+      "status": "awaiting_user",
+      "warnings": [
+        "L4 upstream FIELD2 status is 'generated', not 'accepted' (E7: downstream built on a clip that later changed)",
+        "L10 prompt is 5737 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T05:28Z"
     }
   },
   "ledger": [
@@ -556,6 +579,12 @@
       "spec": "FIELD3.d2",
       "job": "89b8b2a1-7841-4f44-b6f2-bfc050ecf7de",
       "cost": 78.0
+    },
+    {
+      "at": "2026-10-06T05:26Z",
+      "spec": "REF.venue.v2",
+      "job": "bd619a97-9b3c-4d89-820e-3296ba42861e",
+      "cost": 5.5
     }
   ],
   "drafts": {

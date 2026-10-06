@@ -1,0 +1,33 @@
+{
+  "id": "REF.venue.v2",
+  "mode": "raw",
+  "segment": null,
+  "_note": "E26-E28 + wiki 09: overview venue_a has extra bean-bag zones, a thin lawn block, curved road B and two near goals. v2 = venue_a with only those fixed to match the SketchUp top view.",
+  "change_request": {
+    "user_said": "A 방법으로 수정해줘",
+    "allowed_changes": [
+      "bean bag zones",
+      "lawn block",
+      "road B shape",
+      "near goal count"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "aeaa85a4-288c-4f22-b8f5-51c83e8378c3",
+        "role": "image_references"
+      },
+      {
+        "value": "1bb66a52-380f-4dff-bcaf-f5b48dca1f39",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "The SAME aerial photograph as reference image 1: identical camera, light, track, pitch, stage, chairs, booth tents, terraces, trees, apartments, food trucks, parasols, vehicles and green air arch. Change ONLY these things so the layout matches the top-view plan in reference image 2:\n1. Bean bags exist in ONE place only: the lawn between the near-right curve of the red track and the road where the bus and trucks are parked (just to the right of the green air arch, on the track side of that road). Remove every bean bag from the lawn on the school side of that road (the lower-right lawn) and from the right-hand slope; those areas become plain grass with trees.\n2. Between the road that runs in front of the air arch and the food-truck lot there is a wide open lawn block, clearly separating the arch from the food trucks; the six food trucks stand in one straight row along the top edge of their paved lot, with the yellow parasol tables below them (school side).\n3. The road that leaves the junction in front of the arch toward the school runs STRAIGHT down between the food-truck lot (left) and the plain lawn (right).\n4. Only ONE soccer goal at the near end of the pitch.\nPhotorealistic, no readable text, no signs, no logos."
+  }
+}

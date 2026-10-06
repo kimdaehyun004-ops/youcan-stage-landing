@@ -181,6 +181,16 @@
       "id": "cae67aea-3665-4477-b6a8-6f1f00726205",
       "kind": "video",
       "what": "FIELD2.d4(20a923fb) 0~18.17초(436프레임) — 18.17초 숨은 컷 앞에서 자름 (E25)"
+    },
+    "venue_v2": {
+      "id": "57d1795a-fa0e-46fc-bff9-f8a98e4539f5",
+      "kind": "image",
+      "what": "전경 v2 후보 B (스케치 배치 수정: 빈백 1곳=도로A 트랙쪽, 넓은 잔디 블록, 도로B 직선, 골대 1개)"
+    },
+    "venue_v2_a": {
+      "id": "bd619a97-9b3c-4d89-820e-3296ba42861e",
+      "kind": "image",
+      "what": "전경 v2 후보 A"
     }
   },
   "location_refs": {
@@ -196,7 +206,7 @@
     "_why_2026_10_02": "classroom_back removed: it shows the front-right door CLOSED while the start image shows it OPEN (user found the conflict). The start image (made from classroom_back) now carries the classroom. field_low removed: its soccer goal sits in front of the school entrance, while field_high (the view the airplane actually sees) has the goals elsewhere (user found the conflict); field_low's ground-level view never appears in ONE.",
     "venue": [
       "venue_low",
-      "venue_a"
+      "venue_v2"
     ],
     "_why_2026_10_06": "venue3f dropped from video refs: high aerial look pulled the flight too high (E24). corridor_v3 already shows the 3F window view; venue_a kept as the layout master; venue_low sets the flight height."
   },
@@ -208,7 +218,7 @@
     "corridor": "Corridor = corridor reference, ONE single straight corridor whose design and exposure never change, the same through the door and inside: glossy light-grey floor with sunlight stripes, tall windows facing the sports field on one side, ivory wall with doors on the other, evenly lit, never blown-out white.",
     "field": "Field = the field reference: the same dirt field, white lines, soccer goals in the same positions, green trees, ivory school building, clear blue sky. Students are always small, seen from high above or behind, no recognisable faces.",
     "sky": "Clear deep blue sky above the same school.",
-    "venue": "Festival ground = the two festival references, identical layout: a natural green GRASS soccer pitch with striped mowing and white lines inside a red running track; at the FAR end the festival stage with a white truss roof and white tents on both sides; four blocks of black chairs in front of the stage; a small black sound booth in the centre circle; long rows of white booth tents along both sides of the track; the green inflatable air arch standing at the track gate on the NEAR curve, not on the grass; outside the track, nearest the school, the paved lot with six colourful food trucks, white tents and yellow parasol tables; a bus and trucks on the road; red, green and orange bean bags on the lawn to the right; green trees and apartment blocks behind. The festival is busy and joyful: hundreds of students fill the ground, browsing and chatting at the booth tents, queuing and eating at the food trucks and parasol tables, lounging and laughing on the bean bags, posing for photos at the air arch, sitting together in the chair blocks and walking around in small groups; always small, seen from above or behind, no recognisable faces."
+    "venue": "Festival ground = the two festival references, identical layout: a natural green GRASS soccer pitch with striped mowing and white lines inside a red running track; at the FAR end the festival stage with a white truss roof and white tents on both sides; four blocks of black chairs in front of the stage; a small black sound booth in the centre circle; long rows of white booth tents along both sides of the track; the green inflatable air arch standing at the track gate on the NEAR curve, not on the grass; outside the track, nearest the school: in front of the arch a road, then a wide open lawn block, then the paved lot with SIX colourful food trucks in one straight row and the yellow parasol tables below them (school side); a straight road runs from the junction in front of the arch toward the school between that lot and a plain lawn; only one goal at the near end of the pitch; a bus and trucks on the road; red, green and orange bean bags ONLY on the lawn between the near-right curve of the track and the road where the bus and trucks are parked (track side of that road, just right of the arch); the lawn on the school side of that road is plain grass; green trees and apartment blocks behind. The festival is busy and joyful: hundreds of students fill the ground, browsing and chatting at the booth tents, queuing and eating at the food trucks and parasol tables, lounging and laughing on the bean bags, posing for photos at the air arch, sitting together in the chair blocks and walking around in small groups; always small, seen from above or behind, no recognisable faces."
   },
   "negatives_global": [
     "no cuts or scene changes",

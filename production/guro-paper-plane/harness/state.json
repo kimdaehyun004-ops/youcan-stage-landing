@@ -3,7 +3,7 @@
   "credits": {
     "granted_total": 1600,
     "balance": 460.0,
-    "balance_checked_at": "2026-10-06T06:28Z",
+    "balance_checked_at": "2026-10-06T06:48Z",
     "reserve_min": 20
   },
   "segments": {
@@ -235,7 +235,7 @@
       "status": "generated",
       "current_job": "4ff0ca21-ce36-454f-9d0d-5cc66b711d73",
       "accepted_job": null,
-      "note": "FIELD4.d1 09eea68c (480p 22s ext of BRIDGE2): seam 0.994 MAD 4.5; no dissolve; single near goal; white end. ISSUES: 3.6-5.4s flies over the TOP of the arch at the near-right corner (arch seen twice); 9.5-10.5 bean bags next to the parasol tables at the truck lot (school side); 11.0-12.3 paved lot with white tents next to the arch road but NO trucks (trucks vanish); 13.9-14.2 passes over the arch crossbar rather than through the middle.",
+      "note": "FIELD4.d1 09eea68c (480p 22s ext of BRIDGE2): seam 0.994 MAD 4.5; no dissolve; single near goal; white end. ISSUES: 3.6-5.4s flies over the TOP of the arch at the near-right corner (arch seen twice); 9.5-10.5 bean bags next to the parasol tables at the truck lot (school side); 11.0-12.3 paved lot with white tents next to the arch road but NO trucks (trucks vanish); 13.9-14.2 passes over the arch crossbar rather than through the middle. | FIELD4.d2 4ff0ca21 (22s): seam 0.841; arch now passed beside at the corner and flown through its MIDDLE once (12.8s) OK; single goal OK; vehicle line on the road OK (bus, box truck, dark trucks); white end OK. WORSE: food-truck row barely appears (one teal truck at 8.1s, the plane flies over the parasol tables instead); bean bags beside the parasol tables again (7.2-8.1s); no bean bags on the track side; school behind the near end is still RED BRICK (inherited from BRIDGE2 frames; prompt 'ivory' ignored).",
       "history": [
         {
           "job": "09eea68c-00b1-414f-ae8c-f4023b40e5ff",

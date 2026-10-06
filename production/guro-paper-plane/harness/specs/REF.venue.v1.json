@@ -1,0 +1,30 @@
+{
+  "id": "REF.venue.v1",
+  "mode": "raw",
+  "segment": null,
+  "_note": "Festival venue overview, same viewpoint as the SketchUp render (elevated 3/4 view). Medias = user's SketchUp images (PENDING upload).",
+  "change_request": {
+    "user_said": "운동장 구조를 다시: 잔디 구장 + 행사장 (스케치업 참고) / 학교에서 제일 가까운 곳이 푸드트럭 위치",
+    "allowed_changes": [
+      "field"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "PENDING-sketchup-1",
+        "role": "image_references"
+      },
+      {
+        "value": "PENDING-sketchup-2",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "Photorealistic aerial location reference photograph of a Korean high school sports ground prepared for a youth festival, seen from the same elevated three-quarter angle as the reference image. Same festival layout as the SketchUp reference image(s), rebuilt as a real place: a natural green GRASS soccer pitch with striped mowing and white lines, surrounded by a red running track; at the FAR end of the pitch a festival stage with an aluminium truss roof, lighting and LED screen, white peak tents on both sides of the stage; blocks of black folding chairs on the grass in front of the stage and a small sound booth near the centre circle; long rows of white peak-roof booth tents along both long sides of the track; a teal arch entrance gate at the NEAR end of the pitch; grey stepped spectator terraces around the far curve; outside the track a road loop, six colourful food trucks with white tents and yellow parasol tables on the paved area nearest to the camera, a bus and trucks parked on the road, a lawn picnic area with red and green bean bags. Green trees around and apartment blocks behind. Clear late-morning sun, crisp shadows. Photorealistic, natural colours. No readable text, no signs, no logos. Empty of people."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "REF.venue_3F.v1",
+  "mode": "raw",
+  "segment": null,
+  "_note": "View from the school's 3rd-floor corridor window (school stands behind the food-truck area = nearest to camera, D14). This becomes the field reference for the video after 20s.",
+  "change_request": {
+    "user_said": "운동장 구조를 다시: 잔디 구장 + 행사장 (스케치업 참고) / 학교에서 제일 가까운 곳이 푸드트럭 위치",
+    "allowed_changes": [
+      "field"
+    ]
+  },
+  "params": {
+    "model": "gpt_image_2_5",
+    "aspect_ratio": "16:9",
+    "quality": "high",
+    "resolution": "2k",
+    "count": 2,
+    "medias": [
+      {
+        "value": "PENDING-sketchup-1",
+        "role": "image_references"
+      },
+      {
+        "value": "PENDING-sketchup-2",
+        "role": "image_references"
+      }
+    ],
+    "prompt": "Photorealistic location reference photograph taken from just outside a third-floor corridor window of the school building (about 9 m high), looking straight out over the festival ground laid out as in the reference image: directly below and nearest to the camera the food-truck area, then the teal entrance arch, the long grass pitch, the chair blocks and, at the far end, the festival stage. The edge of the ivory school wall and window frame at the very left of frame. Same festival layout as the SketchUp reference image(s), rebuilt as a real place: a natural green GRASS soccer pitch with striped mowing and white lines, surrounded by a red running track; at the FAR end of the pitch a festival stage with an aluminium truss roof, lighting and LED screen, white peak tents on both sides of the stage; blocks of black folding chairs on the grass in front of the stage and a small sound booth near the centre circle; long rows of white peak-roof booth tents along both long sides of the track; a teal arch entrance gate at the NEAR end of the pitch; grey stepped spectator terraces around the far curve; outside the track a road loop, six colourful food trucks with white tents and yellow parasol tables on the paved area nearest to the camera, a bus and trucks parked on the road, a lawn picnic area with red and green bean bags. Green trees around and apartment blocks behind. Clear late-morning sun, crisp shadows. Photorealistic, natural colours. No readable text, no signs, no logos. A few small people walking, faces not recognisable."
+  }
+}

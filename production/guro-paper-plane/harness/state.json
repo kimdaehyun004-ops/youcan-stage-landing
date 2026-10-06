@@ -3,7 +3,7 @@
   "credits": {
     "granted_total": 1600,
     "balance": 866.5,
-    "balance_checked_at": "2026-10-06T03:06Z",
+    "balance_checked_at": "2026-10-06T03:32Z",
     "reserve_min": 20
   },
   "segments": {
@@ -124,9 +124,9 @@
     },
     "FIELD2": {
       "status": "generated",
-      "current_job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
+      "current_job": "467e7344-7cf4-4b6e-b343-5c346ac89855",
       "accepted_job": null,
-      "note": "draft FIELD2.d2 b2649913 (480p 30s): seam vs trim last frame corr 0.935 MAD 6.1; cuts 0 (max scene 0.179 @22.1s); end luma 253 (white). ISSUES: (1) ext 1-4.5s corridor windows show the OLD DIRT FIELD (corridor ref 451670b0 prompt itself says 'dirt sports field', E22); (2) after the window the plane flies at drone height (much higher than 2F), no loop around the stage end; food trucks/beanbags passed from mid height; arch pass, chairs, stage rise, white OK; layout matches venue_a (arch at gate, 4 chair blocks). Preview 0-41s: 1301828a.",
+      "note": "draft FIELD2.d2 b2649913 (480p 30s): seam vs trim last frame corr 0.935 MAD 6.1; cuts 0 (max scene 0.179 @22.1s); end luma 253 (white). ISSUES: (1) ext 1-4.5s corridor windows show the OLD DIRT FIELD (corridor ref 451670b0 prompt itself says 'dirt sports field', E22); (2) after the window the plane flies at drone height (much higher than 2F), no loop around the stage end; food trucks/beanbags passed from mid height; arch pass, chairs, stage rise, white OK; layout matches venue_a (arch at gate, 4 chair blocks). Preview 0-41s: 1301828a. | draft FIELD2.d3r 467e7344 (480p 22s): seam corr 0.949 MAD 5.4; cuts 0 (max 0.215 @19.8s = fast continuous turn, checked at 4fps); corridor windows now show the grass festival (E22 fixed). PATH: exits right window OK, but flies HIGH (whole venue in view) for ~7s, no lap around the stage end - it crosses the near half of the pitch descending, then ends low among rich crowds near arch/bean bags/food trucks. Likely cause (inference): both venue refs are high aerial views. Preview 0-33s: 2123ca32.",
       "history": [
         {
           "job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
@@ -137,6 +137,12 @@
         {
           "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
           "spec": "FIELD2.d3",
+          "cost": 66.0,
+          "verdict": "failed: ip_detected, no charge"
+        },
+        {
+          "job": "467e7344-7cf4-4b6e-b343-5c346ac89855",
+          "spec": "FIELD2.d3r",
           "cost": 66.0,
           "verdict": "awaiting QA + user review"
         }
@@ -334,7 +340,7 @@
       "hash": "a072aca2ddcf054b",
       "cost": 66.0,
       "segment": "FIELD2",
-      "status": "spent",
+      "status": "failed_no_charge",
       "warnings": [
         "L8 no upstream spec on file — entry_state could not be cross-checked; verify against the upstream last frame",
         "L10 prompt is 5759 chars (long prompts dilute instructions)"
@@ -343,7 +349,23 @@
       "user_quote": "원테이크로 진행이 되어야하고 ... 이동경로 부분을 다시 검토 해서 진행해줘 BGM은 제외하고 ... 시안부터 작업해줘 사람들 더 풍성하게",
       "confirmed_at": "2026-10-06T03:26Z",
       "submitted_at": "2026-10-06T03:27Z",
-      "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d"
+      "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
+      "note": "job b45184d8 ended ip_detected; balance unchanged 932.5"
+    },
+    "FIELD2.d3r": {
+      "hash": "a072aca2ddcf054b",
+      "cost": 66.0,
+      "segment": "FIELD2",
+      "status": "spent",
+      "warnings": [
+        "L8 no upstream spec on file — entry_state could not be cross-checked; verify against the upstream last frame",
+        "L10 prompt is 5759 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T03:32Z",
+      "user_quote": "원테이크로 진행이 되어야하고 ... 시안부터 작업해줘 (재시도: ip_detected, 무과금)",
+      "confirmed_at": "2026-10-06T03:32Z",
+      "submitted_at": "2026-10-06T03:32Z",
+      "job": "467e7344-7cf4-4b6e-b343-5c346ac89855"
     }
   },
   "ledger": [
@@ -430,6 +452,12 @@
       "spec": "FIELD2.d3",
       "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
       "cost": 66.0
+    },
+    {
+      "at": "2026-10-06T03:32Z",
+      "spec": "FIELD2.d3r",
+      "job": "467e7344-7cf4-4b6e-b343-5c346ac89855",
+      "cost": 66.0
     }
   ],
   "drafts": {
@@ -459,6 +487,11 @@
       "job": "b45184d8-946c-4b42-a5d7-0f44f2ed697d",
       "status": "awaiting_user_review",
       "at": "2026-10-06T03:27Z"
+    },
+    "FIELD2.d3r": {
+      "job": "467e7344-7cf4-4b6e-b343-5c346ac89855",
+      "status": "awaiting_user_review",
+      "at": "2026-10-06T03:32Z"
     }
   }
 }

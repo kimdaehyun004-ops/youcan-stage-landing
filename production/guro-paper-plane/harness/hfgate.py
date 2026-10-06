@@ -481,7 +481,10 @@ def hook_pre():
         sys.exit(0)
     state = load(STATE)
     h = sha(ti)
-    for sid, ap in state["approvals"].items():
+    # an identical retry (e.g. after a no-charge failure) has the same hash as the used approval:
+    # check confirmed approvals first so the fresh one wins
+    items = sorted(state["approvals"].items(), key=lambda kv: kv[1]["status"] != "confirmed")
+    for sid, ap in items:
         if ap["hash"] == h:
             if ap["status"] == "awaiting_user":
                 deny(f"HFGATE: {sid} is approved by lint but NOT confirmed by the user. Show the user the cost/diff, get an explicit OK, then run: hfgate.py confirm {sid} --quote '<their words>'")

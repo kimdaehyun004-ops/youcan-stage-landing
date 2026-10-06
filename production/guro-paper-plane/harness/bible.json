@@ -191,6 +191,16 @@
       "id": "bd619a97-9b3c-4d89-820e-3296ba42861e",
       "kind": "image",
       "what": "전경 v2 후보 A"
+    },
+    "bridge_start": {
+      "id": "c2f968fa-ec5f-4c79-ae76-807bb2e5f9cb",
+      "kind": "image",
+      "what": "1부 잘린 영상(cae67aea) 마지막 프레임 = 다리 시작"
+    },
+    "bridge_end": {
+      "id": "bebad90e-8c97-474f-a0bf-add8874e94a5",
+      "kind": "image",
+      "what": "2부 v3(b2a207cd) 78번째 프레임(3.25초, 디졸브 끝난 뒤) = 다리 끝"
     }
   },
   "location_refs": {
@@ -322,6 +332,13 @@
         "sky"
       ],
       "seconds": 26
+    },
+    "BRIDGE": {
+      "title": "디졸브 대체 다리: 객석 위 → 먼 쪽 오른 곡선 → 오른쪽 부스 줄",
+      "visible": [
+        "venue"
+      ],
+      "seconds": 4
     }
   },
   "segment_order_legacy": [

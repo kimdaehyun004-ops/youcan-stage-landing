@@ -202,6 +202,13 @@
         ],
         "full_draft_v2_noBGM_480p_whitefade": "5bc95689-e741-4651-b9dc-b7baef3d179b"
       }
+    },
+    "BRIDGE": {
+      "status": "planned",
+      "current_job": null,
+      "accepted_job": null,
+      "note": "",
+      "history": []
     }
   },
   "approvals": {
@@ -480,6 +487,16 @@
       "confirmed_at": "2026-10-06T05:30Z",
       "submitted_at": "2026-10-06T05:31Z",
       "job": "b2a207cd-eda8-419f-959b-34730f929c33"
+    },
+    "BRIDGE.d1": {
+      "hash": "ac808427f80709ff",
+      "cost": 12.0,
+      "segment": "BRIDGE",
+      "status": "awaiting_user",
+      "warnings": [
+        "L10 prompt is 3511 chars (long prompts dilute instructions)"
+      ],
+      "at": "2026-10-06T06:07Z"
     }
   },
   "ledger": [

@@ -1,0 +1,38 @@
+{
+  "id": "BRIDGE.d1",
+  "segment": "BRIDGE",
+  "mode": "omni_reference",
+  "draft": true,
+  "duration": 4,
+  "visible": [
+    "venue"
+  ],
+  "start_image": "bridge_start",
+  "end_image": "bridge_end",
+  "allow_end_image": "User: '1번 디졸브 부분만 보완해줘'. Replaces FIELD3.d3 0-3.25s (dissolve at 2.1-2.8s). Start = exact last frame of part 1, end = exact clean frame of part 2 at 3.25s; both lie on the same flight path ~3s apart (part 2 itself flew it in 3.25s), unlike E4 where the end image did not match the path. QA checks hard cuts frame by frame.",
+  "entry_state": "Opening frame is the start image: about five metres up at the far end of the grass pitch, seen from just behind, the white airplane glides to the right over the black chair blocks, toward the white booth tents at the far-right corner of the red track, grey terraces behind.",
+  "beats": [
+    [
+      0,
+      4,
+      "In one smooth continuous camera move, the airplane glides on to the right past the far-right corner tents and the grey terraces, curving gently onto the right long side of the red track, until the camera is looking along the row of white booth tents full of students exactly as in the end image."
+    ]
+  ],
+  "exit_state": "The final frame is the end image: seen from just behind and above, the airplane glides along the right long side of the red track beside the row of white booth tents full of students.",
+  "audio": "diegetic only: lively festival ambience (many voices chatting, gentle laughter, footsteps), paper flutter, light breeze.",
+  "extra_negatives": [
+    "no dissolve or crossfade",
+    "no transparent or ghosted objects",
+    "no cut",
+    "no close-up or recognisable faces",
+    "no change of the festival layout"
+  ],
+  "change_request": {
+    "user_said": "1번 디졸브 부분만 보완해줘 그러면 완벽할거 같아",
+    "reason": "replace only the dissolve span with a start/end-locked bridge",
+    "allowed_changes": [
+      "all (new segment)"
+    ]
+  },
+  "status": "draft"
+}

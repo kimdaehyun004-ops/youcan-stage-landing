@@ -126,7 +126,7 @@
       "status": "generated",
       "current_job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
       "accepted_job": null,
-      "note": "",
+      "note": "draft FIELD2.d2 b2649913 (480p 30s): seam vs trim last frame corr 0.935 MAD 6.1; cuts 0 (max scene 0.179 @22.1s); end luma 253 (white). ISSUES: (1) ext 1-4.5s corridor windows show the OLD DIRT FIELD (corridor ref 451670b0 prompt itself says 'dirt sports field', E22); (2) after the window the plane flies at drone height (much higher than 2F), no loop around the stage end; food trucks/beanbags passed from mid height; arch pass, chairs, stage rise, white OK; layout matches venue_a (arch at gate, 4 chair blocks). Preview 0-41s: 1301828a.",
       "history": [
         {
           "job": "b2649913-cf44-443f-bc6d-40e8f5c74808",
@@ -134,7 +134,10 @@
           "cost": 90.0,
           "verdict": "awaiting QA + user review"
         }
-      ]
+      ],
+      "derived": {
+        "preview_full_480p": "1301828a-3361-40e5-9bfa-de8f0043069d"
+      }
     }
   },
   "approvals": {

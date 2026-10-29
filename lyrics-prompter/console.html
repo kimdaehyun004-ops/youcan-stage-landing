@@ -213,6 +213,10 @@ body {
   font-size: 13px;
 }
 .ai-align-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.mr-convert-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.mr-result { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.mr-result audio { width: 100%; height: 34px; }
+.mr-result-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .file-label { cursor: pointer; }
 .audio-file-name { font-size: 12.5px; color: #a8abb8; }
 
@@ -375,6 +379,18 @@ body {
           <span id="ai-align-hint" class="audio-file-name">위 가사 + 첨부된 음원으로 싱크 가사를 자동으로 만들어봅니다. 처음 실행 시 AI 모델(수십~수백 MB)을 내려받아 시간이 걸릴 수 있어요.</span>
         </div>
         <div id="ai-align-status" class="search-status" hidden></div>
+        <div class="mr-convert-row">
+          <button id="mr-convert-btn" class="btn btn-ghost">🎵 MR로 변환 (AI 보컬 제거, 실험적)</button>
+          <span id="mr-convert-hint" class="audio-file-name">첨부된 음원에서 AI로 보컬만 제거해 반주(MR)를 만들어봅니다. 모델이 커서(약 170MB) 처음 한 번은 다운로드가 오래 걸리고, 변환 자체도 곡당 몇 분씩 걸릴 수 있어요.</span>
+        </div>
+        <div id="mr-convert-status" class="search-status" hidden></div>
+        <div id="mr-result" class="mr-result" hidden>
+          <audio id="mr-preview-audio" controls></audio>
+          <div class="mr-result-actions">
+            <a id="mr-download-link" class="btn btn-ghost" download>⬇ MR 파일 다운로드 (.wav)</a>
+            <button id="mr-use-as-audio-btn" class="btn btn-ghost">이 MR을 음원으로 사용하기</button>
+          </div>
+        </div>
       </div>
 
       <div class="sync-section">
@@ -590,6 +606,12 @@ const audioTransportEl = document.getElementById('audio-transport');
 const audioTransportInnerEl = document.getElementById('audio-transport-inner');
 const aiAlignBtn = document.getElementById('ai-align-btn');
 const aiAlignStatusEl = document.getElementById('ai-align-status');
+const mrConvertBtn = document.getElementById('mr-convert-btn');
+const mrStatusEl = document.getElementById('mr-convert-status');
+const mrResultEl = document.getElementById('mr-result');
+const mrPreviewAudioEl = document.getElementById('mr-preview-audio');
+const mrDownloadLinkEl = document.getElementById('mr-download-link');
+const mrUseAsAudioBtn = document.getElementById('mr-use-as-audio-btn');
 const startTapSyncBtn = document.getElementById('start-tap-sync-btn');
 const startTapDurationBtn = document.getElementById('start-tap-duration-btn');
 const tapSyncModal = document.getElementById('tap-sync-modal');
@@ -1411,6 +1433,204 @@ async function runAiAlignment() {
 }
 
 aiAlignBtn.addEventListener('click', runAiAlignment);
+
+// --- MR(반주)로 변환: AI 음원 분리(Demucs)로 보컬을 제거 ---
+function setMrStatus(text, kind) {
+  if (!text) {
+    mrStatusEl.hidden = true;
+    mrStatusEl.textContent = '';
+    return;
+  }
+  mrStatusEl.hidden = false;
+  mrStatusEl.textContent = text;
+  mrStatusEl.className = `search-status ${kind || ''}`.trim();
+}
+
+const ORT_VERSION = '1.31.1';
+const DEMUCS_WEB_VERSION = '1.0.2';
+let demucsLibPromise = null;
+
+// onnxruntime-web(ORT) + demucs-web 라이브러리를 CDN에서 불러옴 (AI 모델 로딩 패턴과 동일)
+function loadDemucsLibrary() {
+  if (window.DemucsLib) return Promise.resolve(window.DemucsLib);
+  if (demucsLibPromise) return demucsLibPromise;
+  demucsLibPromise = new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      demucsLibPromise = null;
+      reject(new Error('demucs-lib-load-timeout'));
+    }, 20000);
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.textContent = `
+      import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/ort.webgpu.bundle.min.mjs';
+      import { DemucsProcessor, CONSTANTS } from 'https://cdn.jsdelivr.net/npm/demucs-web@${DEMUCS_WEB_VERSION}/src/index.js';
+      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/';
+      window.DemucsLib = { ort, DemucsProcessor, CONSTANTS };
+      window.dispatchEvent(new Event('demucs-lib-ready'));
+    `;
+    const onReady = () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('demucs-lib-ready', onReady);
+      resolve(window.DemucsLib);
+    };
+    window.addEventListener('demucs-lib-ready', onReady);
+    script.onerror = () => {
+      clearTimeout(timeoutId);
+      demucsLibPromise = null;
+      reject(new Error('demucs-lib-load-error'));
+    };
+    document.head.appendChild(script);
+  });
+  return demucsLibPromise;
+}
+
+// 첨부된 오디오 파일을 Demucs가 기대하는 44.1kHz 스테레오 Float32Array로 변환
+// (모노 소스를 2채널 OfflineAudioContext에 연결하면 브라우저가 자동으로 좌우에 같은 값을 채워줌)
+async function decodeAudioToStereo44k(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  const probeCtx = new AudioContextClass();
+  const decoded = await probeCtx.decodeAudioData(arrayBuffer);
+  probeCtx.close();
+
+  const targetRate = 44100;
+  const offlineCtx = new OfflineAudioContext(2, Math.ceil(decoded.duration * targetRate), targetRate);
+  const source = offlineCtx.createBufferSource();
+  source.buffer = decoded;
+  source.connect(offlineCtx.destination);
+  source.start(0);
+  const rendered = await offlineCtx.startRendering();
+
+  const left = new Float32Array(rendered.getChannelData(0));
+  const right = new Float32Array(rendered.numberOfChannels > 1 ? rendered.getChannelData(1) : left);
+  return { left, right, sampleRate: targetRate };
+}
+
+// 스테레오 Float32Array(-1~1) -> 16bit PCM WAV Blob
+function encodeWav(left, right, sampleRate) {
+  const numFrames = left.length;
+  const blockAlign = 4; // 2채널 * 2바이트
+  const dataSize = numFrames * blockAlign;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  function writeString(offset, str) {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  }
+
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 2, true); // 채널 수
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true); // bits per sample
+  writeString(36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let i = 0; i < numFrames; i++) {
+    const l = Math.max(-1, Math.min(1, left[i]));
+    const r = Math.max(-1, Math.min(1, right[i]));
+    view.setInt16(offset, Math.round(l < 0 ? l * 0x8000 : l * 0x7fff), true);
+    offset += 2;
+    view.setInt16(offset, Math.round(r < 0 ? r * 0x8000 : r * 0x7fff), true);
+    offset += 2;
+  }
+
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+let mrObjectUrl = null;
+function showMrResult(blob, label, songId) {
+  if (mrObjectUrl) URL.revokeObjectURL(mrObjectUrl);
+  mrObjectUrl = URL.createObjectURL(blob);
+
+  mrPreviewAudioEl.src = mrObjectUrl;
+  mrDownloadLinkEl.href = mrObjectUrl;
+  mrDownloadLinkEl.download = `${label}.wav`;
+  mrResultEl.hidden = false;
+
+  mrUseAsAudioBtn.onclick = () => {
+    const mrFile = new File([blob], `${label}.wav`, { type: 'audio/wav' });
+    audioFiles[songId] = mrFile;
+    updateAudioFileLabel(songId);
+    if (onAirSong && onAirSong.id === songId) {
+      loadLiveAudioForSong(onAirSong);
+    }
+    setMrStatus('이 MR을 이 곡의 음원으로 설정했어요.', 'success');
+  };
+}
+
+async function runMrConversion() {
+  const song = saveSong();
+  if (!song) return;
+
+  const file = audioFiles[song.id];
+  if (!file) {
+    setMrStatus('먼저 "음원 파일 선택"(또는 URL 불러오기)으로 음원을 첨부해야 MR 변환을 쓸 수 있어요.', 'error');
+    return;
+  }
+
+  mrConvertBtn.disabled = true;
+  mrResultEl.hidden = true;
+  try {
+    setMrStatus('AI 라이브러리를 불러오는 중...');
+    const { ort, DemucsProcessor, CONSTANTS } = await loadDemucsLibrary();
+
+    const processor = new DemucsProcessor({
+      ort,
+      onDownloadProgress: (loaded, total) => {
+        const mb = (loaded / 1024 / 1024).toFixed(0);
+        const totalMb = total ? (total / 1024 / 1024).toFixed(0) : '?';
+        setMrStatus(`AI 모델 다운로드 중... ${mb}MB / ${totalMb}MB (처음 한 번만 받으면 이후에는 빨라져요)`);
+      },
+      onProgress: ({ progress, currentSegment, totalSegments }) => {
+        setMrStatus(`AI 보컬 제거 처리 중... ${Math.round(progress * 100)}% (${currentSegment}/${totalSegments} 구간, PC 성능에 따라 수 분 걸릴 수 있어요)`);
+      },
+    });
+
+    setMrStatus('AI 모델 다운로드 중... (처음 한 번은 약 170MB라 오래 걸릴 수 있어요)');
+    await processor.loadModel(CONSTANTS.DEFAULT_MODEL_URL);
+
+    setMrStatus('음원을 분석하는 중...');
+    const { left, right } = await decodeAudioToStereo44k(file);
+
+    setMrStatus('AI 보컬 제거 처리를 시작해요... (곡 길이와 PC 성능에 따라 수 분 걸릴 수 있어요)');
+    const result = await processor.separate(left, right);
+
+    const numFrames = result.drums.left.length;
+    const mrLeft = new Float32Array(numFrames);
+    const mrRight = new Float32Array(numFrames);
+    for (let i = 0; i < numFrames; i++) {
+      mrLeft[i] = result.drums.left[i] + result.bass.left[i] + result.other.left[i];
+      mrRight[i] = result.drums.right[i] + result.bass.right[i] + result.other.right[i];
+    }
+
+    const wavBlob = encodeWav(mrLeft, mrRight, CONSTANTS.SAMPLE_RATE);
+    const label = `${titleInputEl.value.trim() || '음원'} - MR`;
+    showMrResult(wavBlob, label, song.id);
+
+    setMrStatus('MR 변환을 완료했어요. 아래에서 미리 듣고 다운로드하거나, 이 곡의 음원으로 바로 사용할 수 있어요.', 'success');
+  } catch (err) {
+    console.error(err);
+    if (err && err.message === 'demucs-lib-load-timeout') {
+      setMrStatus('AI 라이브러리 로딩이 너무 오래 걸려요. 인터넷 연결을 확인하고 다시 시도해주세요.', 'error');
+    } else if (err && err.message === 'demucs-lib-load-error') {
+      setMrStatus('AI 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인해주세요.', 'error');
+    } else {
+      setMrStatus('MR 변환 중 오류가 발생했어요. 음원 길이가 너무 길거나 PC 메모리가 부족하면 실패할 수 있어요.', 'error');
+    }
+  } finally {
+    mrConvertBtn.disabled = false;
+  }
+}
+
+mrConvertBtn.addEventListener('click', runMrConversion);
 
 async function startTapSync(mode) {
   tapTargetMode = mode;

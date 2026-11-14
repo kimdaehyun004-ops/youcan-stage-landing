@@ -28,6 +28,21 @@ export function initialState() {
       elapsedMs: 0,        // paused && countup
     },
     message: { text: '', kind: 'info', at: 0 },
+    /* 타이머 오버레이: 위치(x,y)는 화면 대비 비율이라 해상도가 달라도 같은 자리에 찍힌다 */
+    overlay: {
+      x: 0.5,            // 0(왼쪽) ~ 1(오른쪽), 숫자의 중심
+      y: 0.9,            // 0(위) ~ 1(아래)
+      size: 0.13,        // 화면 높이 대비 글자 크기
+      color: 'auto',     // auto(페이싱 색) | white | yellow
+      bg: 'shadow',      // none | shadow | plate | plate-light
+      onStage: true,     // 연사 화면에 표시
+      onAudience: false, // 관객 화면에도 표시
+      showClock: false,  // 현재 시각 같이 표시
+      showNext: false,   // 다음 장 썸네일
+      showCounter: false,// 슬라이드 번호
+      showPacing: false, // 상단 진행 바
+      locked: false,     // 드래그 잠금
+    },
     output: { blackout: false, logo: false, freeze: false },
     notes: '',             // 연사 화면에 띄울 메모(선택)
   };

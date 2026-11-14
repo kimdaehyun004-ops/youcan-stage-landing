@@ -8,6 +8,16 @@ const $ = (id) => document.getElementById(id);
 const state = initialState();
 const bus = new Bus(ROLE.CONTROL);
 
+/* 타이머 위치·크기는 이 브라우저에 저장해 다음 행사에도 그대로 쓴다 */
+const SAVE_KEY = 'ycp-overlay-v1';
+try {
+  const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+  if (saved && typeof saved === 'object') Object.assign(state.overlay, saved);
+} catch (_) {}
+function saveOverlay() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state.overlay)); } catch (_) {}
+}
+
 let pdfDoc = null;
 let pdfBlobUrl = '';
 let liveStream = null;
@@ -38,6 +48,7 @@ function runCmd(name, arg) {
     case 'timer': toggleTimer(); break;
     case 'reset': resetTimer(); break;
     case 'blackout': toggleOutput('blackout'); break;
+    case 'overlay': setOverlay(arg || {}, { fromViewer: true }); break;
   }
 }
 
@@ -391,6 +402,95 @@ $('btnBlack').addEventListener('click', () => toggleOutput('blackout'));
 $('btnLogo').addEventListener('click', () => toggleOutput('logo'));
 $('btnFreeze').addEventListener('click', () => toggleOutput('freeze'));
 
+/* ---------------- 타이머 오버레이 배치 ---------------- */
+function setOverlay(patch, { fromViewer = false } = {}) {
+  Object.assign(state.overlay, patch);
+  state.overlay.x = Math.max(0.02, Math.min(0.98, state.overlay.x));
+  state.overlay.y = Math.max(0.03, Math.min(0.97, state.overlay.y));
+  saveOverlay();
+  publish();
+  syncOverlayUi(fromViewer);
+}
+
+document.querySelectorAll('#posGrid button').forEach((b) => {
+  b.addEventListener('click', () => setOverlay({ x: Number(b.dataset.x), y: Number(b.dataset.y) }));
+});
+document.querySelectorAll('[data-nudge]').forEach((b) => {
+  b.addEventListener('click', () => {
+    const d = b.dataset.nudge, step = 0.01, o = state.overlay;
+    if (d === 'up') setOverlay({ y: o.y - step });
+    else if (d === 'down') setOverlay({ y: o.y + step });
+    else if (d === 'left') setOverlay({ x: o.x - step });
+    else if (d === 'right') setOverlay({ x: o.x + step });
+    else if (d === 'center') setOverlay({ x: 0.5, y: 0.5 });
+  });
+});
+$('ovReset').addEventListener('click', () => setOverlay({ x: 0.5, y: 0.9, size: 0.13 }));
+$('ovSize').addEventListener('input', (e) => setOverlay({ size: Number(e.target.value) / 100 }));
+$('ovColor').addEventListener('change', (e) => setOverlay({ color: e.target.value }));
+$('ovBg').addEventListener('change', (e) => setOverlay({ bg: e.target.value }));
+[['ovOnStage', 'onStage'], ['ovOnAudience', 'onAudience'], ['ovShowClock', 'showClock'],
+ ['ovShowNext', 'showNext'], ['ovShowCounter', 'showCounter'], ['ovShowPacing', 'showPacing'],
+ ['ovLocked', 'locked']].forEach(([id, key]) => {
+  $(id).addEventListener('change', (e) => setOverlay({ [key]: e.target.checked }));
+});
+
+/* 미리보기 위 핸들을 끌어서 바로 배치 */
+const pvTimer = $('pvTimer');
+let pvDrag = false;
+pvTimer.addEventListener('pointerdown', (e) => {
+  if (state.overlay.locked) return;
+  pvDrag = true;
+  pvTimer.classList.add('dragging');
+  pvTimer.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+pvTimer.addEventListener('pointermove', (e) => {
+  if (!pvDrag) return;
+  const r = $('preview').getBoundingClientRect();
+  let x = (e.clientX - r.left) / r.width;
+  let y = (e.clientY - r.top) / r.height;
+  for (const a of [0.08, 0.5, 0.92]) {
+    if (Math.abs(x - a) < 0.02) x = a;
+    if (Math.abs(y - a) < 0.02) y = a;
+  }
+  setOverlay({ x, y });
+});
+function pvEnd(e) {
+  if (!pvDrag) return;
+  pvDrag = false;
+  pvTimer.classList.remove('dragging');
+  try { pvTimer.releasePointerCapture(e.pointerId); } catch (_) {}
+}
+pvTimer.addEventListener('pointerup', pvEnd);
+pvTimer.addEventListener('pointercancel', pvEnd);
+
+function syncOverlayUi(skipInputs = false) {
+  const o = state.overlay;
+  if (!skipInputs) {
+    $('ovSize').value = String(Math.round(o.size * 100));
+    $('ovColor').value = o.color;
+    $('ovBg').value = o.bg;
+    $('ovOnStage').checked = o.onStage !== false;
+    $('ovOnAudience').checked = !!o.onAudience;
+    $('ovShowClock').checked = !!o.showClock;
+    $('ovShowNext').checked = !!o.showNext;
+    $('ovShowCounter').checked = !!o.showCounter;
+    $('ovShowPacing').checked = !!o.showPacing;
+    $('ovLocked').checked = !!o.locked;
+  }
+  $('ovSizeVal').textContent = Math.round(o.size * 100) + '%';
+  document.querySelectorAll('#posGrid button').forEach((b) => {
+    b.classList.toggle('active', Math.abs(Number(b.dataset.x) - o.x) < 0.001 && Math.abs(Number(b.dataset.y) - o.y) < 0.001);
+  });
+  const r = $('preview').getBoundingClientRect();
+  pvTimer.style.left = (o.x * 100) + '%';
+  pvTimer.style.top = (o.y * 100) + '%';
+  pvTimer.style.fontSize = Math.max(8, o.size * r.height) + 'px';
+  pvTimer.style.cursor = o.locked ? 'default' : 'move';
+}
+window.addEventListener('resize', () => syncOverlayUi(true));
+
 /* ---------------- 단축키 ---------------- */
 window.addEventListener('keydown', (e) => {
   const t = e.target;
@@ -458,6 +558,8 @@ function tick() {
   const big = $('timerBig');
   big.textContent = formatMs(ms);
   big.className = 'timer-big lv-' + lv;
+  pvTimer.textContent = formatMs(ms);
+  pvTimer.style.color = lv === 'over' ? 'var(--over)' : lv === 'danger' ? 'var(--danger)' : lv === 'warn' ? 'var(--warn)' : '#fff';
   const bar = $('timerBar');
   bar.className = 'bar lv-' + lv;
   bar.firstElementChild.style.width = Math.round(timerValue(state.timer, now).fraction * 100) + '%';
@@ -497,6 +599,7 @@ window.addEventListener('beforeunload', () => {
   }
 });
 
+syncOverlayUi();
 setInterval(() => publish(), 2000); // 느린 하트비트: 늦게 연결된 창도 상태를 받는다
 syncUi();
 tick();

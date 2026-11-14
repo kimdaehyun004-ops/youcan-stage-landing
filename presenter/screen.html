@@ -14,47 +14,36 @@
     <div class="role" id="fsRole">SCREEN</div>
     <h1>이 화면을 클릭하세요</h1>
     <p>클릭 또는 <kbd>F</kbd> 를 누르면 전체화면으로 전환됩니다.</p>
-    <p id="fsScreenInfo"></p>
   </div>
 </div>
 
-<!-- ============ 관객 화면 ============ -->
-<section class="audience" id="audience" hidden>
-  <canvas id="aCanvas"></canvas>
-  <video id="aVideo" muted playsinline hidden></video>
-  <div class="logo"><img src="../assets/logo.png" alt=""></div>
-</section>
+<section class="screen" id="screen">
 
-<!-- ============ 연사 화면 ============ -->
-<section class="stage" id="stage" hidden>
-  <div class="pacing" id="pacing"><i></i></div>
-
-  <div class="body">
-    <div class="slide">
-      <canvas id="sCanvas"></canvas>
-      <video id="sVideo" muted playsinline hidden></video>
-    </div>
-    <div class="side">
-      <div class="tcard">
-        <div class="lbl" id="tLabel">남은 시간</div>
-        <div class="val" id="tVal">15:00</div>
-        <div class="sub"><span id="tClock">--:--:--</span></div>
-      </div>
-      <div class="meta">
-        <div id="sCounter">– / –</div>
-        <div><span>소스</span> <b id="sSource">—</b></div>
-      </div>
-      <div class="next">
-        <div class="lbl">다음 장</div>
-        <div class="box">
-          <img id="nextThumb" hidden alt="">
-          <span class="none" id="nextNone">—</span>
-        </div>
-      </div>
-    </div>
+  <!-- 발표 내용 (PDF 렌더 또는 라이브 캡처) -->
+  <div class="content" id="content">
+    <canvas id="vCanvas"></canvas>
+    <video id="vVideo" muted playsinline hidden></video>
   </div>
 
-  <div class="msg" id="msg"></div>
+  <div class="logo"><img src="../assets/logo.png" alt=""></div>
+
+  <!-- 오버레이: 전부 발표 내용 위에 얹힌다 -->
+  <div class="pacing" id="pacing" hidden><i></i></div>
+
+  <div class="t-overlay" id="tOverlay" hidden>
+    <div class="drag-tip" id="dragTip">드래그해서 위치 이동</div>
+    <div class="t-val" id="tVal">15:00</div>
+    <div class="t-clock" id="tClock" hidden>--:--:--</div>
+  </div>
+
+  <div class="next-overlay" id="nextOverlay" hidden>
+    <img id="nextThumb" alt="">
+    <span class="cap">다음</span>
+  </div>
+
+  <div class="badge-counter" id="sCounter" hidden>– / –</div>
+
+  <div class="msg-overlay" id="msg"></div>
 </section>
 
 <div class="waiting" id="waiting">

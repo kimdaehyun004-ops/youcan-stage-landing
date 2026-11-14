@@ -52,7 +52,75 @@
         <span class="ph" id="previewPh">미리보기</span>
         <canvas id="previewCanvas" hidden></canvas>
         <video id="previewVideo" muted playsinline hidden></video>
+        <div class="pv-timer" id="pvTimer">15:00</div>
       </div>
+      <p class="note">미리보기 위의 숫자를 <strong>끌어서</strong> 타이머 위치를 정하세요. 연사 화면에서 직접 끌어도 됩니다.</p>
+    </section>
+
+    <section class="panel">
+      <h2>7 · 타이머 표시 <span class="hint">발표 화면 위 숫자</span></h2>
+      <div class="row" style="align-items:flex-start">
+        <div class="pos-grid" id="posGrid">
+          <button type="button" data-x="0.08" data-y="0.1" title="좌상"></button>
+          <button type="button" data-x="0.5"  data-y="0.1" title="상단 가운데"></button>
+          <button type="button" data-x="0.92" data-y="0.1" title="우상"></button>
+          <button type="button" data-x="0.08" data-y="0.5" title="좌"></button>
+          <button type="button" data-x="0.5"  data-y="0.5" title="정가운데"></button>
+          <button type="button" data-x="0.92" data-y="0.5" title="우"></button>
+          <button type="button" data-x="0.08" data-y="0.9" title="좌하"></button>
+          <button type="button" data-x="0.5"  data-y="0.9" title="하단 가운데"></button>
+          <button type="button" data-x="0.92" data-y="0.9" title="우하"></button>
+        </div>
+        <div class="grow" style="display:grid;gap:8px">
+          <label class="field">크기 <span id="ovSizeVal" style="color:var(--text)">13%</span>
+            <input type="range" id="ovSize" min="4" max="40" step="1" value="13">
+          </label>
+          <div class="row tight">
+            <label class="field grow">색
+              <select id="ovColor">
+                <option value="auto">자동 (남은 시간에 따라)</option>
+                <option value="white">흰색 고정</option>
+                <option value="yellow">노랑 고정</option>
+              </select>
+            </label>
+            <label class="field grow">배경
+              <select id="ovBg">
+                <option value="shadow">그림자 (권장)</option>
+                <option value="none">없음</option>
+                <option value="plate">검은 판</option>
+                <option value="plate-light">흰 판</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div class="nudge">
+          <button class="btn sm sp"></button>
+          <button class="btn sm" data-nudge="up">↑</button>
+          <button class="btn sm sp"></button>
+          <button class="btn sm" data-nudge="left">←</button>
+          <button class="btn sm" data-nudge="center">◎</button>
+          <button class="btn sm" data-nudge="right">→</button>
+          <button class="btn sm sp"></button>
+          <button class="btn sm" data-nudge="down">↓</button>
+          <button class="btn sm sp"></button>
+        </div>
+        <div class="grow">
+          <div class="switches">
+            <label><input type="checkbox" id="ovOnStage" checked> 연사 화면에 표시</label>
+            <label><input type="checkbox" id="ovOnAudience"> 관객 화면에도 표시</label>
+            <label><input type="checkbox" id="ovShowClock"> 현재 시각 같이</label>
+            <label><input type="checkbox" id="ovShowNext"> 다음 장 썸네일</label>
+            <label><input type="checkbox" id="ovShowCounter"> 슬라이드 번호</label>
+            <label><input type="checkbox" id="ovShowPacing"> 상단 진행 바</label>
+            <label><input type="checkbox" id="ovLocked"> 위치 잠금</label>
+            <label><button class="btn sm" id="ovReset" type="button">위치 초기화</button></label>
+          </div>
+        </div>
+      </div>
+      <p class="note">위치·크기는 이 브라우저에 저장되어 다음에 열어도 그대로입니다.</p>
     </section>
 
     <section class="panel">

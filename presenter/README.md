@@ -29,7 +29,21 @@ PPT / PDF 를 **트리플 모니터**로 운용하는 발표 운영 도구. 설�
 
 ---
 
+## 받기
+
+압축 파일 한 개로 받습니다 (설치 불필요, 인터넷 없이도 동작):
+
+```
+https://github.com/kimdaehyun004-ops/youcan-stage-landing/archive/refs/heads/ccr-29c10ee4-4roej8.zip
+```
+
+압축을 풀면 `youcan-stage-landing-ccr-29c10ee4-4roej8/presenter/` 안에 들어 있습니다.
+
 ## 실행
+
+- **Windows**: `presenter\start.bat` 더블클릭 → 브라우저가 자동으로 열립니다
+  (Python 이나 Node.js 중 하나가 깔려 있어야 합니다. 없으면 안내가 뜹니다)
+- **macOS / Linux**: `./presenter/serve.sh`
 
 ```bash
 ./presenter/serve.sh          # 기본 8123 포트

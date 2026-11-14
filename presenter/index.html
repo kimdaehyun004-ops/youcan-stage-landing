@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>유캔 프리젠터 — 컨트롤 콘솔</title>
+<link rel="stylesheet" href="css/presenter.css">
+</head>
+<body class="control">
+
+<div class="topbar">
+  <div class="brand">유캔 <span>프리젠터</span></div>
+  <span class="badge" id="bgSecure">보안 컨텍스트</span>
+  <span class="badge" id="bgScreens">화면</span>
+  <span class="badge" id="bgAudience">관객 화면</span>
+  <span class="badge" id="bgStage">연사 화면</span>
+  <div class="spacer"></div>
+  <div class="clock" id="clock">--:--:--</div>
+</div>
+
+<main class="console">
+
+  <!-- ===================== 왼쪽 ===================== -->
+  <div class="col">
+
+    <section class="panel">
+      <h2>1 · 소스 <span class="hint">발표 내용을 어디서 가져올지</span></h2>
+
+      <div class="row">
+        <label class="field grow">
+          PDF 파일 (브라우저가 직접 렌더 · 지연 0 · 애니메이션 없음)
+          <input type="file" id="pdfFile" accept="application/pdf,.pdf">
+        </label>
+      </div>
+
+      <div class="row">
+        <div class="grow">
+          <div class="note" style="margin:0 0 6px">
+            <strong>PPT 애니메이션을 그대로</strong> 쓰려면 ↓ 라이브 캡처를 쓰세요.
+            파워포인트를 <b>1번 모니터에 전체화면</b>으로 띄워두고, 아래 버튼을 눌러 그 화면을 선택합니다.
+          </div>
+          <div class="row tight">
+            <button class="btn" id="btnLive">라이브 화면 캡처 시작</button>
+            <button class="btn sm" id="btnLiveStop" disabled>중지</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="note" id="srcInfo">소스 없음 — PDF를 선택하거나 라이브 캡처를 시작하세요.</p>
+
+      <div class="preview" id="preview" style="margin-top:10px">
+        <span class="ph" id="previewPh">미리보기</span>
+        <canvas id="previewCanvas" hidden></canvas>
+        <video id="previewVideo" muted playsinline hidden></video>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>3 · 슬라이드 <span class="hint" id="slideCounter">– / –</span></h2>
+      <div class="row">
+        <button class="btn" id="btnPrev">◀ 이전</button>
+        <button class="btn primary" id="btnNext">다음 ▶</button>
+        <span class="grow"></span>
+        <input type="number" id="gotoInput" min="1" step="1" placeholder="번호" style="width:84px">
+        <button class="btn sm" id="btnGoto">이동</button>
+      </div>
+      <p class="note">
+        키보드: <kbd>→</kbd> <kbd>Space</kbd> 다음 · <kbd>←</kbd> 이전 · <kbd>T</kbd> 타이머 · <kbd>R</kbd> 리셋 · <kbd>B</kbd> 블랙아웃
+        <span id="liveNavNote" hidden><br><b>라이브 모드:</b> 슬라이드 이동은 파워포인트 창에서 직접 하세요(이 버튼은 PDF 모드 전용).</span>
+      </p>
+      <div class="thumbs" id="thumbs" style="margin-top:10px"></div>
+    </section>
+
+  </div>
+
+  <!-- ===================== 오른쪽 ===================== -->
+  <div class="col">
+
+    <section class="panel">
+      <h2>2 · 화면 배정 <span class="hint">트리플 모니터</span></h2>
+      <div class="row">
+        <button class="btn primary" id="btnDetect">화면 감지 / 권한 요청</button>
+      </div>
+      <div class="screens" id="screenList" style="margin-top:10px"></div>
+      <div class="row" style="margin-top:10px">
+        <label class="field grow">관객 화면 (PPT만)
+          <select id="selAudience"></select>
+        </label>
+        <label class="field grow">연사 화면 (PPT+타이머)
+          <select id="selStage"></select>
+        </label>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary wide" id="btnOpenAll">발표 화면 열기</button>
+        <button class="btn sm" id="btnCloseAll">닫기</button>
+      </div>
+      <p class="note" id="screenNote">
+        창이 열린 뒤 <b>해당 화면을 한 번 클릭</b>하면 전체화면이 됩니다(브라우저 보안 정책).
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>4 · 타이머</h2>
+      <div class="timer-big" id="timerBig">15:00</div>
+      <div class="bar" id="timerBar"><i></i></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary wide" id="btnStart">시작</button>
+        <button class="btn" id="btnReset">리셋</button>
+      </div>
+      <div class="row tight" style="margin-top:8px">
+        <button class="btn sm" data-min="5">5분</button>
+        <button class="btn sm" data-min="10">10분</button>
+        <button class="btn sm" data-min="15">15분</button>
+        <button class="btn sm" data-min="20">20분</button>
+        <button class="btn sm" data-min="30">30분</button>
+        <button class="btn sm" data-min="45">45분</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label class="field" style="width:76px">분<input type="number" id="tMin" min="0" max="599" value="15"></label>
+        <label class="field" style="width:76px">초<input type="number" id="tSec" min="0" max="59" value="0"></label>
+        <label class="field grow">모드
+          <select id="tMode">
+            <option value="countdown">카운트다운 (남은 시간)</option>
+            <option value="countup">카운트업 (경과 시간)</option>
+          </select>
+        </label>
+      </div>
+      <div class="row tight" style="margin-top:8px">
+        <button class="btn sm" id="btnPlus1">+1분</button>
+        <button class="btn sm" id="btnMinus1">−1분</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>5 · 연사에게 큐 <span class="hint">관객에게는 안 보임</span></h2>
+      <div class="row tight">
+        <button class="btn sm" data-msg="마무리해 주세요" data-kind="warn">마무리</button>
+        <button class="btn sm" data-msg="조금 천천히" data-kind="info">천천히</button>
+        <button class="btn sm" data-msg="조금 빠르게" data-kind="info">빠르게</button>
+        <button class="btn sm" data-msg="Q&amp;A 시작" data-kind="info">Q&amp;A</button>
+        <button class="btn sm" data-msg="시간 초과 — 지금 마무리" data-kind="urgent">긴급</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input type="text" id="msgText" class="grow" placeholder="직접 입력 후 Enter">
+        <select id="msgKind" style="width:96px">
+          <option value="info">일반</option>
+          <option value="warn">주의</option>
+          <option value="urgent">긴급</option>
+        </select>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn primary wide" id="btnSend">보내기</button>
+        <button class="btn" id="btnClearMsg">지우기</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>6 · 출력 제어 <span class="hint" id="outNote">PDF 모드 전용</span></h2>
+      <div class="row">
+        <button class="btn danger wide" id="btnBlack">블랙아웃</button>
+        <button class="btn wide" id="btnLogo">로고</button>
+        <button class="btn wide" id="btnFreeze">프리즈</button>
+      </div>
+      <p class="note" id="outHint">
+        관객 화면만 덮습니다. 연사 화면은 계속 내용을 봅니다.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>프리플라이트</h2>
+      <ul class="checklist" id="checklist">
+        <li class="wait" id="ckSecure"><i>•</i><span><b>보안 컨텍스트</b> — localhost 또는 https</span></li>
+        <li class="wait" id="ckScreens"><i>•</i><span><b>모니터 3개 확장 모드</b></span></li>
+        <li class="wait" id="ckPerm"><i>•</i><span><b>창 관리 권한</b> 허용</span></li>
+        <li class="wait" id="ckSource"><i>•</i><span><b>소스</b> 준비 (PDF 또는 라이브)</span></li>
+        <li class="wait" id="ckWindows"><i>•</i><span><b>발표 화면 2개</b> 연결</span></li>
+        <li class="wait" id="ckPpt"><i>•</i><span><b>라이브 모드라면</b> 파워포인트 ‘발표자 도구 사용’ 해제 + 모니터 1 지정</span></li>
+      </ul>
+    </section>
+
+  </div>
+</main>
+
+<script type="module" src="js/control.js"></script>
+</body>
+</html>

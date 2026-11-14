@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>유캔 프리젠터 — 발표 화면</title>
+<link rel="stylesheet" href="css/presenter.css">
+</head>
+<body class="viewer">
+
+<!-- 전체화면 안내 (브라우저는 사용자 제스처 없이 전체화면을 허용하지 않음) -->
+<div class="fs-hint" id="fsHint">
+  <div class="box">
+    <div class="role" id="fsRole">SCREEN</div>
+    <h1>이 화면을 클릭하세요</h1>
+    <p>클릭 또는 <kbd>F</kbd> 를 누르면 전체화면으로 전환됩니다.</p>
+    <p id="fsScreenInfo"></p>
+  </div>
+</div>
+
+<!-- ============ 관객 화면 ============ -->
+<section class="audience" id="audience" hidden>
+  <canvas id="aCanvas"></canvas>
+  <video id="aVideo" muted playsinline hidden></video>
+  <div class="logo"><img src="../assets/logo.png" alt=""></div>
+</section>
+
+<!-- ============ 연사 화면 ============ -->
+<section class="stage" id="stage" hidden>
+  <div class="pacing" id="pacing"><i></i></div>
+
+  <div class="body">
+    <div class="slide">
+      <canvas id="sCanvas"></canvas>
+      <video id="sVideo" muted playsinline hidden></video>
+    </div>
+    <div class="side">
+      <div class="tcard">
+        <div class="lbl" id="tLabel">남은 시간</div>
+        <div class="val" id="tVal">15:00</div>
+        <div class="sub"><span id="tClock">--:--:--</span></div>
+      </div>
+      <div class="meta">
+        <div id="sCounter">– / –</div>
+        <div><span>소스</span> <b id="sSource">—</b></div>
+      </div>
+      <div class="next">
+        <div class="lbl">다음 장</div>
+        <div class="box">
+          <img id="nextThumb" hidden alt="">
+          <span class="none" id="nextNone">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+</section>
+
+<div class="waiting" id="waiting">
+  <div class="in">
+    <b>컨트롤 콘솔 대기 중</b>
+    소스를 선택하면 이 화면에 표시됩니다.
+  </div>
+</div>
+
+<script type="module" src="js/viewer.js"></script>
+</body>
+</html>

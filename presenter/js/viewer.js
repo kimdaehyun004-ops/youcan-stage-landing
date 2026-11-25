@@ -64,8 +64,25 @@ goFullscreen().finally(refreshHint);
 
 /* ---------------- 타이머 오버레이 드래그 ---------------- */
 const tOverlay = $('tOverlay');
+const SAFE = 0.025;                 // 화면 가장자리 여백 (짧은 변의 2.5%)
+let grabDX = 0, grabDY = 0, lastLen = -1;
+
+/** 숫자를 화면 안에 완전히 들어오도록 픽셀 단위로 배치한다.
+ *  x=0 왼쪽 끝 / 0.5 정가운데 / 1 오른쪽 끝 — 글자 크기가 커져도 잘리지 않는다. */
+function positionOverlay() {
+  const o = state.overlay;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const m = Math.round(Math.min(vw, vh) * SAFE);
+  const ew = tOverlay.offsetWidth, eh = tOverlay.offsetHeight;
+  tOverlay.style.left = Math.round(m + o.x * Math.max(0, vw - ew - 2 * m)) + 'px';
+  tOverlay.style.top = Math.round(m + o.y * Math.max(0, vh - eh - 2 * m)) + 'px';
+}
+
 tOverlay.addEventListener('pointerdown', (e) => {
   if (state.overlay.locked) return;
+  const r = tOverlay.getBoundingClientRect();
+  grabDX = e.clientX - r.left;
+  grabDY = e.clientY - r.top;
   dragging = true;
   tOverlay.classList.add('dragging');
   tOverlay.setPointerCapture(e.pointerId);
@@ -74,19 +91,22 @@ tOverlay.addEventListener('pointerdown', (e) => {
 });
 tOverlay.addEventListener('pointermove', (e) => {
   if (!dragging) return;
-  let x = e.clientX / window.innerWidth;
-  let y = e.clientY / window.innerHeight;
-  // 가장자리·중앙 근처에서는 살짝 붙여준다
-  for (const anchor of [0.08, 0.5, 0.92]) {
-    if (Math.abs(x - anchor) < 0.02) x = anchor;
-    if (Math.abs(y - anchor) < 0.02) y = anchor;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const m = Math.round(Math.min(vw, vh) * SAFE);
+  const spanX = Math.max(1, vw - tOverlay.offsetWidth - 2 * m);
+  const spanY = Math.max(1, vh - tOverlay.offsetHeight - 2 * m);
+  let x = (e.clientX - grabDX - m) / spanX;
+  let y = (e.clientY - grabDY - m) / spanY;
+  for (const a of [0, 0.5, 1]) {            // 끝·가운데에 살짝 붙여준다
+    if (Math.abs(x - a) < 0.035) x = a;
+    if (Math.abs(y - a) < 0.035) y = a;
   }
-  x = Math.max(0.02, Math.min(0.98, x));
-  y = Math.max(0.03, Math.min(0.97, y));
+  x = Math.max(0, Math.min(1, x));
+  y = Math.max(0, Math.min(1, y));
   state.overlay.x = x;
   state.overlay.y = y;
-  placeOverlay();                                   // 끌리는 동안은 즉시 반영
-  bus.post('cmd', { name: 'overlay', arg: { x, y } }); // 컨트롤 콘솔에도 전달
+  positionOverlay();
+  bus.post('cmd', { name: 'overlay', arg: { x, y } });
 });
 function endDrag(e) {
   if (!dragging) return;
@@ -98,6 +118,7 @@ function endDrag(e) {
 }
 tOverlay.addEventListener('pointerup', endDrag);
 tOverlay.addEventListener('pointercancel', endDrag);
+window.addEventListener('resize', positionOverlay);
 
 /* ---------------- 라이브 스트림 수신 ---------------- */
 window.ycpReceiveStream = function (stream) {
@@ -178,11 +199,10 @@ async function apply() {
 
 function placeOverlay() {
   const o = state.overlay;
-  tOverlay.style.left = (o.x * 100) + '%';
-  tOverlay.style.top = (o.y * 100) + '%';
   tOverlay.style.fontSize = (o.size * 100) + 'vh';
   tOverlay.classList.remove('bg-none', 'bg-shadow', 'bg-plate', 'bg-plate-light', 'c-auto', 'c-white', 'c-yellow');
   tOverlay.classList.add('bg-' + (o.bg || 'shadow'), 'c-' + (o.color || 'auto'));
+  positionOverlay();
 }
 
 /* ---------------- 렌더 ---------------- */
@@ -221,7 +241,9 @@ function tick() {
   const lv = pacingLevel(state.timer, now);
   if (!tOverlay.hidden) {
     const { ms } = timerValue(state.timer, now);
-    $('tVal').textContent = formatMs(ms);
+    const txt = formatMs(ms);
+    $('tVal').textContent = txt;
+    if (txt.length !== lastLen) { lastLen = txt.length; if (!dragging) positionOverlay(); }
     tOverlay.classList.remove('lv-ok', 'lv-warn', 'lv-danger', 'lv-over');
     tOverlay.classList.add('lv-' + lv);
     if (state.overlay.showClock) $('tClock').textContent = clockString(new Date(now));
@@ -231,8 +253,11 @@ function tick() {
     p.className = 'pacing lv-' + lv;
     p.firstElementChild.style.width = Math.round(timerValue(state.timer, now).fraction * 100) + '%';
   }
-  requestAnimationFrame(tick);
 }
+/* rAF 는 창이 가려지거나 최소화되면 멈춘다 → 타이머 표시는 인터벌로 돌린다.
+   (백그라운드에서는 브라우저가 1초로 늦추지만 초 단위 표시에는 충분하다) */
 placeOverlay();
 tick();
+setInterval(tick, 200);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { tick(); positionOverlay(); } });
 refreshHint();

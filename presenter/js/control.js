@@ -425,7 +425,7 @@ document.querySelectorAll('[data-nudge]').forEach((b) => {
     else if (d === 'center') setOverlay({ x: 0.5, y: 0.5 });
   });
 });
-$('ovReset').addEventListener('click', () => setOverlay({ x: 0.5, y: 0.9, size: 0.13 }));
+$('ovReset').addEventListener('click', () => setOverlay({ x: 0.5, y: 1, size: 0.13 }));
 $('ovSize').addEventListener('input', (e) => setOverlay({ size: Number(e.target.value) / 100 }));
 $('ovColor').addEventListener('change', (e) => setOverlay({ color: e.target.value }));
 $('ovBg').addEventListener('change', (e) => setOverlay({ bg: e.target.value }));
@@ -437,9 +437,13 @@ $('ovBg').addEventListener('change', (e) => setOverlay({ bg: e.target.value }));
 
 /* 미리보기 위 핸들을 끌어서 바로 배치 */
 const pvTimer = $('pvTimer');
-let pvDrag = false;
+const SAFE = 0.025;
+let pvDrag = false, pvGrabX = 0, pvGrabY = 0, pvLastLen = -1;
 pvTimer.addEventListener('pointerdown', (e) => {
   if (state.overlay.locked) return;
+  const r = pvTimer.getBoundingClientRect();
+  pvGrabX = e.clientX - r.left;
+  pvGrabY = e.clientY - r.top;
   pvDrag = true;
   pvTimer.classList.add('dragging');
   pvTimer.setPointerCapture(e.pointerId);
@@ -448,13 +452,16 @@ pvTimer.addEventListener('pointerdown', (e) => {
 pvTimer.addEventListener('pointermove', (e) => {
   if (!pvDrag) return;
   const r = $('preview').getBoundingClientRect();
-  let x = (e.clientX - r.left) / r.width;
-  let y = (e.clientY - r.top) / r.height;
-  for (const a of [0.08, 0.5, 0.92]) {
-    if (Math.abs(x - a) < 0.02) x = a;
-    if (Math.abs(y - a) < 0.02) y = a;
+  const m = Math.round(Math.min(r.width, r.height) * SAFE);
+  const spanX = Math.max(1, r.width - pvTimer.offsetWidth - 2 * m);
+  const spanY = Math.max(1, r.height - pvTimer.offsetHeight - 2 * m);
+  let x = (e.clientX - r.left - pvGrabX - m) / spanX;
+  let y = (e.clientY - r.top - pvGrabY - m) / spanY;
+  for (const a of [0, 0.5, 1]) {
+    if (Math.abs(x - a) < 0.035) x = a;
+    if (Math.abs(y - a) < 0.035) y = a;
   }
-  setOverlay({ x, y });
+  setOverlay({ x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) });
 });
 function pvEnd(e) {
   if (!pvDrag) return;
@@ -483,11 +490,16 @@ function syncOverlayUi(skipInputs = false) {
   document.querySelectorAll('#posGrid button').forEach((b) => {
     b.classList.toggle('active', Math.abs(Number(b.dataset.x) - o.x) < 0.001 && Math.abs(Number(b.dataset.y) - o.y) < 0.001);
   });
-  const r = $('preview').getBoundingClientRect();
-  pvTimer.style.left = (o.x * 100) + '%';
-  pvTimer.style.top = (o.y * 100) + '%';
-  pvTimer.style.fontSize = Math.max(8, o.size * r.height) + 'px';
+  pvTimer.style.fontSize = Math.max(8, o.size * $('preview').getBoundingClientRect().height) + 'px';
   pvTimer.style.cursor = o.locked ? 'default' : 'move';
+  positionPv();
+}
+function positionPv() {
+  const o = state.overlay;
+  const r = $('preview').getBoundingClientRect();
+  const m = Math.round(Math.min(r.width, r.height) * SAFE);
+  pvTimer.style.left = Math.round(m + o.x * Math.max(0, r.width - pvTimer.offsetWidth - 2 * m)) + 'px';
+  pvTimer.style.top = Math.round(m + o.y * Math.max(0, r.height - pvTimer.offsetHeight - 2 * m)) + 'px';
 }
 window.addEventListener('resize', () => syncOverlayUi(true));
 
@@ -558,7 +570,9 @@ function tick() {
   const big = $('timerBig');
   big.textContent = formatMs(ms);
   big.className = 'timer-big lv-' + lv;
-  pvTimer.textContent = formatMs(ms);
+  const ptxt = formatMs(ms);
+  pvTimer.textContent = ptxt;
+  if (ptxt.length !== pvLastLen) { pvLastLen = ptxt.length; if (!pvDrag) positionPv(); }
   pvTimer.style.color = lv === 'over' ? 'var(--over)' : lv === 'danger' ? 'var(--danger)' : lv === 'warn' ? 'var(--warn)' : '#fff';
   const bar = $('timerBar');
   bar.className = 'bar lv-' + lv;
@@ -583,8 +597,6 @@ function tick() {
   const have = (aOn ? 1 : 0) + (sOn ? 1 : 0);
   setCheck('ckWindows', have === 0 ? null : have >= need, `${have}/${need} 연결`);
   setCheck('ckPpt', state.source.kind === 'live' ? null : true, state.source.kind === 'live' ? '수동 확인 필요' : '라이브 모드 아님');
-
-  requestAnimationFrame(tick);
 }
 
 function escapeHtml(s) {
@@ -600,6 +612,9 @@ window.addEventListener('beforeunload', () => {
 });
 
 syncOverlayUi();
+/* rAF 는 창이 가려지면 멈춘다 → 표시 갱신은 인터벌로 */
+setInterval(tick, 200);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { tick(); syncOverlayUi(true); } });
 setInterval(() => publish(), 2000); // 느린 하트비트: 늦게 연결된 창도 상태를 받는다
 syncUi();
 tick();

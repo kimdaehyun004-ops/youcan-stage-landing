@@ -323,7 +323,6 @@ body.viewer.show-cursor { cursor: default; }
 /* ---------- 타이머 오버레이 (드래그로 이동) ---------- */
 .t-overlay {
   position: absolute;
-  transform: translate(-50%, -50%);
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
@@ -534,7 +533,6 @@ body.viewer.show-cursor { cursor: default; }
 /* 미리보기 위의 타이머 핸들 (컨트롤 콘솔에서 바로 위치 조정) */
 .preview .pv-timer {
   position: absolute;
-  transform: translate(-50%, -50%);
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   font-weight: 700;

@@ -30,8 +30,8 @@ export function initialState() {
     message: { text: '', kind: 'info', at: 0 },
     /* 타이머 오버레이: 위치(x,y)는 화면 대비 비율이라 해상도가 달라도 같은 자리에 찍힌다 */
     overlay: {
-      x: 0.5,            // 0(왼쪽) ~ 1(오른쪽), 숫자의 중심
-      y: 0.9,            // 0(위) ~ 1(아래)
+      x: 0.5,            // 0(왼쪽 끝) ~ 1(오른쪽 끝). 숫자가 화면 밖으로 안 나가게 계산된다
+      y: 1,              // 0(위) ~ 1(아래)
       size: 0.13,        // 화면 높이 대비 글자 크기
       color: 'auto',     // auto(페이싱 색) | white | yellow
       bg: 'shadow',      // none | shadow | plate | plate-light
